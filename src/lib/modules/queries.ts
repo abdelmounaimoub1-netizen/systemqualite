@@ -69,6 +69,7 @@ export async function getDashboardData() {
 
   const [
     docs,
+    forms,
     nonConformities,
     capaActions,
     audits,
@@ -77,6 +78,7 @@ export async function getDashboardData() {
     notifications
   ] = await Promise.all([
     supabase.from("documents").select("id", { count: "exact", head: true }),
+    supabase.from("forms").select("id", { count: "exact", head: true }).eq("status", "Active"),
     supabase
       .from("non_conformities")
       .select("id", { count: "exact", head: true })
@@ -116,6 +118,7 @@ export async function getDashboardData() {
     lookups,
     metrics: {
       documents: docs.count ?? 0,
+      forms: forms.count ?? 0,
       openNonConformities: nonConformities.count ?? 0,
       pendingCapa: capaActions.count ?? 0,
       upcomingAudits: audits.count ?? 0,

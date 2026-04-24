@@ -127,7 +127,7 @@ export function ModulePageClient({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="MVP module"
+        eyebrow="Module QMS"
         title={config.label}
         description={config.description}
         actions={
@@ -139,7 +139,7 @@ export function ModulePageClient({
               }}
             >
               <Plus className="h-4 w-4" />
-              New {config.singular}
+              Nouveau {config.singular}
             </Button>
           ) : null
         }
@@ -147,15 +147,15 @@ export function ModulePageClient({
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card>
-          <div className="text-sm text-slate-500">Total records</div>
+          <div className="text-sm text-slate-500">Total</div>
           <div className="mt-3 text-3xl font-semibold text-ink">{summary.total}</div>
         </Card>
         <Card>
-          <div className="text-sm text-slate-500">Active workload</div>
+          <div className="text-sm text-slate-500">En cours</div>
           <div className="mt-3 text-3xl font-semibold text-ink">{summary.active}</div>
         </Card>
         <Card>
-          <div className="text-sm text-slate-500">Completed or closed</div>
+          <div className="text-sm text-slate-500">Termines ou clos</div>
           <div className="mt-3 text-3xl font-semibold text-ink">{summary.closed}</div>
         </Card>
       </div>
@@ -166,7 +166,7 @@ export function ModulePageClient({
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
               className="pl-11"
-              placeholder={`Search ${config.label.toLowerCase()}...`}
+              placeholder={`Rechercher ${config.label.toLowerCase()}...`}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
@@ -176,7 +176,7 @@ export function ModulePageClient({
             <div className="flex items-center gap-2">
               <Funnel className="h-4 w-4 text-slate-400" />
               <Select value={status} onChange={(event) => setStatus(event.target.value)}>
-                <option value="">All statuses</option>
+                <option value="">Tous les statuts</option>
                 {statusField.options?.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -189,9 +189,9 @@ export function ModulePageClient({
 
         {filteredRecords.length === 0 ? (
           <EmptyState
-            title={`No ${config.label.toLowerCase()} found`}
+            title={`Aucun resultat dans ${config.label.toLowerCase()}`}
             description={config.emptyState}
-            ctaLabel={canWrite ? `Create ${config.singular}` : undefined}
+            ctaLabel={canWrite ? `Creer ${config.singular}` : undefined}
             onCta={canWrite ? () => setOpen(true) : undefined}
           />
         ) : (
@@ -220,7 +220,7 @@ export function ModulePageClient({
           setOpen(false);
           setEditing(null);
         }}
-        title={editing ? `Edit ${config.singular}` : `Create ${config.singular}`}
+        title={editing ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
         description={config.description}
       >
         <RecordForm
@@ -233,7 +233,7 @@ export function ModulePageClient({
             setOpen(false);
             setEditing(null);
           }}
-          submitLabel={editing ? "Save changes" : `Create ${config.singular}`}
+          submitLabel={editing ? "Enregistrer" : `Creer ${config.singular}`}
         />
       </Modal>
     </div>

@@ -6,6 +6,7 @@ import type { TableName } from "@/types/database";
 
 const passthroughKeys = [
   "document_id",
+  "form_id",
   "workflow_id",
   "audit_id",
   "record_id",

@@ -3,6 +3,7 @@ import {
   BookCopy,
   Boxes,
   ClipboardCheck,
+  ClipboardList,
   FileStack,
   Gauge,
   LayoutGrid,
@@ -40,6 +41,10 @@ export const lookupSelectMap: Record<TableName, string> = {
     "id,document_code,title,summary,category_id,owner_id,department_id,status,version_current,effective_date,review_date,file_path,created_at,updated_at,created_by",
   document_versions:
     "id,document_id,version_number,status,change_summary,approval_date,file_path,created_at,updated_at,created_by",
+  forms:
+    "id,code,name,description,process_area,owner_id,department_id,status,fields_schema,target_indicator,created_at,updated_at,created_by",
+  form_entries:
+    "id,form_id,record_code,title,submitted_by,workflow_state,due_date,content,created_at,updated_at,created_by",
   workflows:
     "id,title,description,status,due_date,responsible_user_id,approval_required,created_at,updated_at,created_by",
   workflow_steps:
@@ -166,7 +171,7 @@ function attachmentModule(
 export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   documents: {
     slug: "documents",
-    label: "Documents",
+    label: "GED Documents",
     singular: "Document",
     icon: FileStack,
     table: "documents",
@@ -331,6 +336,166 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       commentModule("Documents", "documents", ["admin", "quality_manager", "auditor"])
     ]
   },
+  forms: {
+    slug: "forms",
+    label: "Formulaires",
+    singular: "Formulaire",
+    icon: ClipboardList,
+    table: "forms",
+    description:
+      "Modeles de formulaires qualite avec champs, proprietaire, indicateur cible et circuit de suivi.",
+    accentClass: "from-teal-500/20 via-sky-400/10 to-transparent",
+    searchableFields: ["code", "name", "description", "process_area", "target_indicator"],
+    columns: [
+      { key: "code", label: "Code" },
+      { key: "name", label: "Formulaire" },
+      { key: "process_area", label: "Processus" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "owner_id", label: "Pilote", variant: "relation" },
+      { key: "target_indicator", label: "Indicateur" }
+    ],
+    fields: [
+      {
+        key: "code",
+        label: "Code formulaire",
+        type: "text",
+        required: true,
+        placeholder: "FRM-NC-001"
+      },
+      {
+        key: "name",
+        label: "Nom du formulaire",
+        type: "text",
+        required: true,
+        placeholder: "Fiche de non-conformite"
+      },
+      {
+        key: "description",
+        label: "Description",
+        type: "textarea",
+        placeholder: "Objectif, contexte et donnees attendues."
+      },
+      {
+        key: "process_area",
+        label: "Processus",
+        type: "text",
+        placeholder: "Qualite, achats, production, RH..."
+      },
+      {
+        key: "owner_id",
+        label: "Pilote",
+        type: "select",
+        relation: profileRelation
+      },
+      {
+        key: "department_id",
+        label: "Service",
+        type: "select",
+        relation: departmentRelation
+      },
+      {
+        key: "status",
+        label: "Statut",
+        type: "select",
+        required: true,
+        options: [
+          { label: "Draft", value: "Draft" },
+          { label: "Active", value: "Active" },
+          { label: "Archived", value: "Archived" }
+        ]
+      },
+      {
+        key: "fields_schema",
+        label: "Champs du formulaire",
+        type: "textarea",
+        placeholder:
+          "Ex: Date, processus concerne, description, causes, action immediate, pieces jointes..."
+      },
+      {
+        key: "target_indicator",
+        label: "Indicateur cible",
+        type: "text",
+        placeholder: "Taux de cloture, delai moyen, nombre de NC..."
+      }
+    ],
+    detailFields: [
+      "code",
+      "name",
+      "description",
+      "process_area",
+      "status",
+      "owner_id",
+      "target_indicator"
+    ],
+    emptyState:
+      "Creez votre premier formulaire pour suivre une non-conformite, une reclamation ou une action d'amelioration.",
+    writeRoles: ["admin", "quality_manager"],
+    childModules: [
+      {
+        key: "form-entries",
+        label: "Enregistrements",
+        description: "Saisies et demandes rattachees a ce modele de formulaire.",
+        table: "form_entries",
+        parentField: "form_id",
+        searchableFields: ["record_code", "title", "content"],
+        columns: [
+          { key: "record_code", label: "Reference" },
+          { key: "title", label: "Objet" },
+          { key: "workflow_state", label: "Etat", variant: "status" },
+          { key: "due_date", label: "Echeance", variant: "date" },
+          { key: "submitted_by", label: "Demandeur", variant: "relation" }
+        ],
+        fields: [
+          {
+            key: "record_code",
+            label: "Reference",
+            type: "text",
+            required: true,
+            placeholder: "NC-2026-004"
+          },
+          {
+            key: "title",
+            label: "Objet",
+            type: "text",
+            required: true,
+            placeholder: "Incident detecte en production"
+          },
+          {
+            key: "submitted_by",
+            label: "Demandeur",
+            type: "select",
+            relation: profileRelation
+          },
+          {
+            key: "workflow_state",
+            label: "Etat workflow",
+            type: "select",
+            required: true,
+            options: [
+              { label: "Draft", value: "Draft" },
+              { label: "Submitted", value: "Submitted" },
+              { label: "In Review", value: "In Review" },
+              { label: "Approved", value: "Approved" },
+              { label: "Rejected", value: "Rejected" }
+            ]
+          },
+          {
+            key: "due_date",
+            label: "Echeance",
+            type: "date"
+          },
+          {
+            key: "content",
+            label: "Contenu saisi",
+            type: "textarea",
+            placeholder: "Donnees principales, constats, pieces attendues, commentaires..."
+          }
+        ],
+        writeRoles: ["admin", "quality_manager", "auditor", "employee"]
+      },
+      commentModule("Formulaires", "forms", ["admin", "quality_manager", "auditor", "employee"])
+    ]
+  },
   workflows: {
     slug: "workflows",
     label: "Workflows",
@@ -464,8 +629,8 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   },
   "non-conformities": {
     slug: "non-conformities",
-    label: "Non-Conformities",
-    singular: "Non-conformity",
+    label: "Non-conformites",
+    singular: "Non-conformite",
     icon: ShieldAlert,
     table: "non_conformities",
     description: "Capture issues, assign ownership, and drive root-cause closure.",
@@ -651,7 +816,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   "capa-actions": {
     slug: "capa-actions",
     label: "CAPA",
-    singular: "CAPA action",
+    singular: "Action CAPA",
     icon: ShieldCheck,
     table: "capa_actions",
     description: "Manage corrective and preventive actions from intake to effectiveness check.",
@@ -928,8 +1093,8 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   },
   risks: {
     slug: "risks",
-    label: "Risk Register",
-    singular: "Risk",
+    label: "Risques",
+    singular: "Risque",
     icon: Gauge,
     table: "risks",
     description: "Score risk consistently and keep mitigation ownership visible.",
@@ -1003,8 +1168,8 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   },
   trainings: {
     slug: "trainings",
-    label: "Training",
-    singular: "Training record",
+    label: "Formations",
+    singular: "Formation",
     icon: BookCopy,
     table: "trainings",
     description: "Track competence, assignment, certificate evidence, and expiry.",
@@ -1074,8 +1239,8 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   },
   equipment: {
     slug: "equipment",
-    label: "Equipment",
-    singular: "Equipment item",
+    label: "Equipements",
+    singular: "Equipement",
     icon: Wrench,
     table: "equipment",
     description: "Keep maintenance, calibration, and status visible in one place.",
@@ -1148,8 +1313,8 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   },
   suppliers: {
     slug: "suppliers",
-    label: "Suppliers",
-    singular: "Supplier",
+    label: "Fournisseurs",
+    singular: "Fournisseur",
     icon: UsersRound,
     table: "suppliers",
     description: "Centralize supplier profiles, evaluation score, documents, and audit context.",
@@ -1232,8 +1397,8 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   },
   notifications: {
     slug: "notifications",
-    label: "Notifications",
-    singular: "Notification",
+    label: "Alertes",
+    singular: "Alerte",
     icon: Bell,
     table: "notifications",
     description: "Track reminders, due date follow-up, and read status in-app.",
@@ -1307,6 +1472,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
 
 export const moduleOrder: ModuleSlug[] = [
   "documents",
+  "forms",
   "workflows",
   "non-conformities",
   "capa-actions",
@@ -1319,14 +1485,14 @@ export const moduleOrder: ModuleSlug[] = [
 ];
 
 export const appNavItems: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+  { href: "/dashboard", label: "Tableau de bord", icon: LayoutGrid },
   ...moduleOrder.map((slug) => ({
     href: `/${slug}`,
     label: moduleConfigs[slug].label,
     icon: moduleConfigs[slug].icon,
     module: slug
   })),
-  { href: "/settings", label: "Settings", icon: Boxes }
+  { href: "/settings", label: "Parametres", icon: Boxes }
 ];
 
 export const settingsTableConfigs = {

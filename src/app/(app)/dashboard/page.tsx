@@ -1,6 +1,7 @@
 import {
   BellRing,
   ClipboardCheck,
+  ClipboardList,
   FileStack,
   ShieldAlert,
   Sparkles
@@ -20,34 +21,40 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Operational overview"
-        title={`Welcome back, ${context.profile?.full_name?.split(" ")[0] ?? "team"}`}
-        description="Track the state of your quality system, surface what needs action, and keep audit readiness visible across teams."
+        eyebrow="Vue operationnelle"
+        title={`Bonjour, ${context.profile?.full_name?.split(" ")[0] ?? "equipe"}`}
+        description="Suivez le systeme qualite, les actions a traiter et la preparation audit de chaque equipe."
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <KpiCard
           title="Documents"
           value={metrics.documents}
-          hint="Controlled records in the system"
+          hint="Documents maitrises"
           icon={FileStack}
         />
         <KpiCard
-          title="Open non-conformities"
+          title="Formulaires actifs"
+          value={metrics.forms}
+          hint="Modeles qualite configures"
+          icon={ClipboardList}
+        />
+        <KpiCard
+          title="Non-conformites"
           value={metrics.openNonConformities}
-          hint="Issues not yet closed"
+          hint="Dossiers non clos"
           icon={ShieldAlert}
         />
         <KpiCard
           title="Pending CAPA"
           value={metrics.pendingCapa}
-          hint="Actions still moving"
+          hint="Actions encore en cours"
           icon={Sparkles}
         />
         <KpiCard
-          title="Upcoming audits"
+          title="Audits a venir"
           value={metrics.upcomingAudits}
-          hint="Scheduled in the next 30 days"
+          hint="Planifies dans 30 jours"
           icon={ClipboardCheck}
         />
       </div>
@@ -56,8 +63,8 @@ export default async function DashboardPage() {
         <Card className="space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-ink">Risk level summary</h2>
-              <p className="mt-1 text-sm text-slate-500">Auto-scored from probability x impact.</p>
+              <h2 className="text-xl font-semibold text-ink">Synthese des risques</h2>
+              <p className="mt-1 text-sm text-slate-500">Score automatique: probabilite x impact.</p>
             </div>
             <StatusBadge value="Live" />
           </div>
@@ -66,15 +73,15 @@ export default async function DashboardPage() {
 
         <Card className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold text-ink">Recent notifications</h2>
+            <h2 className="text-xl font-semibold text-ink">Alertes recentes</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Approvals, reminders, and due-date follow-up assigned in the app.
+              Validations, rappels et echeances assignees dans le portail.
             </p>
           </div>
           <div className="space-y-3">
             {recentNotifications.length === 0 ? (
               <div className="rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">
-                No notifications yet.
+                Aucune alerte pour le moment.
               </div>
             ) : (
               recentNotifications.map((notification) => (
@@ -103,15 +110,15 @@ export default async function DashboardPage() {
 
       <Card className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-ink">Recent activity</h2>
+          <h2 className="text-xl font-semibold text-ink">Activite recente</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Recorded from the audit trail for traceability and review.
+            Journalisee dans le registre audit pour garder la tracabilite.
           </p>
         </div>
         <div className="space-y-3">
           {recentActivity.length === 0 ? (
             <div className="rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">
-              Audit trail entries will appear here as users work through the system.
+              Les actions utilisateurs apparaitront ici au fil des usages.
             </div>
           ) : (
             recentActivity.map((entry) => (

@@ -11,6 +11,9 @@ export type DocumentStatus =
   | "Approved"
   | "Archived";
 
+export type FormStatus = "Draft" | "Active" | "Archived";
+export type FormEntryStatus = "Draft" | "Submitted" | "In Review" | "Approved" | "Rejected";
+
 export type WorkflowStatus =
   | "Draft"
   | "In Progress"
@@ -84,6 +87,28 @@ export interface DocumentVersion extends BaseRecord {
   change_summary: string | null;
   approval_date: string | null;
   file_path: string | null;
+}
+
+export interface QualityForm extends BaseRecord {
+  code: string;
+  name: string;
+  description: string | null;
+  process_area: string | null;
+  owner_id: string | null;
+  department_id: string | null;
+  status: FormStatus;
+  fields_schema: string | null;
+  target_indicator: string | null;
+}
+
+export interface FormEntry extends BaseRecord {
+  form_id: string;
+  record_code: string;
+  title: string;
+  submitted_by: string | null;
+  workflow_state: FormEntryStatus;
+  due_date: string | null;
+  content: string | null;
 }
 
 export interface Workflow extends BaseRecord {
@@ -242,6 +267,7 @@ export interface AppSetting extends BaseRecord {
 
 export type ModuleSlug =
   | "documents"
+  | "forms"
   | "workflows"
   | "non-conformities"
   | "capa-actions"
@@ -259,6 +285,8 @@ export type DatabaseRecordMap = {
   profiles: Profile;
   documents: Document;
   document_versions: DocumentVersion;
+  forms: QualityForm;
+  form_entries: FormEntry;
   workflows: Workflow;
   workflow_steps: WorkflowStep;
   non_conformities: NonConformity;

@@ -232,6 +232,97 @@ values
   ('51000000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000002', '1.3', 'Under Review', 'Added second sign-off for startup checks.', current_date - 2, 'documents/versions/sop-014-v1-3.pdf', '40000000-0000-0000-0000-000000000002')
 on conflict (id) do nothing;
 
+insert into public.forms (
+  id,
+  code,
+  name,
+  description,
+  process_area,
+  owner_id,
+  department_id,
+  status,
+  fields_schema,
+  target_indicator,
+  created_by
+)
+values
+  (
+    '67000000-0000-0000-0000-000000000001',
+    'FRM-NC-001',
+    'Non-conformity intake',
+    'Standard form to capture, qualify, and route quality events.',
+    'Quality',
+    '40000000-0000-0000-0000-000000000002',
+    '20000000-0000-0000-0000-000000000001',
+    'Active',
+    'Date; department; source; severity; description; immediate containment; root cause; linked CAPA',
+    'Open NC count and closure delay',
+    '40000000-0000-0000-0000-000000000001'
+  ),
+  (
+    '67000000-0000-0000-0000-000000000002',
+    'FRM-AUD-002',
+    'Audit finding sheet',
+    'Reusable finding sheet with owner, severity, evidence, and follow-up due date.',
+    'Audit',
+    '40000000-0000-0000-0000-000000000003',
+    '20000000-0000-0000-0000-000000000001',
+    'Active',
+    'Audit scope; requirement; finding; evidence; severity; owner; due date; verification',
+    'Findings by severity',
+    '40000000-0000-0000-0000-000000000002'
+  ),
+  (
+    '67000000-0000-0000-0000-000000000003',
+    'FRM-SUP-003',
+    'Supplier evaluation',
+    'Scoring form for supplier onboarding and annual re-evaluation.',
+    'Supply Chain',
+    '40000000-0000-0000-0000-000000000002',
+    '20000000-0000-0000-0000-000000000003',
+    'Draft',
+    'Supplier; category; score; certification; audit history; required actions',
+    'Average supplier score',
+    '40000000-0000-0000-0000-000000000002'
+  )
+on conflict (id) do nothing;
+
+insert into public.form_entries (
+  id,
+  form_id,
+  record_code,
+  title,
+  submitted_by,
+  workflow_state,
+  due_date,
+  content,
+  created_by
+)
+values
+  (
+    '67100000-0000-0000-0000-000000000001',
+    '67000000-0000-0000-0000-000000000001',
+    'NC-2026-001',
+    'Unsigned shift handover entry',
+    '40000000-0000-0000-0000-000000000004',
+    'In Review',
+    current_date + 10,
+    'Temperature log entry missing second signature. Containment: shift lead notified.',
+    '40000000-0000-0000-0000-000000000004'
+  ),
+  (
+    '67100000-0000-0000-0000-000000000002',
+    '67000000-0000-0000-0000-000000000002',
+    'AUD-F-2026-003',
+    'Outdated visual aid at line 3',
+    '40000000-0000-0000-0000-000000000003',
+    'Submitted',
+    current_date + 14,
+    'Finding raised during packaging audit. Evidence uploaded in audit attachments.',
+    '40000000-0000-0000-0000-000000000003'
+  )
+on conflict (id) do nothing;
+
 insert into public.workflows (
   id,
   title,

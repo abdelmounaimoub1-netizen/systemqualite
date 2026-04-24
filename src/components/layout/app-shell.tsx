@@ -41,11 +41,11 @@ export function AppShell({ children, context }: AppShellProps) {
           <div className="sticky top-5 flex h-[calc(100vh-2.5rem)] flex-col rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-6 text-white shadow-card">
             <div>
               <div className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
-                QMS Pro
+                Suite QMS
               </div>
-              <h2 className="mt-4 text-2xl font-semibold">Quality work, visibly under control.</h2>
+              <h2 className="mt-4 text-2xl font-semibold">Qualite sous controle, flux par flux.</h2>
               <p className="mt-2 text-sm leading-6 text-slate-300">
-                Documents, CAPA, audits, risks, training, and supplier oversight in one installable workspace.
+                Documents, formulaires, CAPA, audits, risques, formations et fournisseurs dans un portail installable.
               </p>
             </div>
 
@@ -88,7 +88,7 @@ export function AppShell({ children, context }: AppShellProps) {
                 <Link href="/profile" className="flex-1">
                   <Button variant="secondary" className="w-full justify-center">
                     <UserCircle2 className="h-4 w-4" />
-                    Profile
+                    Profil
                   </Button>
                 </Link>
                 <Button
@@ -97,7 +97,7 @@ export function AppShell({ children, context }: AppShellProps) {
                   onClick={signOut}
                 >
                   <LogOut className="h-4 w-4" />
-                  Sign out
+                  Sortir
                 </Button>
               </div>
             </div>
@@ -117,7 +117,7 @@ export function AppShell({ children, context }: AppShellProps) {
                 </button>
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">
-                    Installable quality workspace
+                    Portail qualite installable
                   </div>
                   <div className="text-lg font-semibold text-ink">QMS Pro</div>
                 </div>
@@ -128,13 +128,13 @@ export function AppShell({ children, context }: AppShellProps) {
                 <Link href="/notifications">
                   <Button variant="secondary" className="hidden sm:inline-flex">
                     <BellRing className="h-4 w-4" />
-                    Alerts
+                    Alertes
                   </Button>
                 </Link>
                 <Link href="/settings">
                   <Button variant="secondary" className="hidden sm:inline-flex">
                     <Settings className="h-4 w-4" />
-                    Settings
+                    Parametres
                   </Button>
                 </Link>
               </div>

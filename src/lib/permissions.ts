@@ -2,6 +2,7 @@ import type { ModuleSlug, RoleSlug } from "@/types/database";
 
 const WRITE_MATRIX: Record<ModuleSlug, RoleSlug[]> = {
   documents: ["admin", "quality_manager"],
+  forms: ["admin", "quality_manager"],
   workflows: ["admin", "quality_manager", "employee"],
   "non-conformities": ["admin", "quality_manager", "auditor", "employee"],
   "capa-actions": ["admin", "quality_manager", "auditor"],

@@ -75,6 +75,36 @@ create table if not exists public.document_versions (
   created_by uuid references auth.users (id) on delete set null
 );
 
+create table if not exists public.forms (
+  id uuid primary key default gen_random_uuid(),
+  code text not null unique,
+  name text not null,
+  description text,
+  process_area text,
+  owner_id uuid references public.profiles (id) on delete set null,
+  department_id uuid references public.departments (id) on delete set null,
+  status text not null default 'Draft' check (status in ('Draft', 'Active', 'Archived')),
+  fields_schema text,
+  target_indicator text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  created_by uuid references auth.users (id) on delete set null
+);
+
+create table if not exists public.form_entries (
+  id uuid primary key default gen_random_uuid(),
+  form_id uuid not null references public.forms (id) on delete cascade,
+  record_code text not null,
+  title text not null,
+  submitted_by uuid references public.profiles (id) on delete set null,
+  workflow_state text not null default 'Draft' check (workflow_state in ('Draft', 'Submitted', 'In Review', 'Approved', 'Rejected')),
+  due_date date,
+  content text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  created_by uuid references auth.users (id) on delete set null
+);
+
 create table if not exists public.workflows (
   id uuid primary key default gen_random_uuid(),
   title text not null,
@@ -299,6 +329,11 @@ create index if not exists idx_documents_status on public.documents (status);
 create index if not exists idx_documents_owner_id on public.documents (owner_id);
 create index if not exists idx_documents_review_date on public.documents (review_date);
 create index if not exists idx_document_versions_document_id on public.document_versions (document_id);
+create index if not exists idx_forms_status on public.forms (status);
+create index if not exists idx_forms_owner_id on public.forms (owner_id);
+create index if not exists idx_form_entries_form_id on public.form_entries (form_id);
+create index if not exists idx_form_entries_state on public.form_entries (workflow_state);
+create index if not exists idx_form_entries_due_date on public.form_entries (due_date);
 create index if not exists idx_workflows_status on public.workflows (status);
 create index if not exists idx_workflows_due_date on public.workflows (due_date);
 create index if not exists idx_workflow_steps_workflow_id on public.workflow_steps (workflow_id);
@@ -487,6 +522,8 @@ begin
     'profiles',
     'documents',
     'document_versions',
+    'forms',
+    'form_entries',
     'workflows',
     'workflow_steps',
     'non_conformities',
@@ -521,6 +558,8 @@ begin
     'profiles',
     'documents',
     'document_versions',
+    'forms',
+    'form_entries',
     'workflows',
     'workflow_steps',
     'non_conformities',
@@ -549,6 +588,8 @@ alter table public.document_categories enable row level security;
 alter table public.profiles enable row level security;
 alter table public.documents enable row level security;
 alter table public.document_versions enable row level security;
+alter table public.forms enable row level security;
+alter table public.form_entries enable row level security;
 alter table public.workflows enable row level security;
 alter table public.workflow_steps enable row level security;
 alter table public.non_conformities enable row level security;
@@ -637,6 +678,24 @@ create policy "document_versions_manage_quality" on public.document_versions
 for all to authenticated
 using (public.has_role(array['admin', 'quality_manager']))
 with check (public.has_role(array['admin', 'quality_manager']));
+
+create policy "forms_select_internal" on public.forms
+for select to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor', 'employee']));
+
+create policy "forms_manage_quality" on public.forms
+for all to authenticated
+using (public.has_role(array['admin', 'quality_manager']))
+with check (public.has_role(array['admin', 'quality_manager']));
+
+create policy "form_entries_select_internal" on public.form_entries
+for select to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor', 'employee']));
+
+create policy "form_entries_manage_internal" on public.form_entries
+for all to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor', 'employee']))
+with check (public.has_role(array['admin', 'quality_manager', 'auditor', 'employee']));
 
 create policy "workflows_select_internal" on public.workflows
 for select to authenticated

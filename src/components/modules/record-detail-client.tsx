@@ -32,10 +32,12 @@ const relationKeyToTable: Record<string, string> = {
   responsible_user_id: "profiles",
   auditor_id: "profiles",
   employee_id: "profiles",
+  submitted_by: "profiles",
   user_id: "profiles",
   role_id: "roles",
   department_id: "departments",
   category_id: "document_categories",
+  form_id: "forms",
   non_conformity_id: "non_conformities"
 };
 
