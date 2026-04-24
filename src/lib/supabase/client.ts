@@ -10,7 +10,7 @@ let browserClient: SupabaseClient | undefined;
 export function getSupabaseBrowserClient() {
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
     throw new Error(
-      "Supabase browser client is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      "Supabase browser client is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
     );
   }
 

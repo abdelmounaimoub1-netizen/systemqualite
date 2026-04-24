@@ -55,7 +55,7 @@ values
     '40000000-0000-0000-0000-000000000001',
     'authenticated',
     'authenticated',
-    'admin@qmspro.demo',
+    'admin@qualios.ma',
     crypt('QmsDemo123!', gen_salt('bf')),
     timezone('utc', now()),
     '{"provider":"email","providers":["email"]}',
@@ -135,7 +135,16 @@ values
     '',
     ''
   )
-on conflict (id) do nothing;
+on conflict (id) do update
+set
+  aud = excluded.aud,
+  role = excluded.role,
+  email = excluded.email,
+  encrypted_password = excluded.encrypted_password,
+  email_confirmed_at = excluded.email_confirmed_at,
+  raw_app_meta_data = excluded.raw_app_meta_data,
+  raw_user_meta_data = excluded.raw_user_meta_data,
+  updated_at = timezone('utc', now());
 
 insert into auth.identities (
   id,
@@ -148,12 +157,18 @@ insert into auth.identities (
   updated_at
 )
 values
-  ('41000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001', '{"sub":"40000000-0000-0000-0000-000000000001","email":"admin@qmspro.demo"}', 'email', 'admin@qmspro.demo', timezone('utc', now()), timezone('utc', now()), timezone('utc', now())),
+  ('41000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001', '{"sub":"40000000-0000-0000-0000-000000000001","email":"admin@qualios.ma"}', 'email', 'admin@qualios.ma', timezone('utc', now()), timezone('utc', now()), timezone('utc', now())),
   ('41000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000002', '{"sub":"40000000-0000-0000-0000-000000000002","email":"manager@qmspro.demo"}', 'email', 'manager@qmspro.demo', timezone('utc', now()), timezone('utc', now()), timezone('utc', now())),
   ('41000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000003', '{"sub":"40000000-0000-0000-0000-000000000003","email":"auditor@qmspro.demo"}', 'email', 'auditor@qmspro.demo', timezone('utc', now()), timezone('utc', now()), timezone('utc', now())),
   ('41000000-0000-0000-0000-000000000004', '40000000-0000-0000-0000-000000000004', '{"sub":"40000000-0000-0000-0000-000000000004","email":"employee@qmspro.demo"}', 'email', 'employee@qmspro.demo', timezone('utc', now()), timezone('utc', now()), timezone('utc', now())),
   ('41000000-0000-0000-0000-000000000005', '40000000-0000-0000-0000-000000000005', '{"sub":"40000000-0000-0000-0000-000000000005","email":"supplier@qmspro.demo"}', 'email', 'supplier@qmspro.demo', timezone('utc', now()), timezone('utc', now()), timezone('utc', now()))
-on conflict (id) do nothing;
+on conflict (id) do update
+set
+  user_id = excluded.user_id,
+  identity_data = excluded.identity_data,
+  provider = excluded.provider,
+  provider_id = excluded.provider_id,
+  updated_at = timezone('utc', now());
 
 update public.profiles
 set

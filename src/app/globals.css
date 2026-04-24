@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @config "../../tailwind.config.ts";
+@import "tailwindcss";
 
 :root {
   --surface: 244 248 249;

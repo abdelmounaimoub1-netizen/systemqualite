@@ -9,7 +9,7 @@ import type { UserContext } from "@/types/app";
 export async function createSupabaseServerClient() {
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
     throw new Error(
-      "Supabase server client is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      "Supabase server client is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
     );
   }
 

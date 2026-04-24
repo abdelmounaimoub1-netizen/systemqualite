@@ -12,6 +12,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
+async function withRequestTimeout<T>(request: PromiseLike<T>, message: string) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      request,
+      new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(message)), 15000);
+      })
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
 function AuthShell({
   title,
   description,
@@ -78,19 +93,28 @@ export function SignInForm() {
         onSubmit={async (event) => {
           event.preventDefault();
           setLoading(true);
-          const supabase = getSupabaseBrowserClient();
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-          setLoading(false);
 
-          if (error) {
-            toast.error(error.message);
-            return;
+          try {
+            const supabase = getSupabaseBrowserClient();
+            const { error } = await withRequestTimeout(
+              supabase.auth.signInWithPassword({ email: email.trim(), password }),
+              "Supabase did not respond. Check the production environment variables and network access."
+            );
+
+            if (error) {
+              toast.error(error.message);
+              return;
+            }
+
+            toast.success("Signed in successfully.");
+            const nextPath =
+              new URLSearchParams(window.location.search).get("next") ?? "/dashboard";
+            window.location.href = nextPath;
+          } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Unable to sign in.");
+          } finally {
+            setLoading(false);
           }
-
-          toast.success("Signed in successfully.");
-          const nextPath =
-            new URLSearchParams(window.location.search).get("next") ?? "/dashboard";
-          window.location.href = nextPath;
         }}
       >
         <div>
