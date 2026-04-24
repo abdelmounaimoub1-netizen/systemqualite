@@ -53,7 +53,7 @@ export function AppShell({ children, context }: AppShellProps) {
               {activeItems.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <a
+                  <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
@@ -65,7 +65,7 @@ export function AppShell({ children, context }: AppShellProps) {
                   >
                     <Icon className="h-4 w-4" />
                     <span>{item.label}</span>
-                  </a>
+                  </Link>
                 );
               })}
             </nav>
@@ -145,7 +145,7 @@ export function AppShell({ children, context }: AppShellProps) {
                 {activeItems.map((item) => {
                   const Icon = item.icon;
                   return (
-                    <a
+                    <Link
                       key={item.href}
                       href={item.href}
                       className={cn(
@@ -158,7 +158,7 @@ export function AppShell({ children, context }: AppShellProps) {
                     >
                       <Icon className="h-4 w-4" />
                       {item.label}
-                    </a>
+                    </Link>
                   );
                 })}
               </div>
@@ -172,7 +172,7 @@ export function AppShell({ children, context }: AppShellProps) {
               {activeItems.slice(0, 4).map((item) => {
                 const Icon = item.icon;
                 return (
-                  <a
+                  <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
@@ -182,7 +182,7 @@ export function AppShell({ children, context }: AppShellProps) {
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
-                  </a>
+                  </Link>
                 );
               })}
             </div>

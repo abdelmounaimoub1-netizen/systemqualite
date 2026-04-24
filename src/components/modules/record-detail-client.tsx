@@ -17,11 +17,15 @@ import { formatDate } from "@/lib/utils";
 import { getLookupLabel } from "@/lib/modules/config";
 import { canWriteModule } from "@/lib/permissions";
 import { getStorageFieldKey, openStorageFile } from "@/lib/storage";
-import type { LookupCollection, ModuleConfig, UserContext } from "@/types/app";
+import type {
+  LookupCollection,
+  SerializableModuleConfig,
+  UserContext
+} from "@/types/app";
 
 type RecordDetailClientProps = {
   context: UserContext;
-  config: ModuleConfig;
+  config: SerializableModuleConfig;
   record: Record<string, unknown>;
   lookups: LookupCollection;
   childrenData: Record<string, Array<Record<string, unknown>>>;

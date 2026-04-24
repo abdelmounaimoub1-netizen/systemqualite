@@ -16,11 +16,15 @@ import { RecordForm } from "@/components/modules/record-form";
 import { RecordTable } from "@/components/modules/record-table";
 import { canWriteModule } from "@/lib/permissions";
 import { getStorageFieldKey, openStorageFile } from "@/lib/storage";
-import type { LookupCollection, ModuleConfig, UserContext } from "@/types/app";
+import type {
+  LookupCollection,
+  SerializableModuleConfig,
+  UserContext
+} from "@/types/app";
 
 type ModulePageClientProps = {
   context: UserContext;
-  config: ModuleConfig;
+  config: SerializableModuleConfig;
   records: Array<Record<string, unknown>>;
   lookups: LookupCollection;
 };

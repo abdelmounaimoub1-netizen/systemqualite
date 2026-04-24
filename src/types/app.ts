@@ -89,6 +89,8 @@ export interface ModuleConfig {
   childModules?: ChildModuleConfig[];
 }
 
+export type SerializableModuleConfig = Omit<ModuleConfig, "icon">;
+
 export interface NavItem {
   href: string;
   label: string;

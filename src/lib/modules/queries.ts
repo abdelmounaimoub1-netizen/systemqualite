@@ -2,7 +2,12 @@ import { addDays, formatISO } from "date-fns";
 import { unstable_noStore as noStore } from "next/cache";
 
 import { getCurrentUserContext, createSupabaseServerClient } from "@/lib/supabase/server";
-import { getModuleConfig, lookupSelectMap, moduleConfigs } from "@/lib/modules/config";
+import {
+  getModuleConfig,
+  lookupSelectMap,
+  moduleConfigs,
+  toSerializableModuleConfig
+} from "@/lib/modules/config";
 import type { LookupCollection, LookupOption, SettingsData, UserContext } from "@/types/app";
 import type { ModuleSlug, TableName } from "@/types/database";
 
@@ -162,7 +167,7 @@ export async function getModulePageData(
 
   return {
     context: context as UserContext,
-    config,
+    config: toSerializableModuleConfig(config),
     lookups,
     records: (data as Array<Record<string, unknown>>) ?? []
   };
@@ -211,7 +216,7 @@ export async function getModuleDetailData(slug: ModuleSlug, recordId: string) {
 
   return {
     context: context as UserContext,
-    config,
+    config: toSerializableModuleConfig(config),
     lookups,
     record: record as Record<string, unknown>,
     children: Object.fromEntries(childDataEntries)

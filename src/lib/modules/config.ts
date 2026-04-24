@@ -18,7 +18,8 @@ import type {
   ChildModuleConfig,
   LookupOption,
   ModuleConfig,
-  NavItem
+  NavItem,
+  SerializableModuleConfig
 } from "@/types/app";
 import type { ModuleSlug, TableName } from "@/types/database";
 
@@ -1582,6 +1583,13 @@ export const settingsTableConfigs = {
 
 export function getModuleConfig(slug: string) {
   return moduleConfigs[slug as ModuleSlug];
+}
+
+export function toSerializableModuleConfig(
+  config: ModuleConfig
+): SerializableModuleConfig {
+  const { icon, ...serializableConfig } = config;
+  return serializableConfig;
 }
 
 export function getLookupLabel(

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { ModulePageClient } from "@/components/modules/module-page-client";
 import { getModulePageData } from "@/lib/modules/queries";
-import { getModuleConfig } from "@/lib/modules/config";
+import { getModuleConfig, toSerializableModuleConfig } from "@/lib/modules/config";
 import type { ModuleSlug } from "@/types/database";
 
 export default async function ModulePage({
@@ -22,7 +22,7 @@ export default async function ModulePage({
   return (
     <ModulePageClient
       context={data.context}
-      config={config}
+      config={toSerializableModuleConfig(config)}
       records={data.records}
       lookups={data.lookups}
     />
