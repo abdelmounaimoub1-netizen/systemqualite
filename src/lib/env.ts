@@ -1,15 +1,14 @@
-function readEnv(name: string) {
-  const value = process.env[name];
+function readEnv(value: string | undefined) {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 export const env = {
-  supabaseUrl: readEnv("NEXT_PUBLIC_SUPABASE_URL"),
+  supabaseUrl: readEnv(process.env.NEXT_PUBLIC_SUPABASE_URL),
   supabaseAnonKey:
-    readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY") ??
-    readEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
-  supabaseServiceRoleKey: readEnv("SUPABASE_SERVICE_ROLE_KEY"),
-  appUrl: readEnv("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000"
+    readEnv(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) ??
+    readEnv(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
+  supabaseServiceRoleKey: readEnv(process.env.SUPABASE_SERVICE_ROLE_KEY),
+  appUrl: readEnv(process.env.NEXT_PUBLIC_APP_URL) ?? "http://localhost:3000"
 };
 
 export function hasSupabaseEnv() {
