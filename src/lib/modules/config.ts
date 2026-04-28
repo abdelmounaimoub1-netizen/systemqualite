@@ -27,10 +27,32 @@ const profileRelation = { table: "profiles" as TableName, labelKey: "full_name" 
 const roleRelation = { table: "roles" as TableName, labelKey: "name" };
 const departmentRelation = { table: "departments" as TableName, labelKey: "name" };
 const categoryRelation = { table: "document_categories" as TableName, labelKey: "name" };
+const supplierRelation = { table: "suppliers" as TableName, labelKey: "name" };
 const nonConformityRelation = {
   table: "non_conformities" as TableName,
   labelKey: "title"
 };
+
+const severityOptions = [
+  { label: "Low", value: "Low" },
+  { label: "Medium", value: "Medium" },
+  { label: "High", value: "High" },
+  { label: "Critical", value: "Critical" }
+];
+
+const improvementStatusOptions = [
+  { label: "Ouvert", value: "Open" },
+  { label: "En cours", value: "In Progress" },
+  { label: "Repondu", value: "Answered" },
+  { label: "Clos", value: "Closed" }
+];
+
+const observationStatusOptions = [
+  { label: "Ouvert", value: "Open" },
+  { label: "Analyse", value: "Analyzed" },
+  { label: "Action requise", value: "Action Required" },
+  { label: "Clos", value: "Closed" }
+];
 
 export const lookupSelectMap: Record<TableName, string> = {
   roles: "id,name,slug,description,created_at,updated_at,created_by",
@@ -54,6 +76,16 @@ export const lookupSelectMap: Record<TableName, string> = {
     "id,title,description,severity,source,department_id,status,responsible_user_id,root_cause,due_date,created_at,updated_at,created_by",
   capa_actions:
     "id,title,action_type,non_conformity_id,description,responsible_user_id,deadline,priority,status,effectiveness_check,created_at,updated_at,created_by",
+  customer_complaints:
+    "id,reference,affiliation,agent_id,declarant_name,customer_name,client_sector,client_typology,contact_name,contact_email,phone,country_city,distributor_channel,complaint_type,object_summary,complaint_category,origin,brand,product_reference,product_name,lot_number,production_date,expiry_date,purchase_delivery_date,quantity,description,immediate_actions,severity,status,received_date,due_date,responsible_user_id,orientation_recipient,information_recipients,orientation_decision,problem_origin,verification_recipient,closure_recipients,actions_effective,effectiveness_criteria,closure_date,estimated_cost_total,measurement_reason,measurement_deadline,ineffective_reason,response_summary,created_at,updated_at,created_by",
+  customer_complaint_actions:
+    "id,customer_complaint_id,pilot_id,action,deadline,completion_date,comment,progress_status,estimated_cost,attachment_path,created_at,updated_at,created_by",
+  supplier_complaints:
+    "id,reference,supplier_id,supplier_name,issue_type,description,severity,status,received_date,due_date,responsible_user_id,response_summary,created_at,updated_at,created_by",
+  constats:
+    "id,reference,title,description,process_area,department_id,severity,status,detected_date,responsible_user_id,action_summary,created_at,updated_at,created_by",
+  complaints:
+    "id,reference,complainant_name,channel,description,severity,status,received_date,due_date,responsible_user_id,response_summary,created_at,updated_at,created_by",
   audits:
     "id,title,audit_type,scope,auditor_id,planned_date,follow_up_date,status,report_path,created_at,updated_at,created_by",
   audit_checklists:
@@ -628,13 +660,510 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       commentModule("Workflows", "workflows", ["admin", "quality_manager", "employee"])
     ]
   },
+  "customer-complaints": {
+    slug: "customer-complaints",
+    label: "Reclamations client",
+    singular: "Reclamation client",
+    icon: Bell,
+    table: "customer_complaints",
+    description:
+      "Enregistrer, suivre et historiser les reclamations client jusqu'a la reponse et la cloture.",
+    accentClass: "from-red-500/20 via-rose-400/10 to-transparent",
+    searchableFields: ["reference", "customer_name", "product_reference", "description"],
+    columns: [
+      { key: "reference", label: "Reference" },
+      { key: "customer_name", label: "Client" },
+      { key: "severity", label: "Criticite", variant: "status" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "due_date", label: "Echeance", variant: "date" },
+      { key: "responsible_user_id", label: "Pilote", variant: "relation" }
+    ],
+    fields: [
+      {
+        key: "reference",
+        label: "Reference",
+        type: "text",
+        required: true,
+        placeholder: "RC-2026-001"
+      },
+      {
+        key: "affiliation",
+        label: "Affiliation",
+        type: "text",
+        placeholder: "RCC-000018"
+      },
+      {
+        key: "agent_id",
+        label: "Agent",
+        type: "select",
+        relation: profileRelation
+      },
+      {
+        key: "declarant_name",
+        label: "Declarant",
+        type: "text",
+        placeholder: "Personne ayant declare la reclamation"
+      },
+      {
+        key: "customer_name",
+        label: "Client",
+        type: "text",
+        required: true,
+        placeholder: "Nom du client"
+      },
+      {
+        key: "client_sector",
+        label: "Secteur",
+        type: "text",
+        placeholder: "GMS, distribution, industriel..."
+      },
+      {
+        key: "client_typology",
+        label: "Typologie client",
+        type: "text",
+        placeholder: "Direct, distributeur, export..."
+      },
+      {
+        key: "contact_name",
+        label: "Contact",
+        type: "text"
+      },
+      {
+        key: "contact_email",
+        label: "Email contact",
+        type: "email",
+        placeholder: "qualite@client.example"
+      },
+      {
+        key: "phone",
+        label: "Tel",
+        type: "tel"
+      },
+      {
+        key: "country_city",
+        label: "Pays / Ville",
+        type: "text"
+      },
+      {
+        key: "distributor_channel",
+        label: "Canal distributeur",
+        type: "text"
+      },
+      {
+        key: "complaint_type",
+        label: "Type de reclamation",
+        type: "select",
+        required: true,
+        options: [
+          { label: "Produit", value: "Produit" },
+          { label: "Service", value: "Service" },
+          { label: "Autre", value: "Autre" }
+        ]
+      },
+      {
+        key: "object_summary",
+        label: "Objet",
+        type: "text",
+        placeholder: "Objet de la reclamation"
+      },
+      {
+        key: "complaint_category",
+        label: "Categorie de RC",
+        type: "text"
+      },
+      {
+        key: "origin",
+        label: "Origine",
+        type: "text"
+      },
+      {
+        key: "brand",
+        label: "Marque produit",
+        type: "text"
+      },
+      {
+        key: "product_reference",
+        label: "Reference produit",
+        type: "text",
+        placeholder: "Produit, lot, commande..."
+      },
+      {
+        key: "product_name",
+        label: "Produit concerne",
+        type: "text"
+      },
+      {
+        key: "lot_number",
+        label: "Numero du lot",
+        type: "text"
+      },
+      {
+        key: "production_date",
+        label: "Date de production",
+        type: "date"
+      },
+      {
+        key: "expiry_date",
+        label: "Date d'expiration",
+        type: "date"
+      },
+      {
+        key: "purchase_delivery_date",
+        label: "Date achat/livraison",
+        type: "date"
+      },
+      {
+        key: "quantity",
+        label: "Quantite",
+        type: "number",
+        min: 0
+      },
+      {
+        key: "description",
+        label: "Description",
+        type: "textarea",
+        required: true,
+        placeholder: "Motif de la reclamation, impact client, pieces recues..."
+      },
+      {
+        key: "immediate_actions",
+        label: "Actions immediates",
+        type: "textarea"
+      },
+      {
+        key: "severity",
+        label: "Criticite",
+        type: "select",
+        required: true,
+        options: severityOptions
+      },
+      {
+        key: "status",
+        label: "Statut",
+        type: "select",
+        required: true,
+        options: improvementStatusOptions
+      },
+      {
+        key: "received_date",
+        label: "Date reception",
+        type: "date"
+      },
+      {
+        key: "due_date",
+        label: "Echeance reponse",
+        type: "date"
+      },
+      {
+        key: "responsible_user_id",
+        label: "Pilote",
+        type: "select",
+        relation: profileRelation
+      },
+      {
+        key: "orientation_recipient",
+        label: "Destinataire pour traitement",
+        type: "text"
+      },
+      {
+        key: "information_recipients",
+        label: "Destinataires pour information",
+        type: "text"
+      },
+      {
+        key: "orientation_decision",
+        label: "Decision orientation",
+        type: "select",
+        options: [
+          { label: "Traiter", value: "Traiter" },
+          { label: "Modifier", value: "Modifier" },
+          { label: "Cloturer", value: "Cloturer" }
+        ]
+      },
+      {
+        key: "problem_origin",
+        label: "Origine du probleme",
+        type: "textarea"
+      },
+      {
+        key: "verification_recipient",
+        label: "Destinataire pour verification et cloture",
+        type: "text"
+      },
+      {
+        key: "closure_recipients",
+        label: "Destinataires pour information cloture",
+        type: "text"
+      },
+      {
+        key: "actions_effective",
+        label: "Actions efficaces",
+        type: "select",
+        options: [
+          { label: "Oui", value: "Oui" },
+          { label: "Non", value: "Non" },
+          { label: "A mesurer", value: "A mesurer" }
+        ]
+      },
+      {
+        key: "effectiveness_criteria",
+        label: "Criteres d'efficacite",
+        type: "textarea"
+      },
+      {
+        key: "closure_date",
+        label: "Date de cloture",
+        type: "date"
+      },
+      {
+        key: "estimated_cost_total",
+        label: "Cout total estime",
+        type: "number",
+        min: 0
+      },
+      {
+        key: "measurement_reason",
+        label: "Motif a mesurer",
+        type: "textarea"
+      },
+      {
+        key: "measurement_deadline",
+        label: "Deadline mesure",
+        type: "date"
+      },
+      {
+        key: "ineffective_reason",
+        label: "Motif actions non efficaces",
+        type: "textarea"
+      },
+      {
+        key: "response_summary",
+        label: "Reponse / conclusion",
+        type: "textarea",
+        placeholder: "Synthese de l'analyse, reponse client, decision de cloture."
+      }
+    ],
+    detailFields: [
+      "reference",
+      "customer_name",
+      "product_reference",
+      "severity",
+      "status",
+      "due_date",
+      "responsible_user_id",
+      "response_summary"
+    ],
+    emptyState: "Creez la premiere reclamation client pour suivre son analyse et sa reponse.",
+    writeRoles: ["admin", "quality_manager", "auditor", "employee"],
+    childModules: [
+      {
+        key: "customer-complaint-actions",
+        label: "Plan d'actions",
+        description: "Actions de traitement, delais, couts estimes et verification d'avancement.",
+        table: "customer_complaint_actions",
+        parentField: "customer_complaint_id",
+        searchableFields: ["action", "comment"],
+        columns: [
+          { key: "pilot_id", label: "Pilote", variant: "relation" },
+          { key: "action", label: "Action" },
+          { key: "deadline", label: "Deadline", variant: "date" },
+          { key: "completion_date", label: "Date realisation", variant: "date" },
+          { key: "progress_status", label: "Avancement", variant: "status" },
+          { key: "estimated_cost", label: "Cout estime", variant: "number" }
+        ],
+        fields: [
+          {
+            key: "pilot_id",
+            label: "Pilote",
+            type: "select",
+            relation: profileRelation
+          },
+          {
+            key: "action",
+            label: "Action",
+            type: "textarea",
+            required: true,
+            placeholder: "Action a realiser"
+          },
+          {
+            key: "deadline",
+            label: "Deadline",
+            type: "date"
+          },
+          {
+            key: "completion_date",
+            label: "Date realisation",
+            type: "date"
+          },
+          {
+            key: "comment",
+            label: "Commentaire",
+            type: "textarea"
+          },
+          {
+            key: "progress_status",
+            label: "Avancement",
+            type: "select",
+            required: true,
+            options: [
+              { label: "Open", value: "Open" },
+              { label: "In Progress", value: "In Progress" },
+              { label: "Done", value: "Done" },
+              { label: "Ineffective", value: "Ineffective" }
+            ]
+          },
+          {
+            key: "estimated_cost",
+            label: "Cout estime",
+            type: "number",
+            min: 0
+          },
+          {
+            key: "attachment_path",
+            label: "Piece jointe",
+            type: "text",
+            placeholder: "qms-files/customer-complaints/actions/...",
+            storageFolder: "customer-complaints/actions",
+            accept: ".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+          }
+        ],
+        writeRoles: ["admin", "quality_manager", "auditor", "employee"]
+      },
+      attachmentModule("Reclamations client", "customer_complaints", [
+        "admin",
+        "quality_manager",
+        "auditor",
+        "employee"
+      ]),
+      commentModule("Reclamations client", "customer_complaints", [
+        "admin",
+        "quality_manager",
+        "auditor",
+        "employee"
+      ])
+    ]
+  },
+  "supplier-complaints": {
+    slug: "supplier-complaints",
+    label: "Reclamations fournisseur",
+    singular: "Reclamation fournisseur",
+    icon: UsersRound,
+    table: "supplier_complaints",
+    description:
+      "Piloter les ecarts fournisseur, demandes de reponse, preuves et historique qualite.",
+    accentClass: "from-red-500/20 via-amber-400/10 to-transparent",
+    searchableFields: ["reference", "supplier_name", "issue_type", "description"],
+    columns: [
+      { key: "reference", label: "Reference" },
+      { key: "supplier_id", label: "Fournisseur", variant: "relation" },
+      { key: "issue_type", label: "Type" },
+      { key: "severity", label: "Criticite", variant: "status" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "due_date", label: "Echeance", variant: "date" }
+    ],
+    fields: [
+      {
+        key: "reference",
+        label: "Reference",
+        type: "text",
+        required: true,
+        placeholder: "RF-2026-001"
+      },
+      {
+        key: "supplier_id",
+        label: "Fournisseur",
+        type: "select",
+        relation: supplierRelation
+      },
+      {
+        key: "supplier_name",
+        label: "Fournisseur libre",
+        type: "text",
+        placeholder: "Nom si fournisseur non reference"
+      },
+      {
+        key: "issue_type",
+        label: "Type d'ecart",
+        type: "text",
+        placeholder: "Retard, certificat, qualite produit..."
+      },
+      {
+        key: "description",
+        label: "Description",
+        type: "textarea",
+        required: true,
+        placeholder: "Detail du probleme, lot, commande, preuves attendues..."
+      },
+      {
+        key: "severity",
+        label: "Criticite",
+        type: "select",
+        required: true,
+        options: severityOptions
+      },
+      {
+        key: "status",
+        label: "Statut",
+        type: "select",
+        required: true,
+        options: improvementStatusOptions
+      },
+      {
+        key: "received_date",
+        label: "Date reception",
+        type: "date"
+      },
+      {
+        key: "due_date",
+        label: "Echeance reponse",
+        type: "date"
+      },
+      {
+        key: "responsible_user_id",
+        label: "Pilote",
+        type: "select",
+        relation: profileRelation
+      },
+      {
+        key: "response_summary",
+        label: "Reponse / conclusion",
+        type: "textarea"
+      }
+    ],
+    detailFields: [
+      "reference",
+      "supplier_id",
+      "supplier_name",
+      "issue_type",
+      "severity",
+      "status",
+      "due_date",
+      "responsible_user_id"
+    ],
+    emptyState: "Ajoutez une reclamation fournisseur pour suivre les relances et les preuves.",
+    writeRoles: ["admin", "quality_manager", "auditor", "employee"],
+    childModules: [
+      attachmentModule("Reclamations fournisseur", "supplier_complaints", [
+        "admin",
+        "quality_manager",
+        "auditor",
+        "employee"
+      ]),
+      commentModule("Reclamations fournisseur", "supplier_complaints", [
+        "admin",
+        "quality_manager",
+        "auditor",
+        "employee"
+      ])
+    ]
+  },
   "non-conformities": {
     slug: "non-conformities",
-    label: "Non-conformites",
+    label: "Non-conformites Produit",
     singular: "Non-conformite",
     icon: ShieldAlert,
     table: "non_conformities",
-    description: "Capture issues, assign ownership, and drive root-cause closure.",
+    description: "Declarer les non-conformites produit, analyser la cause et piloter la cloture.",
     accentClass: "from-rose-500/20 via-orange-400/10 to-transparent",
     searchableFields: ["title", "description", "source", "root_cause"],
     columns: [
@@ -814,10 +1343,233 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       ])
     ]
   },
+  constats: {
+    slug: "constats",
+    label: "Constats",
+    singular: "Constat",
+    icon: ClipboardCheck,
+    table: "constats",
+    description:
+      "Tracer les constats terrain ou audit, leur analyse et les actions attendues.",
+    accentClass: "from-red-500/20 via-cyan-400/10 to-transparent",
+    searchableFields: ["reference", "title", "description", "process_area", "action_summary"],
+    columns: [
+      { key: "reference", label: "Reference" },
+      { key: "title", label: "Constat" },
+      { key: "process_area", label: "Processus" },
+      { key: "severity", label: "Criticite", variant: "status" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "responsible_user_id", label: "Pilote", variant: "relation" }
+    ],
+    fields: [
+      {
+        key: "reference",
+        label: "Reference",
+        type: "text",
+        required: true,
+        placeholder: "CST-2026-001"
+      },
+      {
+        key: "title",
+        label: "Titre",
+        type: "text",
+        required: true,
+        placeholder: "Constat observe"
+      },
+      {
+        key: "description",
+        label: "Description",
+        type: "textarea",
+        required: true,
+        placeholder: "Description factuelle du constat."
+      },
+      {
+        key: "process_area",
+        label: "Processus",
+        type: "text",
+        placeholder: "Achats, production, commercial..."
+      },
+      {
+        key: "department_id",
+        label: "Service",
+        type: "select",
+        relation: departmentRelation
+      },
+      {
+        key: "severity",
+        label: "Criticite",
+        type: "select",
+        required: true,
+        options: severityOptions
+      },
+      {
+        key: "status",
+        label: "Statut",
+        type: "select",
+        required: true,
+        options: observationStatusOptions
+      },
+      {
+        key: "detected_date",
+        label: "Date detection",
+        type: "date"
+      },
+      {
+        key: "responsible_user_id",
+        label: "Pilote",
+        type: "select",
+        relation: profileRelation
+      },
+      {
+        key: "action_summary",
+        label: "Analyse / action attendue",
+        type: "textarea"
+      }
+    ],
+    detailFields: [
+      "reference",
+      "title",
+      "process_area",
+      "department_id",
+      "severity",
+      "status",
+      "responsible_user_id",
+      "action_summary"
+    ],
+    emptyState: "Creez un constat pour transformer une observation en action suivie.",
+    writeRoles: ["admin", "quality_manager", "auditor", "employee"],
+    childModules: [
+      attachmentModule("Constats", "constats", [
+        "admin",
+        "quality_manager",
+        "auditor",
+        "employee"
+      ]),
+      commentModule("Constats", "constats", [
+        "admin",
+        "quality_manager",
+        "auditor",
+        "employee"
+      ])
+    ]
+  },
+  complaints: {
+    slug: "complaints",
+    label: "Plaintes",
+    singular: "Plainte",
+    icon: ShieldAlert,
+    table: "complaints",
+    description:
+      "Centraliser les plaintes internes ou externes avec traitement, reponse et preuves.",
+    accentClass: "from-red-500/20 via-violet-400/10 to-transparent",
+    searchableFields: ["reference", "complainant_name", "channel", "description"],
+    columns: [
+      { key: "reference", label: "Reference" },
+      { key: "complainant_name", label: "Emetteur" },
+      { key: "channel", label: "Canal" },
+      { key: "severity", label: "Criticite", variant: "status" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "due_date", label: "Echeance", variant: "date" }
+    ],
+    fields: [
+      {
+        key: "reference",
+        label: "Reference",
+        type: "text",
+        required: true,
+        placeholder: "PL-2026-001"
+      },
+      {
+        key: "complainant_name",
+        label: "Emetteur",
+        type: "text",
+        required: true,
+        placeholder: "Nom, service ou organisation"
+      },
+      {
+        key: "channel",
+        label: "Canal",
+        type: "select",
+        options: [
+          { label: "Email", value: "Email" },
+          { label: "Telephone", value: "Telephone" },
+          { label: "Portail", value: "Portail" },
+          { label: "Interne", value: "Interne" }
+        ]
+      },
+      {
+        key: "description",
+        label: "Description",
+        type: "textarea",
+        required: true
+      },
+      {
+        key: "severity",
+        label: "Criticite",
+        type: "select",
+        required: true,
+        options: severityOptions
+      },
+      {
+        key: "status",
+        label: "Statut",
+        type: "select",
+        required: true,
+        options: improvementStatusOptions
+      },
+      {
+        key: "received_date",
+        label: "Date reception",
+        type: "date"
+      },
+      {
+        key: "due_date",
+        label: "Echeance",
+        type: "date"
+      },
+      {
+        key: "responsible_user_id",
+        label: "Pilote",
+        type: "select",
+        relation: profileRelation
+      },
+      {
+        key: "response_summary",
+        label: "Reponse / conclusion",
+        type: "textarea"
+      }
+    ],
+    detailFields: [
+      "reference",
+      "complainant_name",
+      "channel",
+      "severity",
+      "status",
+      "due_date",
+      "responsible_user_id",
+      "response_summary"
+    ],
+    emptyState: "Ajoutez une plainte pour suivre son traitement jusqu'a la cloture.",
+    writeRoles: ["admin", "quality_manager", "auditor", "employee"],
+    childModules: [
+      attachmentModule("Plaintes", "complaints", [
+        "admin",
+        "quality_manager",
+        "auditor",
+        "employee"
+      ]),
+      commentModule("Plaintes", "complaints", [
+        "admin",
+        "quality_manager",
+        "auditor",
+        "employee"
+      ])
+    ]
+  },
   "capa-actions": {
     slug: "capa-actions",
-    label: "CAPA",
-    singular: "Action CAPA",
+    label: "Actions correctives",
+    singular: "Action corrective",
     icon: ShieldCheck,
     table: "capa_actions",
     description: "Manage corrective and preventive actions from intake to effectiveness check.",
@@ -1475,7 +2227,11 @@ export const moduleOrder: ModuleSlug[] = [
   "documents",
   "forms",
   "workflows",
+  "customer-complaints",
+  "supplier-complaints",
   "non-conformities",
+  "constats",
+  "complaints",
   "capa-actions",
   "audits",
   "risks",

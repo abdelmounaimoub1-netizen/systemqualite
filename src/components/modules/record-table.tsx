@@ -41,6 +41,7 @@ function renderCell(
     const tablesByKey: Record<string, string> = {
       owner_id: "profiles",
       responsible_user_id: "profiles",
+      pilot_id: "profiles",
       auditor_id: "profiles",
       employee_id: "profiles",
       submitted_by: "profiles",
@@ -49,7 +50,9 @@ function renderCell(
       department_id: "departments",
       category_id: "document_categories",
       form_id: "forms",
-      non_conformity_id: "non_conformities"
+      non_conformity_id: "non_conformities",
+      supplier_id: "suppliers",
+      customer_complaint_id: "customer_complaints"
     };
 
     return (

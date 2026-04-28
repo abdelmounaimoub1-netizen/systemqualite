@@ -8,7 +8,13 @@ import {
   moduleConfigs,
   toSerializableModuleConfig
 } from "@/lib/modules/config";
-import type { LookupCollection, LookupOption, SettingsData, UserContext } from "@/types/app";
+import type {
+  LookupCollection,
+  LookupOption,
+  ModuleConfig,
+  SettingsData,
+  UserContext
+} from "@/types/app";
 import type { ModuleSlug, TableName } from "@/types/database";
 
 const COMMON_LOOKUP_TABLES: TableName[] = [
@@ -18,6 +24,19 @@ const COMMON_LOOKUP_TABLES: TableName[] = [
   "document_categories",
   "non_conformities"
 ];
+
+function getRelationTables(config?: ModuleConfig) {
+  if (!config) return COMMON_LOOKUP_TABLES;
+
+  const relationTables = [
+    ...config.fields,
+    ...(config.childModules ?? []).flatMap((child) => child.fields)
+  ]
+    .map((field) => field.relation?.table)
+    .filter((table): table is TableName => Boolean(table));
+
+  return Array.from(new Set([...COMMON_LOOKUP_TABLES, ...relationTables]));
+}
 
 function toLookupOptions(table: TableName, rows: Array<Record<string, unknown>>) {
   return rows.map((row) => {
@@ -75,7 +94,11 @@ export async function getDashboardData() {
   const [
     docs,
     forms,
+    customerComplaints,
+    supplierComplaints,
     nonConformities,
+    constats,
+    complaints,
     capaActions,
     audits,
     risks,
@@ -85,9 +108,19 @@ export async function getDashboardData() {
     supabase.from("documents").select("id", { count: "exact", head: true }),
     supabase.from("forms").select("id", { count: "exact", head: true }).eq("status", "Active"),
     supabase
+      .from("customer_complaints")
+      .select("id", { count: "exact", head: true })
+      .neq("status", "Closed"),
+    supabase
+      .from("supplier_complaints")
+      .select("id", { count: "exact", head: true })
+      .neq("status", "Closed"),
+    supabase
       .from("non_conformities")
       .select("id", { count: "exact", head: true })
       .neq("status", "Closed"),
+    supabase.from("constats").select("id", { count: "exact", head: true }).neq("status", "Closed"),
+    supabase.from("complaints").select("id", { count: "exact", head: true }).neq("status", "Closed"),
     supabase
       .from("capa_actions")
       .select("id", { count: "exact", head: true })
@@ -124,7 +157,11 @@ export async function getDashboardData() {
     metrics: {
       documents: docs.count ?? 0,
       forms: forms.count ?? 0,
+      openCustomerComplaints: customerComplaints.count ?? 0,
+      openSupplierComplaints: supplierComplaints.count ?? 0,
       openNonConformities: nonConformities.count ?? 0,
+      openConstats: constats.count ?? 0,
+      openComplaints: complaints.count ?? 0,
       pendingCapa: capaActions.count ?? 0,
       upcomingAudits: audits.count ?? 0,
       riskSummary
@@ -139,13 +176,13 @@ export async function getModulePageData(
   filters?: { q?: string; status?: string }
 ) {
   noStore();
+  const config = moduleConfigs[slug];
   const [context, supabase, lookups] = await Promise.all([
     getCurrentUserContext(),
     createSupabaseServerClient(),
-    getLookups()
+    getLookups(getRelationTables(config))
   ]);
 
-  const config = moduleConfigs[slug];
   let query = supabase.from(config.table).select("*").order("updated_at", { ascending: false });
 
   if (filters?.q) {
@@ -175,17 +212,17 @@ export async function getModulePageData(
 
 export async function getModuleDetailData(slug: ModuleSlug, recordId: string) {
   noStore();
-  const [context, supabase, lookups] = await Promise.all([
-    getCurrentUserContext(),
-    createSupabaseServerClient(),
-    getLookups()
-  ]);
-
   const config = getModuleConfig(slug);
 
   if (!config) {
     return null;
   }
+
+  const [context, supabase, lookups] = await Promise.all([
+    getCurrentUserContext(),
+    createSupabaseServerClient(),
+    getLookups(getRelationTables(config))
+  ]);
 
   const { data: record } = await supabase
     .from(config.table)

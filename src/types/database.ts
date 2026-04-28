@@ -25,6 +25,8 @@ export type WorkflowStatus =
 export type NonConformityStatus = "Open" | "In Progress" | "Closed";
 export type CapaStatus = "Open" | "In Progress" | "Verification" | "Closed";
 export type AuditStatus = "Planned" | "In Progress" | "Completed" | "Closed";
+export type ImprovementStatus = "Open" | "In Progress" | "Answered" | "Closed";
+export type ObservationStatus = "Open" | "Analyzed" | "Action Required" | "Closed";
 export type RiskLevel = "Low" | "Medium" | "High" | "Critical";
 export type TrainingStatus = "Planned" | "In Progress" | "Completed" | "Expired";
 export type EquipmentStatus = "Active" | "Maintenance" | "Calibration Due" | "Retired";
@@ -154,6 +156,106 @@ export interface CapaAction extends BaseRecord {
   effectiveness_check: string | null;
 }
 
+export interface CustomerComplaint extends BaseRecord {
+  reference: string;
+  affiliation: string | null;
+  agent_id: string | null;
+  declarant_name: string | null;
+  customer_name: string;
+  client_sector: string | null;
+  client_typology: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  phone: string | null;
+  country_city: string | null;
+  distributor_channel: string | null;
+  complaint_type: "Produit" | "Service" | "Autre";
+  object_summary: string | null;
+  complaint_category: string | null;
+  origin: string | null;
+  brand: string | null;
+  product_reference: string | null;
+  product_name: string | null;
+  lot_number: string | null;
+  production_date: string | null;
+  expiry_date: string | null;
+  purchase_delivery_date: string | null;
+  quantity: number | null;
+  description: string;
+  immediate_actions: string | null;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  status: ImprovementStatus;
+  received_date: string | null;
+  due_date: string | null;
+  responsible_user_id: string | null;
+  orientation_recipient: string | null;
+  information_recipients: string | null;
+  orientation_decision: "Traiter" | "Modifier" | "Cloturer" | null;
+  problem_origin: string | null;
+  verification_recipient: string | null;
+  closure_recipients: string | null;
+  actions_effective: "Oui" | "Non" | "A mesurer" | null;
+  effectiveness_criteria: string | null;
+  closure_date: string | null;
+  estimated_cost_total: number | null;
+  measurement_reason: string | null;
+  measurement_deadline: string | null;
+  ineffective_reason: string | null;
+  response_summary: string | null;
+}
+
+export interface CustomerComplaintAction extends BaseRecord {
+  customer_complaint_id: string;
+  pilot_id: string | null;
+  action: string;
+  deadline: string | null;
+  completion_date: string | null;
+  comment: string | null;
+  progress_status: "Open" | "In Progress" | "Done" | "Ineffective";
+  estimated_cost: number | null;
+  attachment_path: string | null;
+}
+
+export interface SupplierComplaint extends BaseRecord {
+  reference: string;
+  supplier_id: string | null;
+  supplier_name: string | null;
+  issue_type: string | null;
+  description: string;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  status: ImprovementStatus;
+  received_date: string | null;
+  due_date: string | null;
+  responsible_user_id: string | null;
+  response_summary: string | null;
+}
+
+export interface Constat extends BaseRecord {
+  reference: string;
+  title: string;
+  description: string;
+  process_area: string | null;
+  department_id: string | null;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  status: ObservationStatus;
+  detected_date: string | null;
+  responsible_user_id: string | null;
+  action_summary: string | null;
+}
+
+export interface Complaint extends BaseRecord {
+  reference: string;
+  complainant_name: string;
+  channel: string | null;
+  description: string;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  status: ImprovementStatus;
+  received_date: string | null;
+  due_date: string | null;
+  responsible_user_id: string | null;
+  response_summary: string | null;
+}
+
 export interface Audit extends BaseRecord {
   title: string;
   audit_type: "Internal" | "External";
@@ -269,7 +371,11 @@ export type ModuleSlug =
   | "documents"
   | "forms"
   | "workflows"
+  | "customer-complaints"
+  | "supplier-complaints"
   | "non-conformities"
+  | "constats"
+  | "complaints"
   | "capa-actions"
   | "audits"
   | "risks"
@@ -291,6 +397,11 @@ export type DatabaseRecordMap = {
   workflow_steps: WorkflowStep;
   non_conformities: NonConformity;
   capa_actions: CapaAction;
+  customer_complaints: CustomerComplaint;
+  customer_complaint_actions: CustomerComplaintAction;
+  supplier_complaints: SupplierComplaint;
+  constats: Constat;
+  complaints: Complaint;
   audits: Audit;
   audit_checklists: AuditChecklist;
   audit_findings: AuditFinding;

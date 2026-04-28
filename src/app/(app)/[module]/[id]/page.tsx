@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { CustomerComplaintWorkflowClient } from "@/components/modules/customer-complaint-workflow-client";
 import { RecordDetailClient } from "@/components/modules/record-detail-client";
 import { getModuleDetailData } from "@/lib/modules/queries";
 import type { ModuleSlug } from "@/types/database";
@@ -14,6 +15,18 @@ export default async function ModuleDetailPage({
 
   if (!data) {
     notFound();
+  }
+
+  if (module === "customer-complaints") {
+    return (
+      <CustomerComplaintWorkflowClient
+        context={data.context}
+        config={data.config}
+        record={data.record}
+        lookups={data.lookups}
+        childrenData={data.children}
+      />
+    );
   }
 
   return (

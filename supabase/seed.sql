@@ -522,6 +522,278 @@ values
   ('62000000-0000-0000-0000-000000000003', 'Apex Analytical Labs', 'Diego Melo', 'lab@apexlabs.example', '+34 600 888 222', 92, 'Approved', 'External lab qualification renewed.', 'Consistent turnaround and complete reports.', '40000000-0000-0000-0000-000000000002')
 on conflict (id) do nothing;
 
+insert into public.customer_complaints (
+  id,
+  reference,
+  customer_name,
+  contact_email,
+  product_reference,
+  description,
+  severity,
+  status,
+  received_date,
+  due_date,
+  responsible_user_id,
+  response_summary,
+  created_by
+)
+values
+  (
+    '68000000-0000-0000-0000-000000000001',
+    'RC-2026-001',
+    'Atlas Distribution',
+    'qualite@atlas.example',
+    'LOT-PKG-0426',
+    'Client reports damaged secondary packaging on delivery with photos attached.',
+    'High',
+    'In Progress',
+    current_date - 3,
+    current_date + 7,
+    '40000000-0000-0000-0000-000000000002',
+    'Containment opened. Logistics and packaging teams checking transport evidence.',
+    '40000000-0000-0000-0000-000000000002'
+  ),
+  (
+    '68000000-0000-0000-0000-000000000002',
+    'RC-2026-002',
+    'Medina Retail',
+    'support@medina.example',
+    'SKU-QA-118',
+    'Label readability complaint on one carton batch.',
+    'Medium',
+    'Open',
+    current_date - 1,
+    current_date + 10,
+    '40000000-0000-0000-0000-000000000004',
+    null,
+    '40000000-0000-0000-0000-000000000002'
+  )
+on conflict (id) do nothing;
+
+update public.customer_complaints
+set
+  affiliation = 'RCC-000018',
+  agent_id = '40000000-0000-0000-0000-000000000002',
+  declarant_name = 'Mounir Mestouria',
+  client_sector = 'Distribution',
+  client_typology = 'Client direct',
+  contact_name = 'Responsable reception',
+  phone = '+212 522 100 200',
+  country_city = 'Maroc / Casablanca',
+  distributor_channel = 'Canal distributeur',
+  complaint_type = 'Produit',
+  object_summary = 'Emballage endommage a la reception',
+  complaint_category = 'Qualite produit',
+  origin = 'Reception client',
+  brand = 'Gamme premium',
+  product_name = 'Conditionnement secondaire',
+  lot_number = 'LOT-PKG-0426',
+  production_date = current_date - 20,
+  expiry_date = current_date + 365,
+  purchase_delivery_date = current_date - 4,
+  quantity = 120,
+  immediate_actions = 'Lot identifie, photos demandees, controle transport ouvert.',
+  orientation_recipient = 'QSE LE ORIENTATION',
+  information_recipients = 'Production, logistique',
+  orientation_decision = 'Traiter',
+  problem_origin = 'Protection palette insuffisante pendant le transport.',
+  verification_recipient = 'Responsable QSE',
+  closure_recipients = 'Client, commerce, logistique',
+  actions_effective = 'A mesurer',
+  effectiveness_criteria = 'Absence de recidive sur les trois prochaines livraisons.',
+  estimated_cost_total = 850,
+  measurement_reason = 'Verification sur prochaines expeditions.',
+  measurement_deadline = current_date + 30,
+  response_summary = 'Analyse en cours avec plan d actions logistique.'
+where id = '68000000-0000-0000-0000-000000000001';
+
+update public.customer_complaints
+set
+  affiliation = 'RCC-000019',
+  agent_id = '40000000-0000-0000-0000-000000000004',
+  declarant_name = 'Samir Benali',
+  client_sector = 'Retail',
+  client_typology = 'Distributeur',
+  contact_name = 'Service client',
+  phone = '+212 522 300 400',
+  country_city = 'Maroc / Rabat',
+  complaint_type = 'Produit',
+  object_summary = 'Lisibilite etiquette',
+  complaint_category = 'Etiquetage',
+  origin = 'Client',
+  brand = 'SKU-QA',
+  product_name = 'SKU-QA-118',
+  lot_number = 'LOT-LBL-118',
+  purchase_delivery_date = current_date - 2,
+  quantity = 24,
+  immediate_actions = 'Controle echantillon conserve.',
+  orientation_recipient = 'Qualite produit',
+  orientation_decision = 'Traiter'
+where id = '68000000-0000-0000-0000-000000000002';
+
+insert into public.customer_complaint_actions (
+  id,
+  customer_complaint_id,
+  pilot_id,
+  action,
+  deadline,
+  completion_date,
+  comment,
+  progress_status,
+  estimated_cost,
+  created_by
+)
+values
+  (
+    '68400000-0000-0000-0000-000000000001',
+    '68000000-0000-0000-0000-000000000001',
+    '40000000-0000-0000-0000-000000000004',
+    'Verifier les conditions de palettisation et renforcer le filmage.',
+    current_date + 4,
+    null,
+    'Controle terrain planifie avec logistique.',
+    'In Progress',
+    500,
+    '40000000-0000-0000-0000-000000000002'
+  ),
+  (
+    '68400000-0000-0000-0000-000000000002',
+    '68000000-0000-0000-0000-000000000001',
+    '40000000-0000-0000-0000-000000000002',
+    'Repondre au client avec synthese analyse et delai de mesure.',
+    current_date + 7,
+    null,
+    'Message prepare apres validation QSE.',
+    'Open',
+    350,
+    '40000000-0000-0000-0000-000000000002'
+  )
+on conflict (id) do nothing;
+
+insert into public.supplier_complaints (
+  id,
+  reference,
+  supplier_id,
+  supplier_name,
+  issue_type,
+  description,
+  severity,
+  status,
+  received_date,
+  due_date,
+  responsible_user_id,
+  response_summary,
+  created_by
+)
+values
+  (
+    '68100000-0000-0000-0000-000000000001',
+    'RF-2026-001',
+    '62000000-0000-0000-0000-000000000001',
+    'Nordic Components GmbH',
+    'Certificate delay',
+    'Certificate of analysis arrived after internal release deadline.',
+    'High',
+    'In Progress',
+    current_date - 4,
+    current_date + 6,
+    '40000000-0000-0000-0000-000000000002',
+    'Supplier asked to confirm corrective timing and prevention rule.',
+    '40000000-0000-0000-0000-000000000002'
+  ),
+  (
+    '68100000-0000-0000-0000-000000000002',
+    'RF-2026-002',
+    '62000000-0000-0000-0000-000000000002',
+    'Blue Harbor Packaging',
+    'Incoming damage',
+    'Two pallets received with moisture marks on outer packaging.',
+    'Medium',
+    'Open',
+    current_date - 2,
+    current_date + 9,
+    '40000000-0000-0000-0000-000000000003',
+    null,
+    '40000000-0000-0000-0000-000000000002'
+  )
+on conflict (id) do nothing;
+
+insert into public.constats (
+  id,
+  reference,
+  title,
+  description,
+  process_area,
+  department_id,
+  severity,
+  status,
+  detected_date,
+  responsible_user_id,
+  action_summary,
+  created_by
+)
+values
+  (
+    '68200000-0000-0000-0000-000000000001',
+    'CST-2026-001',
+    'Outdated visual standard',
+    'A production board still references an old form revision.',
+    'Operations industrielles',
+    '20000000-0000-0000-0000-000000000002',
+    'Medium',
+    'Action Required',
+    current_date - 1,
+    '40000000-0000-0000-0000-000000000004',
+    'Replace board content and confirm document diffusion.',
+    '40000000-0000-0000-0000-000000000003'
+  ),
+  (
+    '68200000-0000-0000-0000-000000000002',
+    'CST-2026-002',
+    'Incomplete supplier handoff',
+    'Handoff checklist does not clearly mention certificate escalation owner.',
+    'Supply chain',
+    '20000000-0000-0000-0000-000000000003',
+    'High',
+    'Open',
+    current_date,
+    '40000000-0000-0000-0000-000000000002',
+    null,
+    '40000000-0000-0000-0000-000000000003'
+  )
+on conflict (id) do nothing;
+
+insert into public.complaints (
+  id,
+  reference,
+  complainant_name,
+  channel,
+  description,
+  severity,
+  status,
+  received_date,
+  due_date,
+  responsible_user_id,
+  response_summary,
+  created_by
+)
+values
+  (
+    '68300000-0000-0000-0000-000000000001',
+    'PL-2026-001',
+    'Production team',
+    'Interne',
+    'Repeated delay in receiving updated controlled form after revision approval.',
+    'Medium',
+    'In Progress',
+    current_date - 5,
+    current_date + 4,
+    '40000000-0000-0000-0000-000000000002',
+    'Document controller reviewing diffusion workflow.',
+    '40000000-0000-0000-0000-000000000004'
+  )
+on conflict (id) do nothing;
+
 insert into public.notifications (
   id,
   title,

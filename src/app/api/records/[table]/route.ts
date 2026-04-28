@@ -9,6 +9,7 @@ const passthroughKeys = [
   "form_id",
   "workflow_id",
   "audit_id",
+  "customer_complaint_id",
   "record_id",
   "table_name"
 ] as const;
