@@ -134,6 +134,30 @@ function RedPanel({
   href: string;
   actions: string[];
 }) {
+  function actionHref(action: string) {
+    if (
+      action.startsWith("Nouvelle") ||
+      action.startsWith("Nouveau") ||
+      action.startsWith("Planification")
+    ) {
+      return `${href}?new=1`;
+    }
+
+    if (action.startsWith("Suivi") || action.startsWith("Calendrier")) {
+      return `${href}?view=follow`;
+    }
+
+    if (action.startsWith("Historique")) {
+      return `${href}?view=history`;
+    }
+
+    if (action.startsWith("Rapport")) {
+      return `${href}?new=1`;
+    }
+
+    return href;
+  }
+
   return (
     <section className="overflow-hidden border border-red-300 bg-[#f7c9cd]">
       <Link
@@ -148,15 +172,8 @@ function RedPanel({
       </Link>
       <div className="space-y-0.5 px-2 py-1.5 text-[10px] leading-4 text-slate-700">
         {actions.map((action) => {
-          const actionHref =
-            action.startsWith("Nouvelle") ||
-            action.startsWith("Nouveau") ||
-            action.startsWith("Planification")
-              ? `${href}?new=1`
-              : href;
-
           return (
-            <Link key={action} href={actionHref} className="flex items-center gap-1.5 hover:text-red-700">
+            <Link key={action} href={actionHref(action)} className="flex items-center gap-1.5 hover:text-red-700">
               <ChevronRight className="h-3 w-3 text-red-600" />
               {action}
               <span className="sr-only">({count})</span>
@@ -179,7 +196,7 @@ function LabCard({
 }) {
   return (
     <Link
-      href="/documents"
+      href={`/documents?q=${encodeURIComponent(title)}`}
       className={`block rounded-2xl border border-white/60 px-4 py-3 text-center shadow-sm transition hover:scale-[1.01] hover:border-sky-300 ${className}`}
     >
       <div className="text-[11px] font-bold text-white">{title}</div>
@@ -201,7 +218,7 @@ function LabArrow({
 }) {
   return (
     <Link
-      href="/documents"
+      href={`/documents?q=${encodeURIComponent(title)}`}
       className="relative flex min-h-28 items-center justify-center bg-[#5a91d0] px-7 py-4 text-white shadow-sm transition hover:bg-[#447dbb]"
       style={{
         clipPath:

@@ -9,9 +9,7 @@ import { toast } from "sonner";
 import { ChildRecordsSection } from "@/components/modules/child-records-section";
 import { RecordForm } from "@/components/modules/record-form";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
-import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { getLookupLabel } from "@/lib/modules/config";
@@ -119,47 +117,51 @@ export function RecordDetailClient({
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        eyebrow="Record detail"
-        title={String(record.title ?? record.name ?? record.document_code ?? config.singular)}
-        description={config.description}
-        actions={
-          <div className="flex items-center gap-3">
+    <div className="space-y-4">
+      <section className="overflow-hidden border border-red-300 bg-red-50">
+        <div className="flex flex-col gap-2 bg-[#d2202f] px-3 py-2 text-white md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wide">Fiche Qualios</div>
+            <h1 className="text-base font-semibold">
+              {String(record.title ?? record.name ?? record.document_code ?? config.singular)}
+            </h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <Link href={`/${config.slug}`}>
-              <Button variant="ghost">
+              <Button className="border-white/30 bg-white text-red-700 hover:bg-red-50">
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Retour
               </Button>
             </Link>
             {hasDownloadableFile ? (
-              <Button variant="secondary" onClick={() => void downloadRecordFile()}>
+              <Button className="border-white/30 bg-white text-red-700 hover:bg-red-50" onClick={() => void downloadRecordFile()}>
                 <Download className="h-4 w-4" />
-                Download file
+                Fichier
               </Button>
             ) : null}
             {canWrite ? (
-              <Button variant="secondary" onClick={() => setOpen(true)}>
+              <Button className="border-white/30 bg-white text-red-700 hover:bg-red-50" onClick={() => setOpen(true)}>
                 <Pencil className="h-4 w-4" />
-                Edit
+                Modifier
               </Button>
             ) : null}
           </div>
-        }
-      />
+        </div>
+        <div className="px-3 py-2 text-xs text-slate-700">{config.description}</div>
+      </section>
 
-      <Card className="space-y-5">
+      <section className="space-y-4 border border-red-200 bg-white p-3">
         <div className="flex items-center gap-3">
           <StatusBadge value={String(record.status ?? record.risk_level ?? "Active")} />
           <span className="text-sm text-slate-500">
-            Last updated {formatDate(String(record.updated_at ?? ""))}
+            Derniere mise a jour {formatDate(String(record.updated_at ?? ""))}
           </span>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {config.detailFields.map((field) => (
-            <div key={field} className="rounded-2xl bg-slate-50 p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+            <div key={field} className="border border-red-100 bg-red-50/40 p-3">
+              <div className="text-[10px] font-semibold uppercase text-red-900">
                 {field.replace(/_/g, " ")}
               </div>
               <div className="mt-2 text-sm leading-6 text-ink">
@@ -168,7 +170,7 @@ export function RecordDetailClient({
             </div>
           ))}
         </div>
-      </Card>
+      </section>
 
       {(config.childModules ?? []).map((child) => (
         <ChildRecordsSection
@@ -184,7 +186,7 @@ export function RecordDetailClient({
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={`Edit ${config.singular}`}
+        title={`Modifier ${config.singular}`}
         description={config.description}
       >
         <RecordForm
@@ -194,7 +196,7 @@ export function RecordDetailClient({
           initialValues={record}
           onSubmit={saveRecord}
           onCancel={() => setOpen(false)}
-          submitLabel="Save changes"
+          submitLabel="Enregistrer"
         />
       </Modal>
     </div>

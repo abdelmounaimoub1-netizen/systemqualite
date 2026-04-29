@@ -6,11 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { PageHeader } from "@/components/ui/page-header";
 import { Select } from "@/components/ui/select";
 import { RecordForm } from "@/components/modules/record-form";
 import { RecordTable } from "@/components/modules/record-table";
@@ -29,6 +27,28 @@ type ModulePageClientProps = {
   lookups: LookupCollection;
 };
 
+function statusFromView(
+  searchParams: ReturnType<typeof useSearchParams>,
+  statusField: SerializableModuleConfig["fields"][number] | undefined
+) {
+  const options = statusField?.options ?? [];
+  const explicitStatus = searchParams.get("status");
+
+  if (explicitStatus && options.some((option) => option.value === explicitStatus)) {
+    return explicitStatus;
+  }
+
+  const view = searchParams.get("view");
+  const preferred =
+    view === "history"
+      ? ["Closed", "Archived", "Completed", "Read"]
+      : view === "follow"
+        ? ["Open", "In Progress", "Planned", "Draft", "Unread"]
+        : [];
+
+  return preferred.find((value) => options.some((option) => option.value === value)) ?? "";
+}
+
 export function ModulePageClient({
   context,
   config,
@@ -39,11 +59,11 @@ export function ModulePageClient({
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("");
 
   const canWrite = canWriteModule(context.role, config.slug);
   const statusField = config.fields.find((field) => field.key === "status");
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const [status, setStatus] = useState(() => statusFromView(searchParams, statusField));
   const storageFieldKey = useMemo(() => getStorageFieldKey(config.fields), [config.fields]);
   const openFromQuery = searchParams.get("new") === "1" && canWrite;
   const modalOpen = open || openFromQuery;
@@ -146,14 +166,16 @@ export function ModulePageClient({
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        eyebrow="Module QMS"
-        title={config.label}
-        description={config.description}
-        actions={
-          canWrite ? (
+    <div className="space-y-4">
+      <section className="overflow-hidden border border-red-300 bg-red-50">
+        <div className="flex flex-col gap-2 bg-[#d2202f] px-3 py-2 text-white md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wide">Module Qualios</div>
+            <h1 className="text-base font-semibold">{config.label}</h1>
+          </div>
+          {canWrite ? (
             <Button
+              className="border-white/30 bg-white text-red-700 hover:bg-red-50"
               onClick={() => {
                 setEditing(null);
                 setOpen(true);
@@ -162,31 +184,30 @@ export function ModulePageClient({
               <Plus className="h-4 w-4" />
               Nouveau {config.singular}
             </Button>
-          ) : null
-        }
-      />
+          ) : null}
+        </div>
+        <div className="px-3 py-2 text-xs text-slate-700">{config.description}</div>
+      </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card>
-          <div className="text-sm text-slate-500">Total</div>
-          <div className="mt-3 text-3xl font-semibold text-ink">{summary.total}</div>
-        </Card>
-        <Card>
-          <div className="text-sm text-slate-500">En cours</div>
-          <div className="mt-3 text-3xl font-semibold text-ink">{summary.active}</div>
-        </Card>
-        <Card>
-          <div className="text-sm text-slate-500">Termines ou clos</div>
-          <div className="mt-3 text-3xl font-semibold text-ink">{summary.closed}</div>
-        </Card>
+      <div className="grid gap-2 md:grid-cols-3">
+        {[
+          ["Total", summary.total],
+          ["En cours", summary.active],
+          ["Termines ou clos", summary.closed]
+        ].map(([label, value]) => (
+          <div key={label} className="border border-red-200 bg-[#f7c9cd] px-3 py-2">
+            <div className="text-[10px] font-semibold uppercase text-red-900">{label}</div>
+            <div className="mt-1 text-xl font-bold text-slate-900">{value}</div>
+          </div>
+        ))}
       </div>
 
-      <Card className="space-y-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+      <section className="space-y-3 border border-red-200 bg-white p-3">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
-              className="pl-11"
+              className="pl-9"
               placeholder={`Rechercher ${config.label.toLowerCase()}...`}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -233,7 +254,7 @@ export function ModulePageClient({
             onDelete={canWrite ? deleteRecord : undefined}
           />
         )}
-      </Card>
+      </section>
 
       <Modal
         open={modalOpen}
