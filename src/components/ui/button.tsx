@@ -10,13 +10,13 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary:
-    "bg-ink text-white shadow-glow hover:bg-slate-800 disabled:bg-slate-400 disabled:text-white",
+    "border-teal-800 bg-teal-700 text-white hover:bg-teal-800 disabled:border-slate-300 disabled:bg-slate-300 disabled:text-white",
   secondary:
-    "bg-white/85 text-ink ring-1 ring-slate-200 hover:bg-white disabled:text-slate-400",
+    "border-slate-300 bg-white text-slate-700 hover:bg-slate-100 disabled:text-slate-400",
   ghost:
-    "bg-transparent text-slate-600 hover:bg-white/70 hover:text-ink disabled:text-slate-400",
+    "border-transparent bg-transparent text-slate-600 hover:border-slate-300 hover:bg-white hover:text-slate-900 disabled:text-slate-400",
   danger:
-    "bg-danger text-white hover:bg-rose-700 disabled:bg-rose-300 disabled:text-white"
+    "border-rose-700 bg-danger text-white hover:bg-rose-700 disabled:border-rose-300 disabled:bg-rose-300 disabled:text-white"
 };
 
 export function Button({
@@ -29,7 +29,7 @@ export function Button({
     <button
       type={type}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:cursor-not-allowed",
+        "inline-flex min-h-9 items-center justify-center gap-2 rounded border px-3 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 disabled:cursor-not-allowed",
         variantClasses[variant],
         className
       )}

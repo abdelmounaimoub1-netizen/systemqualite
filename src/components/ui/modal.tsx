@@ -40,7 +40,7 @@ export function Modal({
       <div className="absolute inset-0" onClick={onClose} />
       <div
         className={cn(
-          "relative z-10 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] bg-white p-6 shadow-2xl",
+          "relative z-10 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded border border-slate-300 bg-white p-5 shadow-2xl",
           className
         )}
       >
@@ -51,8 +51,10 @@ export function Modal({
           </div>
           <button
             type="button"
+            title="Fermer"
+            aria-label="Fermer"
             onClick={onClose}
-            className="rounded-full bg-slate-100 p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
+            className="rounded border border-slate-300 bg-slate-100 p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
           >
             <X className="h-4 w-4" />
           </button>

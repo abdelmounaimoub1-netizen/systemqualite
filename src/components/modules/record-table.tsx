@@ -79,20 +79,20 @@ export function RecordTable({
   onDownload
 }: RecordTableProps) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded border border-slate-300 bg-white">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
+          <thead className="bg-teal-900">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.22em] text-slate-500"
+                  className="px-4 py-2 text-left text-xs font-semibold text-white"
                 >
                   {column.label}
                 </th>
               ))}
-              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+              <th className="px-4 py-2 text-right text-xs font-semibold text-white">
                 Actions
               </th>
             </tr>
@@ -117,19 +117,33 @@ export function RecordTable({
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-2">
                     {onDownload ? (
-                      <Button variant="ghost" className="px-3" onClick={() => onDownload(record)}>
+                      <Button
+                        variant="ghost"
+                        title="Telecharger"
+                        aria-label="Telecharger"
+                        className="h-8 min-h-0 w-8 px-0 py-0"
+                        onClick={() => onDownload(record)}
+                      >
                         <Download className="h-4 w-4" />
                       </Button>
                     ) : null}
                     {onEdit ? (
-                      <Button variant="ghost" className="px-3" onClick={() => onEdit(record)}>
+                      <Button
+                        variant="ghost"
+                        title="Modifier"
+                        aria-label="Modifier"
+                        className="h-8 min-h-0 w-8 px-0 py-0"
+                        onClick={() => onEdit(record)}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                     ) : null}
                     {onDelete ? (
                       <Button
                         variant="ghost"
-                        className="px-3 text-danger hover:bg-rose-50 hover:text-danger"
+                        title="Supprimer"
+                        aria-label="Supprimer"
+                        className="h-8 min-h-0 w-8 px-0 py-0 text-danger hover:bg-rose-50 hover:text-danger"
                         onClick={() => onDelete(record)}
                       >
                         <Trash2 className="h-4 w-4" />

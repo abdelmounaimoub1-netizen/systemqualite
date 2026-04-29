@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Funnel, Plus, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ export function ModulePageClient({
   lookups
 }: ModulePageClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
   const [query, setQuery] = useState("");
@@ -44,6 +45,23 @@ export function ModulePageClient({
   const canWrite = canWriteModule(context.role, config.slug);
   const statusField = config.fields.find((field) => field.key === "status");
   const storageFieldKey = useMemo(() => getStorageFieldKey(config.fields), [config.fields]);
+  const openFromQuery = searchParams.get("new") === "1" && canWrite;
+  const modalOpen = open || openFromQuery;
+
+  function clearNewParam() {
+    if (!openFromQuery) return;
+
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete("new");
+    const nextQuery = nextParams.toString();
+    router.replace(`/${config.slug}${nextQuery ? `?${nextQuery}` : ""}`, { scroll: false });
+  }
+
+  function closeEditor() {
+    setOpen(false);
+    setEditing(null);
+    clearNewParam();
+  }
 
   const filteredRecords = useMemo(
     () =>
@@ -96,8 +114,7 @@ export function ModulePageClient({
     }
 
     toast.success(`${config.singular} saved.`);
-    setOpen(false);
-    setEditing(null);
+    closeEditor();
     router.refresh();
   }
 
@@ -219,11 +236,8 @@ export function ModulePageClient({
       </Card>
 
       <Modal
-        open={open}
-        onClose={() => {
-          setOpen(false);
-          setEditing(null);
-        }}
+        open={modalOpen}
+        onClose={closeEditor}
         title={editing ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
         description={config.description}
       >
@@ -233,10 +247,7 @@ export function ModulePageClient({
           lookups={lookups}
           initialValues={editing ?? {}}
           onSubmit={saveRecord}
-          onCancel={() => {
-            setOpen(false);
-            setEditing(null);
-          }}
+          onCancel={closeEditor}
           submitLabel={editing ? "Enregistrer" : `Creer ${config.singular}`}
         />
       </Modal>

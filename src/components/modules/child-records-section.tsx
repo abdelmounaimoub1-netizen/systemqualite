@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { UploadCloud } from "lucide-react";
+import { Plus, UploadCloud } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -155,9 +155,12 @@ export function ChildRecordsSection({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {isAttachmentModule && canWrite ? (
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700">
+            <label
+              title="Joindre un fichier"
+              className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            >
               <UploadCloud className="h-4 w-4" />
-              {uploading ? "Uploading..." : "Upload file"}
+              {uploading ? "Upload..." : "Fichier joint"}
               <input
                 type="file"
                 className="hidden"
@@ -180,7 +183,8 @@ export function ChildRecordsSection({
                 setOpen(true);
               }}
             >
-              Add item
+              <Plus className="h-4 w-4" />
+              Ajouter
             </Button>
           ) : null}
         </div>

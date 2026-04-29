@@ -11,10 +11,10 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, ctaLabel, onCta }: EmptyStateProps) {
   return (
-    <div className="rounded-3xl border border-dashed border-slate-300 bg-white/70 px-6 py-10 text-center">
+    <div className="rounded border border-dashed border-slate-300 bg-white px-6 py-8 text-center">
       <div className="mx-auto flex max-w-md flex-col items-center gap-3">
-        <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-brand">
-          No records yet
+        <span className="rounded bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700">
+          Aucun resultat
         </span>
         <h3 className="text-xl font-semibold text-ink">{title}</h3>
         <p className="text-sm leading-6 text-slate-500">{description}</p>

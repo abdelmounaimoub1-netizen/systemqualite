@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BellRing, LogOut, Menu, Settings, UserCircle2 } from "lucide-react";
+import { BellRing, Home, LogOut, Menu, Settings, UserCircle2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { appNavItems } from "@/lib/modules/config";
@@ -18,7 +18,7 @@ type AppShellProps = {
 
 export function AppShell({ children, context }: AppShellProps) {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const activeItems = useMemo(
     () =>
@@ -29,119 +29,122 @@ export function AppShell({ children, context }: AppShellProps) {
     [pathname]
   );
 
+  const improvementPaths = new Set([
+    "/customer-complaints",
+    "/supplier-complaints",
+    "/non-conformities",
+    "/constats",
+    "/complaints",
+    "/capa-actions",
+    "/audits"
+  ]);
+
+  const portalTabs = [
+    {
+      href: "/dashboard#portail-documentaire",
+      label: "Portail Documentaire",
+      active: pathname === "/dashboard"
+    },
+    {
+      href: "/dashboard#portail-amelioration",
+      label: "Portail Amelioration",
+      active: Array.from(improvementPaths).some(
+        (path) => pathname === path || pathname.startsWith(`${path}/`)
+      )
+    }
+  ];
+
   async function signOut() {
     const response = await fetch("/auth/sign-out", { method: "POST" });
     if (response.ok) window.location.href = "/auth/sign-in";
   }
 
   return (
-    <div className="min-h-screen bg-mesh-grid text-ink">
-      <div className="mx-auto flex min-h-screen max-w-[1600px] gap-5 p-3 md:p-5">
-        <aside className="hidden w-80 shrink-0 lg:block">
-          <div className="sticky top-5 flex h-[calc(100vh-2.5rem)] flex-col rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-6 text-white shadow-card">
-            <div>
-              <div className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
-                Suite QMS
-              </div>
-              <h2 className="mt-4 text-2xl font-semibold">Qualite sous controle, flux par flux.</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                Documents, formulaires, CAPA, audits, risques, formations et fournisseurs dans un portail installable.
-              </p>
-            </div>
+    <div className="min-h-screen bg-[#efeee7] text-slate-900">
+      <aside className="fixed inset-y-0 left-0 z-40 flex w-14 flex-col bg-[#153d50] text-white">
+        <Link
+          href="/dashboard"
+          title="Portail"
+          className="flex h-14 items-center justify-center border-b border-white/10 bg-[#113342] hover:bg-[#1c5167]"
+        >
+          <Home className="h-6 w-6" />
+        </Link>
+        <div className="flex flex-1 flex-col items-center gap-2 pt-2">
+          <span className="text-[10px] font-semibold">Portail</span>
+        </div>
+      </aside>
 
-            <nav className="mt-8 flex-1 space-y-1">
-              {activeItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition",
-                      item.active
-                        ? "bg-white text-ink"
-                        : "text-slate-200 hover:bg-white/10 hover:text-white"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+      <div className="min-h-screen pl-14">
+        <header className="sticky top-0 z-30 border-b border-slate-300 bg-[#f5f4ed] shadow-sm">
+          <div className="flex min-h-12 items-stretch justify-between gap-3 px-3">
+            <nav className="flex min-w-0 items-stretch overflow-x-auto">
+              {portalTabs.map((tab) => (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={cn(
+                    "flex items-center border-r border-slate-300 px-4 text-sm font-semibold whitespace-nowrap",
+                    tab.active
+                      ? "bg-white text-teal-700"
+                      : "text-slate-600 hover:bg-white/70 hover:text-teal-700"
+                  )}
+                >
+                  {tab.label}
+                </Link>
+              ))}
             </nav>
 
-            <div className="rounded-3xl bg-white/10 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white">
-                  {initials(context.profile?.full_name ?? context.email)}
-                </div>
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold">
-                    {context.profile?.full_name ?? context.email}
-                  </div>
-                  <div className="truncate text-xs uppercase tracking-[0.2em] text-slate-300">
-                    {context.role.replace(/_/g, " ")}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 flex gap-2">
-                <Link href="/profile" className="flex-1">
-                  <Button variant="secondary" className="w-full justify-center">
-                    <UserCircle2 className="h-4 w-4" />
-                    Profil
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  className="flex-1 justify-center text-white hover:bg-white/10 hover:text-white"
-                  onClick={signOut}
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sortir
-                </Button>
-              </div>
+            <div className="flex shrink-0 items-center gap-1 py-1.5">
+              <ServiceWorkerRegister />
+              <button
+                type="button"
+                title={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+                aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+                className="inline-flex h-8 w-8 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                onClick={() => setMenuOpen((value) => !value)}
+              >
+                {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              </button>
+              <Link
+                href="/notifications"
+                title="Alertes"
+                aria-label="Alertes"
+                className="hidden h-8 w-8 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 sm:inline-flex"
+              >
+                <BellRing className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/settings"
+                title="Parametres"
+                aria-label="Parametres"
+                className="hidden h-8 w-8 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 sm:inline-flex"
+              >
+                <Settings className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/profile"
+                title={context.profile?.full_name ?? context.email}
+                aria-label="Profil"
+                className="hidden h-8 min-w-8 items-center justify-center rounded border border-slate-300 bg-white px-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 md:inline-flex"
+              >
+                <UserCircle2 className="mr-1 h-4 w-4" />
+                {initials(context.profile?.full_name ?? context.email)}
+              </Link>
+              <Button
+                variant="ghost"
+                title="Sortir"
+                aria-label="Sortir"
+                className="h-8 w-8 px-0"
+                onClick={signOut}
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-        </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-3 z-20 mb-5 rounded-[2rem] border border-white/70 bg-white/80 px-4 py-4 shadow-card backdrop-blur-sm md:px-6">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  className="inline-flex rounded-2xl border border-slate-200 bg-white p-2 text-slate-600 lg:hidden"
-                  onClick={() => setMobileOpen((value) => !value)}
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">
-                    Portail qualite installable
-                  </div>
-                  <div className="text-lg font-semibold text-ink">QMS Pro</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <ServiceWorkerRegister />
-                <Link href="/notifications">
-                  <Button variant="secondary" className="hidden sm:inline-flex">
-                    <BellRing className="h-4 w-4" />
-                    Alertes
-                  </Button>
-                </Link>
-                <Link href="/settings">
-                  <Button variant="secondary" className="hidden sm:inline-flex">
-                    <Settings className="h-4 w-4" />
-                    Parametres
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {mobileOpen ? (
-              <div className="mt-4 grid gap-2 lg:hidden">
+          {menuOpen ? (
+            <div className="border-t border-slate-300 bg-white p-3">
+              <nav className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
                 {activeItems.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -149,45 +152,26 @@ export function AppShell({ children, context }: AppShellProps) {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition",
+                        "flex items-center gap-2 rounded border px-3 py-2 text-sm transition",
                         item.active
-                          ? "bg-brand text-white"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          ? "border-teal-700 bg-teal-50 text-teal-800"
+                          : "border-slate-200 bg-slate-50 text-slate-700 hover:border-teal-300 hover:bg-teal-50"
                       )}
-                      onClick={() => setMobileOpen(false)}
+                      onClick={() => setMenuOpen(false)}
                     >
-                      <Icon className="h-4 w-4" />
-                      {item.label}
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{item.label}</span>
                     </Link>
                   );
                 })}
-              </div>
-            ) : null}
-          </header>
-
-          <main className="flex-1 pb-24 lg:pb-6">{children}</main>
-
-          <nav className="fixed inset-x-3 bottom-3 z-30 rounded-[1.75rem] border border-white/70 bg-white/90 p-2 shadow-card backdrop-blur-sm lg:hidden">
-            <div className="grid grid-cols-4 gap-1">
-              {activeItems.slice(0, 4).map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 text-[11px] font-medium",
-                      item.active ? "bg-brand text-white" : "text-slate-500"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                );
-              })}
+              </nav>
             </div>
-          </nav>
-        </div>
+          ) : null}
+        </header>
+
+        <main className="mx-auto min-h-[calc(100vh-3rem)] max-w-[1480px] p-3 md:p-5">
+          {children}
+        </main>
       </div>
     </div>
   );

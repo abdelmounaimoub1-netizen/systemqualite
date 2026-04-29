@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Mail,
+  Pencil,
   Plus,
   Save,
   Send,
@@ -92,20 +93,35 @@ function ActionIconButton({
   label,
   icon: Icon,
   onClick,
-  disabled
+  disabled,
+  tone = "save"
 }: {
   label: string;
   icon: LucideIcon;
   onClick: () => void;
   disabled?: boolean;
+  tone?: "save" | "mail" | "send" | "edit" | "danger" | "success";
 }) {
+  const toneClasses = {
+    save: "bg-teal-700 hover:bg-teal-800",
+    mail: "bg-slate-800 hover:bg-slate-900",
+    send: "bg-slate-700 hover:bg-slate-800",
+    edit: "bg-amber-600 hover:bg-amber-700",
+    danger: "bg-red-700 hover:bg-red-800",
+    success: "bg-emerald-700 hover:bg-emerald-800"
+  };
+
   return (
     <button
       type="button"
       title={label}
+      aria-label={label}
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex h-9 w-9 items-center justify-center rounded bg-teal-700 text-white shadow-sm transition hover:bg-teal-800 disabled:bg-slate-300"
+      className={cn(
+        "inline-flex h-9 w-9 items-center justify-center rounded text-white shadow-sm transition disabled:bg-slate-300",
+        toneClasses[tone]
+      )}
     >
       <Icon className="h-4 w-4" />
     </button>
@@ -528,12 +544,14 @@ export function CustomerComplaintWorkflowClient({
               <ActionIconButton
                 label="Enregistrer"
                 icon={Save}
+                tone="save"
                 disabled={saving}
                 onClick={() => void saveComplaint("Declaration enregistree.")}
               />
               <ActionIconButton
                 label="Notifier"
                 icon={Mail}
+                tone="mail"
                 disabled={saving}
                 onClick={() => void saveComplaint("Transmission enregistree.")}
               />
@@ -558,12 +576,41 @@ export function CustomerComplaintWorkflowClient({
             <ActionIconButton
               label="Enregistrer orientation"
               icon={Save}
+              tone="save"
               disabled={saving}
               onClick={() => void saveComplaint("Orientation enregistree.")}
             />
             <ActionIconButton
+              label="Marquer a modifier"
+              icon={Pencil}
+              tone="edit"
+              disabled={saving}
+              onClick={() => {
+                setField("orientation_decision", "Modifier");
+                void saveComplaint("Reclamation marquee a modifier.", {
+                  orientation_decision: "Modifier",
+                  status: "In Progress"
+                });
+              }}
+            />
+            <ActionIconButton
+              label="Cloturer"
+              icon={CheckCircle2}
+              tone="danger"
+              disabled={saving}
+              onClick={() => {
+                setField("orientation_decision", "Cloturer");
+                setField("status", "Closed");
+                void saveComplaint("Reclamation cloturee.", {
+                  orientation_decision: "Cloturer",
+                  status: "Closed"
+                });
+              }}
+            />
+            <ActionIconButton
               label="Envoyer pour traitement"
               icon={Send}
+              tone="mail"
               disabled={saving}
               onClick={() => void saveComplaint("Orientation transmise.")}
             />
@@ -653,12 +700,14 @@ export function CustomerComplaintWorkflowClient({
               <ActionIconButton
                 label="Enregistrer traitement"
                 icon={Save}
+                tone="save"
                 disabled={saving}
                 onClick={() => void saveComplaint("Traitement enregistre.")}
               />
               <ActionIconButton
                 label="Transmettre"
                 icon={Mail}
+                tone="mail"
                 disabled={saving}
                 onClick={() => void saveComplaint("Verification transmise.")}
               />
@@ -771,8 +820,16 @@ export function CustomerComplaintWorkflowClient({
             </div>
             <div className="flex justify-center gap-3">
               <ActionIconButton
+                label="Enregistrer verification"
+                icon={Save}
+                tone="save"
+                disabled={saving}
+                onClick={() => void saveComplaint("Verification enregistree.")}
+              />
+              <ActionIconButton
                 label="Cloturer"
                 icon={CheckCircle2}
+                tone="success"
                 disabled={saving}
                 onClick={() => {
                   setField("status", "Closed");
@@ -782,6 +839,7 @@ export function CustomerComplaintWorkflowClient({
               <ActionIconButton
                 label="Non efficace"
                 icon={XCircle}
+                tone="danger"
                 disabled={saving}
                 onClick={() => {
                   setField("actions_effective", "Non");

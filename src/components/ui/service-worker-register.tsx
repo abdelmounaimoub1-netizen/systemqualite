@@ -53,7 +53,7 @@ export function ServiceWorkerRegister() {
       }}
     >
       <Download className="h-4 w-4" />
-      Install app
+      Installer
     </Button>
   );
 }
