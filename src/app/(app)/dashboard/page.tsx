@@ -39,38 +39,66 @@ const documentTree = [
   }
 ];
 
-const processLanes = [
+const labManagementBlocks = [
   {
-    title: "Pilotage",
-    color: "bg-slate-100",
-    blocks: [
-      "Pilotage strategique",
-      "Pilotage de la performance",
-      "Audit interne & Risk Management",
-      "Controle interne",
-      "Qualite, Securite et Environnement"
+    title: "Organisation et systeme de management",
+    items: [
+      "Politique et objectifs",
+      "Roles, Responsabilites, Autorites",
+      "Planification",
+      "Communication interne"
     ]
   },
   {
-    title: "Realisation",
-    color: "bg-emerald-50",
-    blocks: ["Achats", "Amont agricole", "Operations industrielles", "Commercial"]
-  },
-  {
-    title: "Supply chain",
-    color: "bg-sky-50",
-    blocks: ["Service clients", "Logistique amont", "Entreposage", "Logistique aval"]
-  },
-  {
-    title: "Support",
-    color: "bg-stone-50",
-    blocks: [
-      "Ressources humaines",
-      "Communication & RSE",
-      "Juridique",
-      "Finance",
-      "Systeme d'information"
+    title: "Management de la qualite",
+    items: [
+      "Analyse et suivi des indicateurs",
+      "Amelioration continue",
+      "Gestion des risques et opportunites",
+      "Mesure de la S.C et fonctionnement du service"
     ]
+  }
+];
+
+const labRealizationBlocks = [
+  {
+    title: "Pre-Analytique",
+    items: ["Plan de controle", "Prelevements", "Reception", "Enregistrement", "Pretraitement"]
+  },
+  {
+    title: "Analytique",
+    items: ["Analyse", "Verification techniques"]
+  },
+  {
+    title: "Post-Analytique",
+    items: ["Validation", "Interpretation", "Transmission des resultats"]
+  }
+];
+
+const labSupportBlocks = [
+  {
+    title: "Gestion du personnel",
+    items: ["Recrutement", "Formation", "Qualification", "Matrice de competence"]
+  },
+  {
+    title: "Maitrise des equipements",
+    items: ["Gestion des equipements", "Metrologie"]
+  },
+  {
+    title: "Systeme Documentaire",
+    items: ["Manuel Qualite", "Modes operatoires", "Procedures", "Enregistrements", "Instructions"]
+  },
+  {
+    title: "Achats / Sous-traitance",
+    items: ["Procedure achat", "Suivi fournisseur", "Gestion des stocks en consommables"]
+  },
+  {
+    title: "Systeme informatique",
+    items: ["Validation des logiciels et formules", "Maitrise des donnees"]
+  },
+  {
+    title: "Locaux et E.A",
+    items: ["Acces et confidentialite", "N&H", "Securite", "Controle des CA"]
   }
 ];
 
@@ -140,111 +168,178 @@ function RedPanel({
   );
 }
 
+function LabCard({
+  title,
+  items,
+  className = ""
+}: {
+  title: string;
+  items: string[];
+  className?: string;
+}) {
+  return (
+    <Link
+      href="/documents"
+      className={`block rounded-2xl border border-white/60 px-4 py-3 text-center shadow-sm transition hover:scale-[1.01] hover:border-sky-300 ${className}`}
+    >
+      <div className="text-[11px] font-bold text-white">{title}</div>
+      <ul className="mt-2 space-y-0.5 text-left text-[9px] font-semibold leading-3 text-slate-900">
+        {items.map((item) => (
+          <li key={item}>-{item}</li>
+        ))}
+      </ul>
+    </Link>
+  );
+}
+
+function LabArrow({
+  title,
+  items
+}: {
+  title: string;
+  items: string[];
+}) {
+  return (
+    <Link
+      href="/documents"
+      className="relative flex min-h-28 items-center justify-center bg-[#5a91d0] px-7 py-4 text-white shadow-sm transition hover:bg-[#447dbb]"
+      style={{
+        clipPath:
+          "polygon(0 0, calc(100% - 38px) 0, 100% 50%, calc(100% - 38px) 100%, 0 100%, 28px 50%)"
+      }}
+    >
+      <div>
+        <div className="text-center text-[11px] font-bold">{title}</div>
+        <ul className="mt-3 text-left text-[10px] font-semibold leading-4">
+          {items.map((item) => (
+            <li key={item}>-{item}</li>
+          ))}
+        </ul>
+      </div>
+    </Link>
+  );
+}
+
+function VerticalBand({
+  children,
+  className = ""
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center justify-center px-2 py-3 text-center text-[10px] font-bold text-white ${className}`}>
+      <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>{children}</span>
+    </div>
+  );
+}
+
 function ProcessMap() {
   return (
     <div className="bg-[#efeee7]">
-      <div className="mb-4 bg-[linear-gradient(90deg,#7b2f2f,#b3473f,#7b2f2f)] px-4 py-4 text-center text-[28px] font-bold uppercase text-white shadow-sm">
-        Un savoir-faire de qualite
+      <div className="mb-3 grid grid-cols-[150px_1fr_150px] items-center gap-3">
+        <div className="rounded-sm bg-white px-3 py-2 text-[10px] font-bold text-slate-700 shadow-sm">
+          Durrah Sugar Refinery
+          <div className="text-[8px] font-semibold text-slate-500">Laboratoire et controle qualite</div>
+        </div>
+        <div className="border border-slate-400 bg-[#c7d6f4] px-4 py-2 text-center text-xl font-semibold text-slate-900 shadow-sm">
+          Fonctionnement normale du laboratoire
+        </div>
+        <div className="rounded-sm bg-white px-3 py-2 text-[10px] font-bold text-slate-700 shadow-sm">
+          COSUMAR
+          <div className="text-[8px] font-semibold text-slate-500">Partageons le progres</div>
+        </div>
       </div>
 
-      <div className="mx-auto max-w-[980px] overflow-x-auto">
-        <div className="min-w-[860px] border-[6px] border-[#de777f] bg-[#ede9df] p-3">
-          <div className="grid grid-cols-[34px_34px_1fr_34px] gap-2">
-            <div className="row-span-4 flex items-center justify-center bg-[#1b4660] text-[10px] font-bold uppercase text-white">
-              <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
-                Exigences
-              </span>
+      <div className="mx-auto max-w-[1040px] overflow-x-auto border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="relative min-w-[930px]">
+          <div className="mb-3 flex justify-center">
+            <div className="border-4 border-white bg-[#4bb4c7] px-16 py-1 text-center text-xs font-bold uppercase text-slate-900 shadow">
+              Cartographie du laboratoire
             </div>
-            <div className="row-span-4 flex items-center justify-center bg-slate-500 text-[10px] font-bold uppercase text-white">
-              <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
-                Parties interessees
-              </span>
-            </div>
+          </div>
 
-            <div className="grid grid-cols-5 gap-2">
-              {processLanes[0].blocks.map((block) => (
-                <Link
-                  key={block}
-                  href="/documents"
-                  className="border border-slate-300 bg-[#f5f1eb] px-2 py-2 text-center text-[10px] font-semibold leading-4 text-slate-700 hover:border-red-500 hover:text-red-700"
-                >
-                  {block}
-                </Link>
-              ))}
-            </div>
+          <div className="relative grid grid-cols-[76px_1fr_76px] gap-3">
+            <div className="absolute -left-2 top-0 h-24 w-24 rounded-tl-[3rem] border-l-[28px] border-t-[28px] border-[#d8d2ef]" />
+            <div className="absolute -right-2 top-0 h-24 w-24 rounded-tr-[3rem] border-r-[28px] border-t-[28px] border-[#d8d2ef]" />
+            <div className="absolute -bottom-2 left-0 h-24 w-24 rounded-bl-[3rem] border-b-[28px] border-l-[28px] border-[#d8d2ef]" />
+            <div className="absolute -bottom-2 right-0 h-24 w-24 rounded-br-[3rem] border-b-[28px] border-r-[28px] border-[#d8d2ef]" />
 
-            <div className="row-span-4 flex items-center justify-center bg-emerald-700 text-[10px] font-bold uppercase text-white">
-              <span style={{ writingMode: "vertical-rl" }}>Satisfaction clients</span>
-            </div>
-
-            <div className="col-start-3 space-y-2 border border-slate-300 bg-[#f9f4ef] p-2">
-              <div className="text-center text-[10px] font-bold text-slate-700">
-                Achats / Operations / Commercial / Logistique
+            <div className="relative z-10 row-span-3 grid grid-rows-[1fr_auto_1fr] gap-3">
+              <div className="flex items-start justify-center pt-8 text-xs font-bold text-slate-600">
+                Plan
               </div>
-              <div className="grid grid-cols-[1fr_1fr_2.2fr_1.2fr] gap-2">
-                <Link href="/documents" className="border-2 border-emerald-700 bg-emerald-100 p-2 text-center text-[10px] font-bold text-slate-700">
-                  ACHATS
-                  <span className="mt-2 block border border-slate-300 bg-white px-1 py-1 font-medium">
-                    P2P
-                  </span>
-                </Link>
-                <Link href="/documents" className="border-2 border-teal-600 bg-teal-100 p-2 text-center text-[10px] font-bold text-slate-700">
-                  AMONT AGRICOLE
-                  <span className="mt-2 block border border-slate-300 bg-white px-1 py-1 font-medium">
-                    Sourcing
-                  </span>
-                </Link>
-                <Link href="/documents" className="border border-slate-300 bg-white p-2 text-center text-[10px] font-bold text-slate-700">
-                  OPERATIONS INDUSTRIELLES
-                  <span className="mt-2 grid grid-cols-3 gap-1 font-medium">
-                    <span className="border border-slate-300 bg-[#f5f1eb] px-1 py-1">Laiterie</span>
-                    <span className="border border-slate-300 bg-[#f5f1eb] px-1 py-1">Packaging</span>
-                    <span className="border border-slate-300 bg-[#f5f1eb] px-1 py-1">Qualite</span>
-                  </span>
-                </Link>
-                <Link href="/documents" className="border-4 border-red-500 bg-red-100 p-2 text-center text-[10px] font-bold text-slate-700">
-                  COMMERCIAL
-                  <span className="mt-2 grid grid-cols-2 gap-1 font-medium">
-                    <span className="border border-slate-300 bg-white px-1 py-1">Distribution</span>
-                    <span className="border border-slate-300 bg-white px-1 py-1">Offres</span>
-                  </span>
-                </Link>
+              <VerticalBand className="bg-[#4d87c6]">
+                Donnees d&apos;entree : Exigences clients / contrat d&apos;interet
+              </VerticalBand>
+              <div className="flex items-end justify-center pb-8 text-xs font-bold text-slate-600">
+                Act
               </div>
             </div>
 
-            <div className="col-start-3 border border-slate-300 bg-[#203d72] p-2">
-              <div className="mb-2 text-center text-[10px] font-bold uppercase text-white">
-                Supply chain
+            <div className="relative z-10 space-y-2">
+              <div className="border border-slate-300 bg-[#e3dcf1] p-3">
+                <div className="mb-2 text-center text-[10px] font-bold uppercase text-slate-800">
+                  Processus de management
+                </div>
+                <div className="grid grid-cols-2 gap-10 px-10">
+                  {labManagementBlocks.map((block) => (
+                    <LabCard
+                      key={block.title}
+                      title={block.title}
+                      items={block.items}
+                      className="bg-[linear-gradient(#df9298,#bb4048,#e5a1a7)]"
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-6 gap-2">
-                {processLanes[2].blocks.concat(["Gestion des prestataires", "Systeme et planning"]).map((block) => (
-                  <Link
-                    key={block}
-                    href="/documents"
-                    className="border border-slate-300 bg-[#f5f1eb] px-2 py-2 text-center text-[10px] font-semibold leading-4 text-slate-700 hover:border-red-500 hover:text-red-700"
-                  >
-                    {block}
-                  </Link>
-                ))}
+
+              <div className="border border-slate-300 bg-[#dceefa] p-3">
+                <div className="mb-2 text-center text-[10px] font-bold uppercase text-slate-800">
+                  Processus de realisation
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {labRealizationBlocks.map((block) => (
+                    <LabArrow key={block.title} title={block.title} items={block.items} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-[#4d2b74] p-3">
+                <div className="mb-2 text-center text-[10px] font-bold uppercase text-slate-950">
+                  Processus de support
+                </div>
+                <div className="grid grid-cols-6 gap-2">
+                  {labSupportBlocks.map((block) => (
+                    <LabCard
+                      key={block.title}
+                      title={block.title}
+                      items={block.items}
+                      className="bg-[linear-gradient(#f0c8c5,#d9949c)]"
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="col-start-3">
-              <div className="mb-1 text-center text-[10px] font-bold text-slate-700">
-                Ressources Humaines
+            <div className="relative z-10 row-span-3 grid grid-rows-[1fr_auto_1fr] gap-3">
+              <div className="flex items-start justify-center pt-8 text-xs font-bold text-slate-600">
+                DO
               </div>
-              <div className="grid grid-cols-5 gap-2">
-                {processLanes[3].blocks.map((block) => (
-                  <Link
-                    key={block}
-                    href="/documents"
-                    className="border border-slate-300 bg-[#f5f1eb] px-2 py-2 text-center text-[10px] font-semibold leading-4 text-slate-700 hover:border-red-500 hover:text-red-700"
-                  >
-                    {block}
-                  </Link>
-                ))}
+              <VerticalBand className="bg-[#4d87c6]">
+                Donnees de sortie : Satisfaction clients
+              </VerticalBand>
+              <div className="flex items-end justify-center pb-8 text-xs font-bold text-slate-600">
+                Check
               </div>
             </div>
+          </div>
+
+          <div className="mt-3 h-8 bg-[linear-gradient(90deg,#10b8dc,#2a408f)]" />
+          <div className="absolute right-14 top-14 rounded-full bg-[#edc4cb] px-5 py-4 text-center text-[10px] font-bold text-slate-700 shadow-sm">
+            Amelioration
+            <br />
+            Continue
           </div>
         </div>
       </div>
