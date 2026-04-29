@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, ChevronRight, ClipboardCheck, FileStack } from "lucide-react";
+import { ArrowRight, ChevronRight, Circle, ClipboardCheck, FileStack } from "lucide-react";
 
 import { getDashboardData } from "@/lib/modules/queries";
 
@@ -77,15 +77,19 @@ const processLanes = [
 function PortalBox({
   title,
   children,
-  className = ""
+  className = "",
+  headerClassName = ""
 }: {
   title: string;
   children: ReactNode;
   className?: string;
+  headerClassName?: string;
 }) {
   return (
     <section className={`overflow-hidden border border-red-300 bg-red-50 ${className}`}>
-      <div className="bg-[#d2202f] px-3 py-1.5 text-sm font-semibold text-white">{title}</div>
+      <div className={`bg-[#d2202f] px-2 py-1 text-xs font-semibold text-white ${headerClassName}`}>
+        {title}
+      </div>
       {children}
     </section>
   );
@@ -103,18 +107,18 @@ function RedPanel({
   actions: string[];
 }) {
   return (
-    <section className="overflow-hidden border border-red-300 bg-red-50">
+    <section className="overflow-hidden border border-red-300 bg-[#f7c9cd]">
       <Link
         href={href}
-        className="flex items-center justify-between bg-[#d2202f] px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-[#b91825]"
+        className="flex items-center justify-between bg-[#d2202f] px-2 py-1 text-xs font-semibold text-white hover:bg-[#b91825]"
       >
         <span className="inline-flex items-center gap-2">
-          <span className="h-4 w-4 rounded-full border border-white/80 bg-white/20" />
+          <Circle className="h-3.5 w-3.5 fill-white/15" />
           {title}
         </span>
-        <span className="min-w-6 rounded bg-white/20 px-1.5 text-center text-xs">{count}</span>
+        <span className="min-w-4 text-center text-[10px]">-</span>
       </Link>
-      <div className="space-y-1 px-3 py-2 text-xs text-slate-700">
+      <div className="space-y-0.5 px-2 py-1.5 text-[10px] leading-4 text-slate-700">
         {actions.map((action) => {
           const actionHref =
             action.startsWith("Nouvelle") ||
@@ -125,8 +129,9 @@ function RedPanel({
 
           return (
             <Link key={action} href={actionHref} className="flex items-center gap-1.5 hover:text-red-700">
-              <ChevronRight className="h-3.5 w-3.5 text-red-600" />
+              <ChevronRight className="h-3 w-3 text-red-600" />
               {action}
+              <span className="sr-only">({count})</span>
             </Link>
           );
         })}
@@ -137,38 +142,123 @@ function RedPanel({
 
 function ProcessMap() {
   return (
-    <div className="border border-red-200 bg-white p-3">
-      <div className="bg-[linear-gradient(90deg,#7b2f2f,#b3473f,#7b2f2f)] px-4 py-4 text-center text-2xl font-bold uppercase tracking-wide text-white">
+    <div className="bg-[#efeee7]">
+      <div className="mb-4 bg-[linear-gradient(90deg,#7b2f2f,#b3473f,#7b2f2f)] px-4 py-4 text-center text-[28px] font-bold uppercase text-white shadow-sm">
         Un savoir-faire de qualite
       </div>
 
-      <div className="mt-4 border-[6px] border-red-200 bg-[#f7f2ed] p-4">
-        <div className="grid gap-3">
-          {processLanes.map((lane) => (
-            <div key={lane.title} className="grid gap-2 lg:grid-cols-[130px_1fr]">
-              <div className="flex items-center justify-center bg-[#1b4660] px-3 py-3 text-xs font-semibold uppercase text-white">
-                {lane.title}
+      <div className="mx-auto max-w-[980px] overflow-x-auto">
+        <div className="min-w-[860px] border-[6px] border-[#de777f] bg-[#ede9df] p-3">
+          <div className="grid grid-cols-[34px_34px_1fr_34px] gap-2">
+            <div className="row-span-4 flex items-center justify-center bg-[#1b4660] text-[10px] font-bold uppercase text-white">
+              <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
+                Exigences
+              </span>
+            </div>
+            <div className="row-span-4 flex items-center justify-center bg-slate-500 text-[10px] font-bold uppercase text-white">
+              <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
+                Parties interessees
+              </span>
+            </div>
+
+            <div className="grid grid-cols-5 gap-2">
+              {processLanes[0].blocks.map((block) => (
+                <Link
+                  key={block}
+                  href="/documents"
+                  className="border border-slate-300 bg-[#f5f1eb] px-2 py-2 text-center text-[10px] font-semibold leading-4 text-slate-700 hover:border-red-500 hover:text-red-700"
+                >
+                  {block}
+                </Link>
+              ))}
+            </div>
+
+            <div className="row-span-4 flex items-center justify-center bg-emerald-700 text-[10px] font-bold uppercase text-white">
+              <span style={{ writingMode: "vertical-rl" }}>Satisfaction clients</span>
+            </div>
+
+            <div className="col-start-3 space-y-2 border border-slate-300 bg-[#f9f4ef] p-2">
+              <div className="text-center text-[10px] font-bold text-slate-700">
+                Achats / Operations / Commercial / Logistique
               </div>
-              <div className={`grid gap-2 p-2 sm:grid-cols-2 xl:grid-cols-5 ${lane.color}`}>
-                {lane.blocks.map((block) => (
+              <div className="grid grid-cols-[1fr_1fr_2.2fr_1.2fr] gap-2">
+                <Link href="/documents" className="border-2 border-emerald-700 bg-emerald-100 p-2 text-center text-[10px] font-bold text-slate-700">
+                  ACHATS
+                  <span className="mt-2 block border border-slate-300 bg-white px-1 py-1 font-medium">
+                    P2P
+                  </span>
+                </Link>
+                <Link href="/documents" className="border-2 border-teal-600 bg-teal-100 p-2 text-center text-[10px] font-bold text-slate-700">
+                  AMONT AGRICOLE
+                  <span className="mt-2 block border border-slate-300 bg-white px-1 py-1 font-medium">
+                    Sourcing
+                  </span>
+                </Link>
+                <Link href="/documents" className="border border-slate-300 bg-white p-2 text-center text-[10px] font-bold text-slate-700">
+                  OPERATIONS INDUSTRIELLES
+                  <span className="mt-2 grid grid-cols-3 gap-1 font-medium">
+                    <span className="border border-slate-300 bg-[#f5f1eb] px-1 py-1">Laiterie</span>
+                    <span className="border border-slate-300 bg-[#f5f1eb] px-1 py-1">Packaging</span>
+                    <span className="border border-slate-300 bg-[#f5f1eb] px-1 py-1">Qualite</span>
+                  </span>
+                </Link>
+                <Link href="/documents" className="border-4 border-red-500 bg-red-100 p-2 text-center text-[10px] font-bold text-slate-700">
+                  COMMERCIAL
+                  <span className="mt-2 grid grid-cols-2 gap-1 font-medium">
+                    <span className="border border-slate-300 bg-white px-1 py-1">Distribution</span>
+                    <span className="border border-slate-300 bg-white px-1 py-1">Offres</span>
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="col-start-3 border border-slate-300 bg-[#203d72] p-2">
+              <div className="mb-2 text-center text-[10px] font-bold uppercase text-white">
+                Supply chain
+              </div>
+              <div className="grid grid-cols-6 gap-2">
+                {processLanes[2].blocks.concat(["Gestion des prestataires", "Systeme et planning"]).map((block) => (
                   <Link
                     key={block}
                     href="/documents"
-                    className="min-h-12 border border-slate-300 bg-white px-2 py-2 text-center text-[11px] font-semibold leading-4 text-slate-700 hover:border-red-400 hover:text-red-700"
+                    className="border border-slate-300 bg-[#f5f1eb] px-2 py-2 text-center text-[10px] font-semibold leading-4 text-slate-700 hover:border-red-500 hover:text-red-700"
                   >
                     {block}
                   </Link>
                 ))}
               </div>
             </div>
-          ))}
+
+            <div className="col-start-3">
+              <div className="mb-1 text-center text-[10px] font-bold text-slate-700">
+                Ressources Humaines
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {processLanes[3].blocks.map((block) => (
+                  <Link
+                    key={block}
+                    href="/documents"
+                    className="border border-slate-300 bg-[#f5f1eb] px-2 py-2 text-center text-[10px] font-semibold leading-4 text-slate-700 hover:border-red-500 hover:text-red-700"
+                  >
+                    {block}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ portal?: string }>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const activePortal = params.portal === "amelioration" ? "amelioration" : "documentaire";
   const { metrics } = await getDashboardData();
 
   const improvementPanels = [
@@ -235,64 +325,11 @@ export default async function DashboardPage() {
     { label: "RECLAMATION FOURNISSEUR", value: metrics.openSupplierComplaints, href: "/supplier-complaints" }
   ];
 
-  return (
-    <div className="space-y-6">
-      <section id="portail-documentaire" className="scroll-mt-20">
-        <div className="grid gap-5 xl:grid-cols-[360px_1fr]">
-          <div className="space-y-3">
-            <PortalBox title="Documentation par processus">
-              <div className="space-y-3 px-3 py-3 text-xs text-slate-700">
-                {documentTree.map((group) => (
-                  <div key={group.label}>
-                    <Link href="/documents" className="font-semibold hover:text-red-700">
-                      {group.label}
-                    </Link>
-                    <ul className="mt-1 space-y-1 pl-4">
-                      {group.children.map((child) => (
-                        <li key={child}>
-                          <Link href="/documents" className="hover:text-red-700">
-                            {child}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </PortalBox>
-
-            <PortalBox title="Mes Taches En Cours">
-              <div className="divide-y divide-red-100 text-xs">
-                {taskRows.map((row) => (
-                  <Link
-                    key={row.label}
-                    href={row.href}
-                    className="flex items-center justify-between px-3 py-2 text-slate-700 hover:bg-red-100"
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <ClipboardCheck className="h-3.5 w-3.5 text-red-600" />
-                      {row.label}
-                    </span>
-                    <span>{row.value}</span>
-                  </Link>
-                ))}
-              </div>
-            </PortalBox>
-
-            <PortalBox title="Mon Bloc Notes" className="min-h-40">
-              <div className="p-3 text-xs text-slate-500">
-                Les notes de suivi apparaissent dans les discussions de chaque dossier.
-              </div>
-            </PortalBox>
-          </div>
-
-          <ProcessMap />
-        </div>
-      </section>
-
-      <section id="portail-amelioration" className="scroll-mt-20">
-        <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
-          <div className="grid gap-3">
+  if (activePortal === "amelioration") {
+    return (
+      <section id="portail-amelioration">
+        <div className="grid gap-11 xl:grid-cols-[380px_1fr]">
+          <div className="grid content-start gap-2">
             {improvementPanels.map((panel) => (
               <RedPanel key={panel.title} {...panel} />
             ))}
@@ -313,13 +350,14 @@ export default async function DashboardPage() {
             />
 
             <PortalBox title="Mes Taches En Cours">
-              <div className="divide-y divide-red-100 text-xs">
+              <div className="divide-y divide-red-100 text-[10px] leading-4">
                 {taskRows.map((row) => (
                   <Link
                     key={row.label}
                     href={row.href}
-                    className="grid grid-cols-[1fr_auto] px-3 py-2 text-slate-700 hover:bg-red-100"
+                    className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-2 py-1 text-slate-700 hover:bg-red-100"
                   >
+                    <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
                     <span>{row.label}</span>
                     <span>{row.value}</span>
                   </Link>
@@ -328,17 +366,17 @@ export default async function DashboardPage() {
             </PortalBox>
 
             <PortalBox title="Mes enregistrements a traiter ou a suivre">
-              <div className="divide-y divide-red-100 text-xs">
+              <div className="divide-y divide-red-100 text-[10px] leading-4">
                 {followRows.map((row) => (
                   <Link
                     key={row.label}
                     href={row.href}
-                    className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-slate-700 hover:bg-red-100"
+                    className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-2 py-1 text-slate-700 hover:bg-red-100"
                   >
-                    <ArrowRight className="h-3.5 w-3.5 text-red-600" />
+                    <ArrowRight className="h-3 w-3 text-red-600" />
                     <span className="font-semibold">{row.label}</span>
                     <span>{row.value}</span>
-                    <FileStack className="h-3.5 w-3.5 text-slate-500" />
+                    <FileStack className="h-3 w-3 text-slate-500" />
                   </Link>
                 ))}
               </div>
@@ -346,6 +384,61 @@ export default async function DashboardPage() {
           </div>
         </div>
       </section>
-    </div>
+    );
+  }
+
+  return (
+    <section id="portail-documentaire">
+      <div className="grid gap-5 xl:grid-cols-[330px_1fr]">
+        <div className="space-y-3">
+          <PortalBox title="Documentation par processus">
+            <div className="space-y-2 px-3 py-3 text-[10px] leading-4 text-slate-700">
+              {documentTree.map((group) => (
+                <div key={group.label}>
+                  <Link href="/documents" className="font-semibold hover:text-red-700">
+                    {group.label}
+                  </Link>
+                  <ul className="mt-1 space-y-0.5 pl-4">
+                    {group.children.map((child) => (
+                      <li key={child}>
+                        <Link href="/documents" className="hover:text-red-700">
+                          {child}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </PortalBox>
+
+          <PortalBox title="Mes Taches En Cours">
+            <div className="divide-y divide-red-100 text-[10px] leading-4">
+              {taskRows.map((row) => (
+                <Link
+                  key={row.label}
+                  href={row.href}
+                  className="flex items-center justify-between px-3 py-1.5 text-slate-700 hover:bg-red-100"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <ClipboardCheck className="h-3 w-3 text-red-600" />
+                    {row.label}
+                  </span>
+                  <span>{row.value}</span>
+                </Link>
+              ))}
+            </div>
+          </PortalBox>
+
+          <PortalBox title="Mon Bloc Notes" className="min-h-32">
+            <div className="p-3 text-[10px] text-slate-500">
+              Les notes de suivi apparaissent dans les discussions de chaque dossier.
+            </div>
+          </PortalBox>
+        </div>
+
+        <ProcessMap />
+      </div>
+    </section>
   );
 }

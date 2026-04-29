@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { BellRing, Home, LogOut, Menu, Settings, UserCircle2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -18,6 +18,7 @@ type AppShellProps = {
 
 export function AppShell({ children, context }: AppShellProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const activeItems = useMemo(
@@ -41,16 +42,18 @@ export function AppShell({ children, context }: AppShellProps) {
 
   const portalTabs = [
     {
-      href: "/dashboard#portail-documentaire",
+      href: "/dashboard?portal=documentaire",
       label: "Portail Documentaire",
-      active: pathname === "/dashboard"
+      active: pathname === "/dashboard" && searchParams.get("portal") !== "amelioration"
     },
     {
-      href: "/dashboard#portail-amelioration",
+      href: "/dashboard?portal=amelioration",
       label: "Portail Amelioration",
-      active: Array.from(improvementPaths).some(
-        (path) => pathname === path || pathname.startsWith(`${path}/`)
-      )
+      active:
+        (pathname === "/dashboard" && searchParams.get("portal") === "amelioration") ||
+        Array.from(improvementPaths).some(
+          (path) => pathname === path || pathname.startsWith(`${path}/`)
+        )
     }
   ];
 
