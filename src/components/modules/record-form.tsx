@@ -134,13 +134,13 @@ export function RecordForm({
             return (
               <div
                 key={field.key}
-                className="rounded border border-slate-300 bg-slate-50 px-3 py-2"
+                className="rounded border border-[#b9def4] bg-[#f8fcff] px-3 py-2"
               >
                 <label className="flex items-center gap-3 text-sm font-medium text-ink">
                   <input
                     id={field.key}
                     type="checkbox"
-                    className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
+                    className="h-4 w-4 rounded border-[#b9def4] text-brand focus:ring-[#00a9da]"
                     checked={Boolean(values[field.key] ?? false)}
                     onChange={(event) =>
                       setValues((current) => ({ ...current, [field.key]: event.target.checked }))
@@ -177,7 +177,7 @@ export function RecordForm({
                     readOnly={field.readOnly}
                     required={field.required}
                   />
-                  <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                  <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded border border-[#b9def4] bg-[#f8fcff] px-3 py-2 text-sm font-semibold text-[#2749a0] hover:bg-[#fff4b8]">
                     <UploadCloud className="h-4 w-4" />
                     {isUploading ? "Upload..." : "Fichier joint"}
                     <input

@@ -38,18 +38,18 @@ function AuthShell({
 }) {
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
-      <div className="relative hidden overflow-hidden bg-slate-950 px-10 py-12 text-white lg:flex">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(73,190,185,0.28),transparent_30%),radial-gradient(circle_at_80%_0%,rgba(247,180,68,0.22),transparent_32%)]" />
+      <div className="relative hidden overflow-hidden bg-[#2749a0] px-10 py-12 text-white lg:flex">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(0,169,218,0.34),transparent_30%),radial-gradient(circle_at_80%_0%,rgba(255,205,18,0.28),transparent_32%)]" />
         <div className="relative flex max-w-xl flex-col justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#fff4b8]">
               <ShieldCheck className="h-4 w-4" />
-              QMS Pro
+              COSUMAR QMS
             </div>
             <h1 className="mt-8 text-5xl font-semibold leading-tight">
               Quality systems built for the floor, the audit, and the follow-up.
             </h1>
-            <p className="mt-6 max-w-lg text-base leading-8 text-slate-300">
+            <p className="mt-6 max-w-lg text-base leading-8 text-[#d7f8ff]">
               Mobile installable. Desktop ready. Documents, CAPA, audits, risk, suppliers, and training in one original workspace.
             </p>
           </div>
@@ -69,7 +69,7 @@ function AuthShell({
           <div className="mb-8">
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">Secure access</div>
             <h2 className="mt-3 text-3xl font-semibold text-ink">{title}</h2>
-            <p className="mt-3 text-sm leading-7 text-slate-500">{description}</p>
+            <p className="mt-3 text-sm leading-7 text-muted">{description}</p>
           </div>
           {children}
         </Card>

@@ -10,13 +10,13 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary:
-    "border-teal-800 bg-teal-700 text-white hover:bg-teal-800 disabled:border-slate-300 disabled:bg-slate-300 disabled:text-white",
+    "border-[#2749a0] bg-[#2749a0] text-white hover:border-[#00a9da] hover:bg-[#00a9da] disabled:border-slate-300 disabled:bg-slate-300 disabled:text-white",
   secondary:
-    "border-slate-300 bg-white text-slate-700 hover:bg-slate-100 disabled:text-slate-400",
+    "border-[#b9def4] bg-white text-[#2749a0] hover:bg-[#fff4b8] disabled:text-slate-400",
   ghost:
-    "border-transparent bg-transparent text-slate-600 hover:border-slate-300 hover:bg-white hover:text-slate-900 disabled:text-slate-400",
+    "border-transparent bg-transparent text-[#2749a0] hover:border-[#b9def4] hover:bg-white hover:text-[#00a9da] disabled:text-slate-400",
   danger:
-    "border-rose-700 bg-danger text-white hover:bg-rose-700 disabled:border-rose-300 disabled:bg-rose-300 disabled:text-white"
+    "border-danger bg-danger text-white hover:brightness-95 disabled:border-danger/30 disabled:bg-danger/30 disabled:text-white"
 };
 
 export function Button({
@@ -29,7 +29,7 @@ export function Button({
     <button
       type={type}
       className={cn(
-        "inline-flex min-h-9 items-center justify-center gap-2 rounded border px-3 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 disabled:cursor-not-allowed",
+        "inline-flex min-h-9 items-center justify-center gap-2 rounded border px-3 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#00a9da]/25 disabled:cursor-not-allowed",
         variantClasses[variant],
         className
       )}

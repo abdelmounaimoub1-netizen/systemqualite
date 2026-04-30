@@ -11,13 +11,13 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, ctaLabel, onCta }: EmptyStateProps) {
   return (
-    <div className="rounded border border-dashed border-slate-300 bg-white px-6 py-8 text-center">
+    <div className="rounded border border-dashed border-[#b9def4] bg-white px-6 py-8 text-center">
       <div className="mx-auto flex max-w-md flex-col items-center gap-3">
-        <span className="rounded bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700">
+        <span className="rounded bg-[#fff4b8] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#2749a0]">
           Aucun resultat
         </span>
         <h3 className="text-xl font-semibold text-ink">{title}</h3>
-        <p className="text-sm leading-6 text-slate-500">{description}</p>
+        <p className="text-sm leading-6 text-muted">{description}</p>
         {ctaLabel && onCta ? (
           <Button className="mt-2" onClick={onCta}>
             {ctaLabel}

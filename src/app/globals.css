@@ -2,17 +2,19 @@
 @import "tailwindcss";
 
 :root {
-  --surface: 244 248 249;
+  --surface: 236 247 252;
   --panel: 255 255 255;
-  --ink: 15 23 42;
-  --muted: 100 116 139;
-  --brand: 11 109 166;
-  --brand-soft: 191 227 244;
-  --accent: 73 190 185;
-  --accent-soft: 220 249 247;
-  --success: 22 163 74;
-  --warning: 217 119 6;
-  --danger: 225 29 72;
+  --ink: 22 44 88;
+  --muted: 91 111 151;
+  --brand: 39 73 160;
+  --brand-soft: 211 234 255;
+  --accent: 0 169 218;
+  --accent-soft: 215 248 255;
+  --sun: 255 205 18;
+  --sun-soft: 255 246 197;
+  --success: 14 139 116;
+  --warning: 218 149 20;
+  --danger: 202 73 92;
 }
 
 * {
@@ -44,7 +46,7 @@ textarea {
 }
 
 ::selection {
-  background: rgba(11, 109, 166, 0.18);
+  background: rgba(255, 205, 18, 0.34);
 }
 
 ::-webkit-scrollbar {
@@ -54,5 +56,5 @@ textarea {
 
 ::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(100, 116, 139, 0.35);
+  background: rgba(39, 73, 160, 0.38);
 }

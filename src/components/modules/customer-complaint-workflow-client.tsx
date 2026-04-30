@@ -40,9 +40,9 @@ type CustomerComplaintWorkflowClientProps = {
 };
 
 const inputClass =
-  "h-9 w-full rounded border border-slate-300 bg-white px-2 text-sm text-slate-800 shadow-sm outline-none focus:border-teal-700";
+  "h-9 w-full rounded border border-[#b9def4] bg-white px-2 text-sm text-ink shadow-sm outline-none focus:border-[#00a9da] focus:ring-2 focus:ring-[#00a9da]/20";
 const textareaClass =
-  "min-h-20 w-full rounded border border-slate-300 bg-white px-2 py-2 text-sm text-slate-800 shadow-sm outline-none focus:border-teal-700";
+  "min-h-20 w-full rounded border border-[#b9def4] bg-white px-2 py-2 text-sm text-ink shadow-sm outline-none focus:border-[#00a9da] focus:ring-2 focus:ring-[#00a9da]/20";
 
 function fieldValue(values: Record<string, unknown>, key: string) {
   const value = values[key];
@@ -57,11 +57,11 @@ function SectionTitle({
   title: string;
 }) {
   return (
-    <div className="flex items-center gap-3 border-b border-slate-300 bg-slate-100 px-3 py-2">
-      <span className="inline-flex h-6 w-6 items-center justify-center rounded border border-slate-300 bg-white text-xs text-slate-500">
+    <div className="flex items-center gap-3 border-b border-[#b9def4] bg-[#edf7ff] px-3 py-2">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded border border-[#b9def4] bg-white text-xs text-[#2749a0]">
         <ClipboardCheck className="h-4 w-4" />
       </span>
-      <h2 className="text-xl font-medium text-slate-800">
+      <h2 className="text-xl font-medium text-ink">
         {step} {title}
       </h2>
     </div>
@@ -78,7 +78,7 @@ function Field({
   wide?: boolean;
 }) {
   return (
-    <label className={cn("grid gap-1 text-xs font-semibold text-slate-700", wide ? "md:col-span-2" : "")}>
+    <label className={cn("grid gap-1 text-xs font-semibold text-ink", wide ? "md:col-span-2" : "")}>
       <span>{label}</span>
       {children}
     </label>
@@ -86,7 +86,7 @@ function Field({
 }
 
 function WorkflowCard({ children }: { children: ReactNode }) {
-  return <section className="overflow-hidden rounded border border-slate-300 bg-white shadow-sm">{children}</section>;
+  return <section className="overflow-hidden rounded border border-[#b9def4] bg-white shadow-sm">{children}</section>;
 }
 
 function ActionIconButton({
@@ -103,12 +103,12 @@ function ActionIconButton({
   tone?: "save" | "mail" | "send" | "edit" | "danger" | "success";
 }) {
   const toneClasses = {
-    save: "bg-teal-700 hover:bg-teal-800",
-    mail: "bg-slate-800 hover:bg-slate-900",
-    send: "bg-slate-700 hover:bg-slate-800",
-    edit: "bg-amber-600 hover:bg-amber-700",
-    danger: "bg-red-700 hover:bg-red-800",
-    success: "bg-emerald-700 hover:bg-emerald-800"
+    save: "bg-[#2749a0] hover:bg-[#00a9da]",
+    mail: "bg-[#00a9da] hover:bg-[#2749a0]",
+    send: "bg-[#00a9da] hover:bg-[#2749a0]",
+    edit: "bg-[#ffcd12] text-[#17306b] hover:bg-[#ffe15c]",
+    danger: "bg-danger hover:brightness-95",
+    success: "bg-success hover:brightness-95"
   };
 
   return (
@@ -142,7 +142,7 @@ function RadioGroup({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-700">
+    <div className="flex flex-wrap items-center gap-4 text-sm text-ink">
       <span className="font-semibold">{label}</span>
       {options.map((option) => (
         <label key={option} className="inline-flex items-center gap-1.5">
@@ -151,7 +151,7 @@ function RadioGroup({
             name={name}
             checked={value === option}
             onChange={() => onChange(option)}
-            className="h-3.5 w-3.5 text-teal-700"
+            className="h-3.5 w-3.5 text-[#00a9da]"
           />
           {option}
         </label>
@@ -279,12 +279,12 @@ export function CustomerComplaintWorkflowClient({
     <div className="space-y-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="text-center text-xl font-semibold text-slate-900 md:text-left">
+          <div className="text-center text-xl font-semibold text-ink md:text-left">
             Formulaire de suivi des reclamations client
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted">
             <span>Affiliation</span>
-            <span className="rounded bg-slate-100 px-3 py-1 font-semibold text-slate-900">
+            <span className="rounded bg-[#fff4b8] px-3 py-1 font-semibold text-[#2749a0]">
               {fieldValue(values, "affiliation") || fieldValue(values, "reference")}
             </span>
             <StatusBadge value={String(values.status ?? "Open")} />
@@ -308,7 +308,7 @@ export function CustomerComplaintWorkflowClient({
         <SectionTitle step="1/4" title="Declaration de la reclamation client" />
 
         <div className="space-y-4 p-3">
-          <div className="grid gap-3 bg-yellow-50/70 p-3 md:grid-cols-2">
+          <div className="grid gap-3 bg-[#fff9d8] p-3 md:grid-cols-2">
             <Field label="Affiliation">
               <input
                 className={inputClass}
@@ -398,7 +398,7 @@ export function CustomerComplaintWorkflowClient({
             </div>
           </div>
 
-          <div className="space-y-3 bg-red-50 p-3">
+          <div className="space-y-3 bg-[#edf7ff] p-3">
             <RadioGroup
               label="Type de reclamation"
               name="complaint_type"
@@ -522,7 +522,7 @@ export function CustomerComplaintWorkflowClient({
             />
           ) : null}
 
-          <div className="space-y-3 border-t border-slate-300 pt-4">
+          <div className="space-y-3 border-t border-[#b9def4] pt-4">
             <h3 className="text-sm font-semibold text-slate-800">Transmission pour orientation</h3>
             <div className="grid gap-3 md:grid-cols-2">
               <Field label="Destinataire pour traitement">
@@ -563,7 +563,7 @@ export function CustomerComplaintWorkflowClient({
       <WorkflowCard>
         <SectionTitle step="2/4" title="Orientation de la reclamation client" />
         <div className="space-y-4 p-3">
-          <div className="bg-red-50 px-3 py-3">
+          <div className="bg-[#edf7ff] px-3 py-3">
             <RadioGroup
               label="Que voulez faire de cette reclamation ?"
               name="orientation_decision"
@@ -629,8 +629,8 @@ export function CustomerComplaintWorkflowClient({
             />
           </Field>
 
-          <div className="overflow-hidden rounded border border-slate-300">
-            <div className="grid grid-cols-[1fr_1.4fr_0.8fr_0.8fr_1.1fr_0.8fr] bg-teal-900 px-3 py-2 text-xs font-semibold text-white">
+          <div className="overflow-hidden rounded border border-[#b9def4]">
+            <div className="grid grid-cols-[1fr_1.4fr_0.8fr_0.8fr_1.1fr_0.8fr] bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-3 py-2 text-xs font-semibold text-white">
               <span>Pilote</span>
               <span>Action</span>
               <span>Deadline</span>
@@ -639,12 +639,12 @@ export function CustomerComplaintWorkflowClient({
               <span>Avancement</span>
             </div>
             {actionRecords.length === 0 ? (
-              <div className="px-3 py-5 text-sm text-slate-500">Aucune action planifiee.</div>
+              <div className="px-3 py-5 text-sm text-muted">Aucune action planifiee.</div>
             ) : (
               actionRecords.map((action) => (
                 <div
                   key={String(action.id)}
-                  className="grid grid-cols-[1fr_1.4fr_0.8fr_0.8fr_1.1fr_0.8fr] border-t border-slate-200 px-3 py-2 text-sm text-slate-700"
+                  className="grid grid-cols-[1fr_1.4fr_0.8fr_0.8fr_1.1fr_0.8fr] border-t border-[#d5edf8] px-3 py-2 text-sm text-ink"
                 >
                   <span>{getLookupLabel(lookups, "profiles", String(action.pilot_id ?? ""))}</span>
                   <span>{String(action.action ?? "")}</span>
@@ -660,10 +660,10 @@ export function CustomerComplaintWorkflowClient({
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="text-sm text-slate-700">
+            <div className="text-sm text-ink">
               Nombre d&apos;actions a realiser: <strong>{actionSummary.total}</strong>
             </div>
-            <div className="text-sm text-slate-700">
+            <div className="text-sm text-ink">
               Nombre d&apos;actions realisees: <strong>{actionSummary.done}</strong>
             </div>
           </div>
@@ -678,8 +678,8 @@ export function CustomerComplaintWorkflowClient({
             />
           ) : null}
 
-          <div className="space-y-3 border-t border-slate-300 pt-4">
-            <h3 className="text-sm font-semibold text-slate-800">Transmission pour verification et cloture</h3>
+          <div className="space-y-3 border-t border-[#b9def4] pt-4">
+            <h3 className="text-sm font-semibold text-ink">Transmission pour verification et cloture</h3>
             <div className="grid gap-3 md:grid-cols-2">
               <Field label="Destinataire pour verification et cloture">
                 <input
@@ -760,18 +760,18 @@ export function CustomerComplaintWorkflowClient({
             </Field>
           </div>
 
-          <div className="overflow-hidden rounded border border-slate-300">
-            <div className="grid grid-cols-[1.4fr_0.8fr] bg-teal-900 px-3 py-2 text-xs font-semibold text-white">
+          <div className="overflow-hidden rounded border border-[#b9def4]">
+            <div className="grid grid-cols-[1.4fr_0.8fr] bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-3 py-2 text-xs font-semibold text-white">
               <span>Actions entreprises</span>
               <span>Cout estime</span>
             </div>
             {actionRecords.length === 0 ? (
-              <div className="px-3 py-4 text-sm text-slate-500">Aucun resultat.</div>
+              <div className="px-3 py-4 text-sm text-muted">Aucun resultat.</div>
             ) : (
               actionRecords.map((action) => (
                 <div
                   key={String(action.id)}
-                  className="grid grid-cols-[1.4fr_0.8fr] border-t border-slate-200 px-3 py-2 text-sm text-slate-700"
+                  className="grid grid-cols-[1.4fr_0.8fr] border-t border-[#d5edf8] px-3 py-2 text-sm text-ink"
                 >
                   <span>{String(action.action ?? "")}</span>
                   <span>{String(action.estimated_cost ?? "0")}</span>
@@ -780,8 +780,8 @@ export function CustomerComplaintWorkflowClient({
             )}
           </div>
 
-          <div className="space-y-3 border-t border-slate-300 pt-4">
-            <h3 className="text-sm font-semibold text-slate-800">A mesurer</h3>
+          <div className="space-y-3 border-t border-[#b9def4] pt-4">
+            <h3 className="text-sm font-semibold text-ink">A mesurer</h3>
             <Field label="Motif" wide>
               <input
                 className={inputClass}
@@ -799,7 +799,7 @@ export function CustomerComplaintWorkflowClient({
             </Field>
           </div>
 
-          <div className="space-y-3 border-t border-slate-300 pt-4">
+          <div className="space-y-3 border-t border-[#b9def4] pt-4">
             <h3 className="text-sm font-semibold text-slate-800">Actions non efficaces</h3>
             <Field label="Motif" wide>
               <input
@@ -814,7 +814,7 @@ export function CustomerComplaintWorkflowClient({
             </Button>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-slate-300 pt-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-3 border-t border-[#b9def4] pt-4 md:flex-row md:items-center md:justify-between">
             <div className="text-xs text-slate-500">
               Suivi par {context.profile?.full_name ?? context.email} - {formatDate(String(values.updated_at ?? ""))}
             </div>

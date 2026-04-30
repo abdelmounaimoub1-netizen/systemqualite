@@ -63,22 +63,22 @@ export function AppShell({ children, context }: AppShellProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#efeee7] text-slate-900">
-      <aside className="fixed inset-y-0 left-0 z-40 flex w-14 flex-col bg-[#153d50] text-white">
+    <div className="min-h-screen bg-[linear-gradient(135deg,#ecf7fc_0%,#ffffff_46%,#fff8d8_100%)] text-ink">
+      <aside className="fixed inset-y-0 left-0 z-40 flex w-14 flex-col bg-[#2749a0] text-white">
         <Link
           href="/dashboard"
           title="Portail"
-          className="flex h-14 items-center justify-center border-b border-white/10 bg-[#113342] hover:bg-[#1c5167]"
+          className="flex h-14 items-center justify-center border-b border-white/15 bg-[#1f3f91] hover:bg-[#00a9da]"
         >
           <Home className="h-6 w-6" />
         </Link>
         <div className="flex flex-1 flex-col items-center gap-2 pt-2">
-          <span className="text-[10px] font-semibold">Portail</span>
+          <span className="text-[10px] font-semibold text-[#ffcd12]">Portail</span>
         </div>
       </aside>
 
       <div className="min-h-screen pl-14">
-        <header className="sticky top-0 z-30 border-b border-slate-300 bg-[#f5f4ed] shadow-sm">
+        <header className="sticky top-0 z-30 border-b border-[#b9def4] bg-white/90 shadow-sm backdrop-blur">
           <div className="flex min-h-12 items-stretch justify-between gap-3 px-3">
             <nav className="flex min-w-0 items-stretch overflow-x-auto">
               {portalTabs.map((tab) => (
@@ -86,10 +86,10 @@ export function AppShell({ children, context }: AppShellProps) {
                   key={tab.href}
                   href={tab.href}
                   className={cn(
-                    "flex items-center border-r border-slate-300 px-4 text-sm font-semibold whitespace-nowrap",
+                    "flex items-center border-r border-[#cfe8f6] px-4 text-sm font-semibold whitespace-nowrap transition",
                     tab.active
-                      ? "bg-white text-teal-700"
-                      : "text-slate-600 hover:bg-white/70 hover:text-teal-700"
+                      ? "bg-[#fff4b8] text-[#2749a0] shadow-[inset_0_-3px_0_#ffcd12]"
+                      : "text-muted hover:bg-[#d7f8ff] hover:text-[#2749a0]"
                   )}
                 >
                   {tab.label}
@@ -103,7 +103,7 @@ export function AppShell({ children, context }: AppShellProps) {
                 type="button"
                 title={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
                 aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-                className="inline-flex h-8 w-8 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#b9def4] bg-white text-[#2749a0] hover:bg-[#d7f8ff]"
                 onClick={() => setMenuOpen((value) => !value)}
               >
                 {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -112,7 +112,7 @@ export function AppShell({ children, context }: AppShellProps) {
                 href="/notifications"
                 title="Alertes"
                 aria-label="Alertes"
-                className="hidden h-8 w-8 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 sm:inline-flex"
+                className="hidden h-8 w-8 items-center justify-center rounded border border-[#b9def4] bg-white text-[#2749a0] hover:bg-[#d7f8ff] sm:inline-flex"
               >
                 <BellRing className="h-4 w-4" />
               </Link>
@@ -120,7 +120,7 @@ export function AppShell({ children, context }: AppShellProps) {
                 href="/settings"
                 title="Parametres"
                 aria-label="Parametres"
-                className="hidden h-8 w-8 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 sm:inline-flex"
+                className="hidden h-8 w-8 items-center justify-center rounded border border-[#b9def4] bg-white text-[#2749a0] hover:bg-[#d7f8ff] sm:inline-flex"
               >
                 <Settings className="h-4 w-4" />
               </Link>
@@ -128,7 +128,7 @@ export function AppShell({ children, context }: AppShellProps) {
                 href="/profile"
                 title={context.profile?.full_name ?? context.email}
                 aria-label="Profil"
-                className="hidden h-8 min-w-8 items-center justify-center rounded border border-slate-300 bg-white px-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 md:inline-flex"
+                className="hidden h-8 min-w-8 items-center justify-center rounded border border-[#b9def4] bg-white px-2 text-xs font-semibold text-[#2749a0] hover:bg-[#fff4b8] md:inline-flex"
               >
                 <UserCircle2 className="mr-1 h-4 w-4" />
                 {initials(context.profile?.full_name ?? context.email)}
@@ -146,7 +146,7 @@ export function AppShell({ children, context }: AppShellProps) {
           </div>
 
           {menuOpen ? (
-            <div className="border-t border-slate-300 bg-white p-3">
+            <div className="border-t border-[#b9def4] bg-white/95 p-3">
               <nav className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
                 {activeItems.map((item) => {
                   const Icon = item.icon;
@@ -157,8 +157,8 @@ export function AppShell({ children, context }: AppShellProps) {
                       className={cn(
                         "flex items-center gap-2 rounded border px-3 py-2 text-sm transition",
                         item.active
-                          ? "border-teal-700 bg-teal-50 text-teal-800"
-                          : "border-slate-200 bg-slate-50 text-slate-700 hover:border-teal-300 hover:bg-teal-50"
+                          ? "border-[#2749a0] bg-[#d7f8ff] text-[#2749a0]"
+                          : "border-[#cfe8f6] bg-[#f8fcff] text-ink hover:border-[#00a9da] hover:bg-[#fff4b8]"
                       )}
                       onClick={() => setMenuOpen(false)}
                     >

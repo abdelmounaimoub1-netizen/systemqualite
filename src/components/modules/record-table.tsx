@@ -79,10 +79,10 @@ export function RecordTable({
   onDownload
 }: RecordTableProps) {
   return (
-    <div className="overflow-hidden rounded border border-slate-300 bg-white">
+    <div className="overflow-hidden rounded border border-[#b9def4] bg-white">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-teal-900">
+        <table className="min-w-full divide-y divide-[#d5edf8]">
+          <thead className="bg-[linear-gradient(90deg,#2749a0,#00a9da)]">
             <tr>
               {columns.map((column) => (
                 <th
@@ -97,15 +97,15 @@ export function RecordTable({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[#eef7fc]">
             {records.map((record) => (
-              <tr key={String(record.id)} className="hover:bg-slate-50/80">
+              <tr key={String(record.id)} className="hover:bg-[#fff9d8]/70">
                 {columns.map((column, index) => (
                   <td key={column.key} className="px-4 py-3 align-top">
                     {detailBasePath && index === 0 ? (
                       <a
                         href={`${detailBasePath}/${record.id}`}
-                        className="font-medium text-brand hover:text-sky-700"
+                        className="font-medium text-brand hover:text-[#00a9da]"
                       >
                         {renderCell(column, record, lookups)}
                       </a>
@@ -143,7 +143,7 @@ export function RecordTable({
                         variant="ghost"
                         title="Supprimer"
                         aria-label="Supprimer"
-                        className="h-8 min-h-0 w-8 px-0 py-0 text-danger hover:bg-rose-50 hover:text-danger"
+                        className="h-8 min-h-0 w-8 px-0 py-0 text-danger hover:bg-danger/10 hover:text-danger"
                         onClick={() => onDelete(record)}
                       >
                         <Trash2 className="h-4 w-4" />

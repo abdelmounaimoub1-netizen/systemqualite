@@ -8,10 +8,10 @@ type RiskBarChartProps = {
 };
 
 const colors = {
-  low: "bg-emerald-400",
-  medium: "bg-amber-400",
-  high: "bg-orange-400",
-  critical: "bg-rose-500"
+  low: "bg-[#00a9da]",
+  medium: "bg-[#ffcd12]",
+  high: "bg-[#f3a712]",
+  critical: "bg-danger"
 };
 
 export function RiskBarChart({ data }: RiskBarChartProps) {
@@ -22,10 +22,10 @@ export function RiskBarChart({ data }: RiskBarChartProps) {
       {Object.entries(data).map(([key, value]) => (
         <div key={key} className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="capitalize text-slate-600">{key}</span>
+            <span className="capitalize text-muted">{key}</span>
             <span className="font-semibold text-ink">{value}</span>
           </div>
-          <div className="h-3 rounded-full bg-slate-100">
+          <div className="h-3 rounded-full bg-[#edf7ff]">
             <div
               className={`${colors[key as keyof typeof colors]} h-3 rounded-full transition-all`}
               style={{ width: `${(value / max) * 100}%` }}

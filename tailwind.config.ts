@@ -17,20 +17,24 @@ const config: Config = {
           DEFAULT: "rgb(var(--accent) / <alpha-value>)",
           soft: "rgb(var(--accent-soft) / <alpha-value>)"
         },
+        sun: {
+          DEFAULT: "rgb(var(--sun) / <alpha-value>)",
+          soft: "rgb(var(--sun-soft) / <alpha-value>)"
+        },
         success: "rgb(var(--success) / <alpha-value>)",
         warning: "rgb(var(--warning) / <alpha-value>)",
         danger: "rgb(var(--danger) / <alpha-value>)"
       },
       boxShadow: {
-        card: "0 24px 60px rgba(15, 23, 42, 0.08)",
-        glow: "0 18px 35px rgba(11, 109, 166, 0.18)"
+        card: "0 22px 55px rgba(22, 44, 88, 0.1)",
+        glow: "0 18px 35px rgba(0, 169, 218, 0.18)"
       },
       borderRadius: {
         "4xl": "2rem"
       },
       backgroundImage: {
         "mesh-grid":
-          "radial-gradient(circle at top left, rgba(73, 190, 185, 0.28), transparent 28%), radial-gradient(circle at 70% 0, rgba(247, 180, 68, 0.24), transparent 28%), linear-gradient(135deg, rgba(255,255,255,0.96), rgba(242,248,249,0.88))"
+          "radial-gradient(circle at top left, rgba(0, 169, 218, 0.22), transparent 28%), radial-gradient(circle at 70% 0, rgba(255, 205, 18, 0.24), transparent 28%), linear-gradient(135deg, rgba(255,255,255,0.98), rgba(236,247,252,0.9))"
       }
     }
   },

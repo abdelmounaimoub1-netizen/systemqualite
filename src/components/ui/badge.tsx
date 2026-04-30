@@ -1,38 +1,38 @@
 import { cn } from "@/lib/utils";
 
 const badgeStyles: Record<string, string> = {
-  Draft: "bg-slate-100 text-slate-700",
-  "Under Review": "bg-amber-100 text-amber-800",
-  Approved: "bg-emerald-100 text-emerald-800",
-  Archived: "bg-slate-200 text-slate-700",
-  Open: "bg-rose-100 text-rose-700",
-  "In Progress": "bg-sky-100 text-sky-700",
-  Closed: "bg-emerald-100 text-emerald-700",
-  Verification: "bg-violet-100 text-violet-700",
-  Planned: "bg-sky-100 text-sky-700",
-  Completed: "bg-emerald-100 text-emerald-700",
-  "Awaiting Approval": "bg-orange-100 text-orange-700",
-  Rejected: "bg-rose-100 text-rose-700",
-  Low: "bg-emerald-100 text-emerald-800",
-  Medium: "bg-amber-100 text-amber-800",
-  High: "bg-orange-100 text-orange-800",
-  Critical: "bg-rose-100 text-rose-800",
-  Active: "bg-emerald-100 text-emerald-800",
-  Maintenance: "bg-amber-100 text-amber-800",
-  "Calibration Due": "bg-orange-100 text-orange-800",
-  Retired: "bg-slate-200 text-slate-700",
-  Unread: "bg-sky-100 text-sky-800",
-  Read: "bg-slate-100 text-slate-700",
-  Pending: "bg-slate-100 text-slate-700",
-  Pass: "bg-emerald-100 text-emerald-700",
-  Fail: "bg-rose-100 text-rose-700",
-  "N/A": "bg-slate-100 text-slate-700",
-  Minor: "bg-amber-100 text-amber-700",
-  Major: "bg-orange-100 text-orange-700",
-  "Action Planned": "bg-sky-100 text-sky-700",
-  Corrective: "bg-cyan-100 text-cyan-700",
-  Preventive: "bg-lime-100 text-lime-700",
-  Blocked: "bg-rose-100 text-rose-700"
+  Draft: "bg-[#edf7ff] text-[#2749a0]",
+  "Under Review": "bg-[#fff4b8] text-[#6b5500]",
+  Approved: "bg-[#d7f8ff] text-[#006a8a]",
+  Archived: "bg-slate-100 text-muted",
+  Open: "bg-[#fff4b8] text-[#6b5500]",
+  "In Progress": "bg-[#d7f8ff] text-[#006a8a]",
+  Closed: "bg-[#e3fbf4] text-[#08735f]",
+  Verification: "bg-[#edf7ff] text-[#2749a0]",
+  Planned: "bg-[#edf7ff] text-[#2749a0]",
+  Completed: "bg-[#e3fbf4] text-[#08735f]",
+  "Awaiting Approval": "bg-[#fff4b8] text-[#6b5500]",
+  Rejected: "bg-danger/10 text-danger",
+  Low: "bg-[#e3fbf4] text-[#08735f]",
+  Medium: "bg-[#fff4b8] text-[#6b5500]",
+  High: "bg-[#ffe6a1] text-[#7a4b00]",
+  Critical: "bg-danger/10 text-danger",
+  Active: "bg-[#e3fbf4] text-[#08735f]",
+  Maintenance: "bg-[#fff4b8] text-[#6b5500]",
+  "Calibration Due": "bg-[#ffe6a1] text-[#7a4b00]",
+  Retired: "bg-slate-100 text-muted",
+  Unread: "bg-[#d7f8ff] text-[#006a8a]",
+  Read: "bg-slate-100 text-muted",
+  Pending: "bg-[#edf7ff] text-[#2749a0]",
+  Pass: "bg-[#e3fbf4] text-[#08735f]",
+  Fail: "bg-danger/10 text-danger",
+  "N/A": "bg-slate-100 text-muted",
+  Minor: "bg-[#fff4b8] text-[#6b5500]",
+  Major: "bg-[#ffe6a1] text-[#7a4b00]",
+  "Action Planned": "bg-[#d7f8ff] text-[#006a8a]",
+  Corrective: "bg-[#d7f8ff] text-[#006a8a]",
+  Preventive: "bg-[#e3fbf4] text-[#08735f]",
+  Blocked: "bg-danger/10 text-danger"
 };
 
 export function StatusBadge({ value }: { value?: string | number | null }) {
@@ -46,7 +46,7 @@ export function StatusBadge({ value }: { value?: string | number | null }) {
     <span
       className={cn(
         "inline-flex rounded-full px-2.5 py-1 text-xs font-semibold",
-        badgeStyles[text] ?? "bg-slate-100 text-slate-700"
+        badgeStyles[text] ?? "bg-[#edf7ff] text-[#2749a0]"
       )}
     >
       {text}

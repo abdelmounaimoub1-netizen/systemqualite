@@ -118,39 +118,39 @@ export function RecordDetailClient({
 
   return (
     <div className="space-y-4">
-      <section className="overflow-hidden border border-red-300 bg-red-50">
-        <div className="flex flex-col gap-2 bg-[#d2202f] px-3 py-2 text-white md:flex-row md:items-center md:justify-between">
+      <section className="overflow-hidden border border-[#8bd7ee] bg-[#f8fcff] shadow-sm">
+        <div className="flex flex-col gap-2 bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-3 py-2 text-white shadow-[inset_0_-2px_0_#ffcd12] md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide">Fiche Qualios</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-[#fff4b8]">Fiche COSUMAR QMS</div>
             <h1 className="text-base font-semibold">
               {String(record.title ?? record.name ?? record.document_code ?? config.singular)}
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link href={`/${config.slug}`}>
-              <Button className="border-white/30 bg-white text-red-700 hover:bg-red-50">
+              <Button className="border-white/40 bg-white text-[#2749a0] hover:bg-[#fff4b8]">
                 <ArrowLeft className="h-4 w-4" />
                 Retour
               </Button>
             </Link>
             {hasDownloadableFile ? (
-              <Button className="border-white/30 bg-white text-red-700 hover:bg-red-50" onClick={() => void downloadRecordFile()}>
+              <Button className="border-white/40 bg-white text-[#2749a0] hover:bg-[#fff4b8]" onClick={() => void downloadRecordFile()}>
                 <Download className="h-4 w-4" />
                 Fichier
               </Button>
             ) : null}
             {canWrite ? (
-              <Button className="border-white/30 bg-white text-red-700 hover:bg-red-50" onClick={() => setOpen(true)}>
+              <Button className="border-white/40 bg-white text-[#2749a0] hover:bg-[#fff4b8]" onClick={() => setOpen(true)}>
                 <Pencil className="h-4 w-4" />
                 Modifier
               </Button>
             ) : null}
           </div>
         </div>
-        <div className="px-3 py-2 text-xs text-slate-700">{config.description}</div>
+        <div className="px-3 py-2 text-xs text-ink">{config.description}</div>
       </section>
 
-      <section className="space-y-4 border border-red-200 bg-white p-3">
+      <section className="space-y-4 border border-[#b9def4] bg-white p-3 shadow-sm">
         <div className="flex items-center gap-3">
           <StatusBadge value={String(record.status ?? record.risk_level ?? "Active")} />
           <span className="text-sm text-slate-500">
@@ -160,8 +160,8 @@ export function RecordDetailClient({
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {config.detailFields.map((field) => (
-            <div key={field} className="border border-red-100 bg-red-50/40 p-3">
-              <div className="text-[10px] font-semibold uppercase text-red-900">
+            <div key={field} className="border border-[#d5edf8] bg-[#f8fcff] p-3">
+              <div className="text-[10px] font-semibold uppercase text-[#2749a0]">
                 {field.replace(/_/g, " ")}
               </div>
               <div className="mt-2 text-sm leading-6 text-ink">

@@ -87,8 +87,8 @@ function PortalBox({
   headerClassName?: string;
 }) {
   return (
-    <section className={`overflow-hidden border border-red-300 bg-red-50 ${className}`}>
-      <div className={`bg-[#d2202f] px-2 py-1 text-xs font-semibold text-white ${headerClassName}`}>
+    <section className={`overflow-hidden border border-[#8bd7ee] bg-[#f8fcff] shadow-sm ${className}`}>
+      <div className={`bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-2 py-1 text-xs font-semibold text-white shadow-[inset_0_-2px_0_#ffcd12] ${headerClassName}`}>
         {title}
       </div>
       {children}
@@ -132,22 +132,22 @@ function RedPanel({
   }
 
   return (
-    <section className="overflow-hidden border border-red-300 bg-[#f7c9cd]">
+    <section className="overflow-hidden border border-[#8bd7ee] bg-[#d7f8ff] shadow-sm">
       <Link
         href={href}
-        className="flex items-center justify-between bg-[#d2202f] px-2 py-1 text-xs font-semibold text-white hover:bg-[#b91825]"
+        className="flex items-center justify-between bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-2 py-1 text-xs font-semibold text-white shadow-[inset_0_-2px_0_#ffcd12] hover:brightness-105"
       >
         <span className="inline-flex items-center gap-2">
-          <Circle className="h-3.5 w-3.5 fill-white/15" />
+          <Circle className="h-3.5 w-3.5 fill-[#ffcd12] text-[#ffcd12]" />
           {title}
         </span>
         <span className="min-w-4 text-center text-[10px]">-</span>
       </Link>
-      <div className="space-y-0.5 px-2 py-1.5 text-[10px] leading-4 text-slate-700">
+      <div className="space-y-0.5 px-2 py-1.5 text-[10px] leading-4 text-ink">
         {actions.map((action) => {
           return (
-            <Link key={action} href={actionHref(action)} className="flex items-center gap-1.5 hover:text-red-700">
-              <ChevronRight className="h-3 w-3 text-red-600" />
+            <Link key={action} href={actionHref(action)} className="flex items-center gap-1.5 hover:text-[#2749a0]">
+              <ChevronRight className="h-3 w-3 text-[#00a9da]" />
               {action}
               <span className="sr-only">({count})</span>
             </Link>
@@ -161,19 +161,23 @@ function RedPanel({
 function LabCard({
   title,
   items,
-  className = ""
+  className = "",
+  titleClassName = "text-white",
+  itemClassName = "text-white/95"
 }: {
   title: string;
   items: string[];
   className?: string;
+  titleClassName?: string;
+  itemClassName?: string;
 }) {
   return (
     <Link
       href={`/documents?q=${encodeURIComponent(title)}`}
-      className={`block rounded-2xl border border-white/60 px-4 py-3 text-center shadow-sm transition hover:scale-[1.01] hover:border-sky-300 ${className}`}
+      className={`block rounded-2xl border border-white/70 px-4 py-3 text-center shadow-sm transition hover:scale-[1.01] hover:border-[#ffcd12] ${className}`}
     >
-      <div className="text-[11px] font-bold text-white">{title}</div>
-      <ul className="mt-2 space-y-0.5 text-left text-[9px] font-semibold leading-3 text-slate-900">
+      <div className={`text-[11px] font-bold ${titleClassName}`}>{title}</div>
+      <ul className={`mt-2 space-y-0.5 text-left text-[9px] font-semibold leading-3 ${itemClassName}`}>
         {items.map((item) => (
           <li key={item}>-{item}</li>
         ))}
@@ -192,7 +196,7 @@ function LabArrow({
   return (
     <Link
       href={`/documents?q=${encodeURIComponent(title)}`}
-      className="relative flex min-h-28 items-center justify-center bg-[#5a91d0] px-7 py-4 text-white shadow-sm transition hover:bg-[#447dbb]"
+      className="relative flex min-h-28 items-center justify-center bg-[linear-gradient(135deg,#2749a0,#00a9da)] px-7 py-4 text-white shadow-sm transition hover:brightness-105"
       style={{
         clipPath:
           "polygon(0 0, calc(100% - 38px) 0, 100% 50%, calc(100% - 38px) 100%, 0 100%, 28px 50%)"
@@ -226,49 +230,49 @@ function VerticalBand({
 
 function ProcessMap() {
   return (
-    <div className="bg-[#efeee7]">
+    <div className="bg-transparent">
       <div className="mb-3 grid grid-cols-[150px_1fr_150px] items-center gap-3">
-        <div className="rounded-sm bg-white px-3 py-2 text-[10px] font-bold text-slate-700 shadow-sm">
+        <div className="rounded-sm border border-[#b9def4] bg-white px-3 py-2 text-[10px] font-bold text-[#2749a0] shadow-sm">
           Durrah Sugar Refinery
-          <div className="text-[8px] font-semibold text-slate-500">Laboratoire et controle qualite</div>
+          <div className="text-[8px] font-semibold text-muted">Laboratoire et controle qualite</div>
         </div>
-        <div className="border border-slate-400 bg-[#c7d6f4] px-4 py-2 text-center text-xl font-semibold text-slate-900 shadow-sm">
+        <div className="border border-[#8bd7ee] bg-[linear-gradient(90deg,#fff4b8,#d7f8ff)] px-4 py-2 text-center text-xl font-semibold text-[#17306b] shadow-sm">
           Fonctionnement normale du laboratoire
         </div>
-        <div className="flex min-h-12 items-center justify-center rounded-sm bg-white px-3 py-2 shadow-sm">
+        <div className="flex min-h-12 items-center justify-center rounded-sm border border-[#b9def4] bg-white px-3 py-2 shadow-sm">
           <Image src={cosumarLogo} alt="COSUMAR" className="h-9 w-full object-contain" priority />
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1040px] overflow-x-auto border border-slate-200 bg-white p-3 shadow-sm">
+      <div className="mx-auto max-w-[1040px] overflow-x-auto border border-[#b9def4] bg-white p-3 shadow-card">
         <div className="relative min-w-[930px]">
           <div className="mb-3 flex justify-center">
-            <div className="border-4 border-white bg-[#4bb4c7] px-16 py-1 text-center text-xs font-bold uppercase text-slate-900 shadow">
+            <div className="border-4 border-white bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-16 py-1 text-center text-xs font-bold uppercase text-white shadow-[0_8px_22px_rgba(0,169,218,0.22)]">
               Cartographie du laboratoire
             </div>
           </div>
 
           <div className="relative grid grid-cols-[76px_1fr_76px] gap-3">
-            <div className="absolute -left-2 top-0 h-24 w-24 rounded-tl-[3rem] border-l-[28px] border-t-[28px] border-[#d8d2ef]" />
-            <div className="absolute -right-2 top-0 h-24 w-24 rounded-tr-[3rem] border-r-[28px] border-t-[28px] border-[#d8d2ef]" />
-            <div className="absolute -bottom-2 left-0 h-24 w-24 rounded-bl-[3rem] border-b-[28px] border-l-[28px] border-[#d8d2ef]" />
-            <div className="absolute -bottom-2 right-0 h-24 w-24 rounded-br-[3rem] border-b-[28px] border-r-[28px] border-[#d8d2ef]" />
+            <div className="absolute -left-2 top-0 h-24 w-24 rounded-tl-[3rem] border-l-[28px] border-t-[28px] border-[#d4ecff]" />
+            <div className="absolute -right-2 top-0 h-24 w-24 rounded-tr-[3rem] border-r-[28px] border-t-[28px] border-[#d4ecff]" />
+            <div className="absolute -bottom-2 left-0 h-24 w-24 rounded-bl-[3rem] border-b-[28px] border-l-[28px] border-[#fff4b8]" />
+            <div className="absolute -bottom-2 right-0 h-24 w-24 rounded-br-[3rem] border-b-[28px] border-r-[28px] border-[#fff4b8]" />
 
             <div className="relative z-10 row-span-3 grid grid-rows-[1fr_auto_1fr] gap-3">
-              <div className="flex items-start justify-center pt-8 text-xs font-bold text-slate-600">
+              <div className="flex items-start justify-center pt-8 text-xs font-bold text-[#2749a0]">
                 Plan
               </div>
-              <VerticalBand className="bg-[#4d87c6]">
+              <VerticalBand className="bg-[#2749a0]">
                 Donnees d&apos;entree : Exigences clients / contrat d&apos;interet
               </VerticalBand>
-              <div className="flex items-end justify-center pb-8 text-xs font-bold text-slate-600">
+              <div className="flex items-end justify-center pb-8 text-xs font-bold text-[#2749a0]">
                 Act
               </div>
             </div>
 
             <div className="relative z-10 space-y-2">
-              <div className="border border-slate-300 bg-[#e3dcf1] p-3">
-                <div className="mb-2 text-center text-[10px] font-bold uppercase text-slate-800">
+              <div className="border border-[#b9def4] bg-[#eaf7ff] p-3">
+                <div className="mb-2 text-center text-[10px] font-bold uppercase text-[#17306b]">
                   Processus de management
                 </div>
                 <div className="grid grid-cols-2 gap-10 px-10">
@@ -277,14 +281,14 @@ function ProcessMap() {
                       key={block.title}
                       title={block.title}
                       items={block.items}
-                      className="bg-[linear-gradient(#df9298,#bb4048,#e5a1a7)]"
+                      className="bg-[linear-gradient(135deg,#2749a0,#00a9da)]"
                     />
                   ))}
                 </div>
               </div>
 
-              <div className="border border-slate-300 bg-[#dceefa] p-3">
-                <div className="mb-2 text-center text-[10px] font-bold uppercase text-slate-800">
+              <div className="border border-[#8bd7ee] bg-[#d7f8ff] p-3">
+                <div className="mb-2 text-center text-[10px] font-bold uppercase text-[#17306b]">
                   Processus de realisation
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -294,8 +298,8 @@ function ProcessMap() {
                 </div>
               </div>
 
-              <div className="bg-[#4d2b74] p-3">
-                <div className="mb-2 text-center text-[10px] font-bold uppercase text-slate-950">
+              <div className="border border-[#f1d45a] bg-[#fff4b8] p-3">
+                <div className="mb-2 text-center text-[10px] font-bold uppercase text-[#17306b]">
                   Processus de support
                 </div>
                 <div className="grid grid-cols-6 gap-2">
@@ -304,7 +308,9 @@ function ProcessMap() {
                       key={block.title}
                       title={block.title}
                       items={block.items}
-                      className="bg-[linear-gradient(#f0c8c5,#d9949c)]"
+                      className="bg-[linear-gradient(135deg,#ffffff,#ffdf57)]"
+                      titleClassName="text-[#17306b]"
+                      itemClassName="text-[#17306b]"
                     />
                   ))}
                 </div>
@@ -312,20 +318,20 @@ function ProcessMap() {
             </div>
 
             <div className="relative z-10 row-span-3 grid grid-rows-[1fr_auto_1fr] gap-3">
-              <div className="flex items-start justify-center pt-8 text-xs font-bold text-slate-600">
+              <div className="flex items-start justify-center pt-8 text-xs font-bold text-[#2749a0]">
                 DO
               </div>
-              <VerticalBand className="bg-[#4d87c6]">
+              <VerticalBand className="bg-[#00a9da]">
                 Donnees de sortie : Satisfaction clients
               </VerticalBand>
-              <div className="flex items-end justify-center pb-8 text-xs font-bold text-slate-600">
+              <div className="flex items-end justify-center pb-8 text-xs font-bold text-[#2749a0]">
                 Check
               </div>
             </div>
           </div>
 
-          <div className="mt-3 h-8 bg-[linear-gradient(90deg,#10b8dc,#2a408f)]" />
-          <div className="absolute right-14 top-14 rounded-full bg-[#edc4cb] px-5 py-4 text-center text-[10px] font-bold text-slate-700 shadow-sm">
+          <div className="mt-3 h-8 bg-[linear-gradient(90deg,#2749a0,#00a9da,#ffcd12)]" />
+          <div className="absolute right-14 top-14 rounded-full bg-[#ffcd12] px-5 py-4 text-center text-[10px] font-bold text-[#17306b] shadow-sm">
             Amelioration
             <br />
             Continue
@@ -434,14 +440,14 @@ export default async function DashboardPage({
             />
 
             <PortalBox title="Mes Taches En Cours">
-              <div className="divide-y divide-red-100 text-[10px] leading-4">
+              <div className="divide-y divide-[#d5edf8] text-[10px] leading-4">
                 {taskRows.map((row) => (
                   <Link
                     key={row.label}
                     href={row.href}
-                    className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-2 py-1 text-slate-700 hover:bg-red-100"
+                    className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-2 py-1 text-ink hover:bg-[#fff4b8]"
                   >
-                    <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#ffcd12]" />
                     <span>{row.label}</span>
                     <span>{row.value}</span>
                   </Link>
@@ -450,17 +456,17 @@ export default async function DashboardPage({
             </PortalBox>
 
             <PortalBox title="Mes enregistrements a traiter ou a suivre">
-              <div className="divide-y divide-red-100 text-[10px] leading-4">
+              <div className="divide-y divide-[#d5edf8] text-[10px] leading-4">
                 {followRows.map((row) => (
                   <Link
                     key={row.label}
                     href={row.href}
-                    className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-2 py-1 text-slate-700 hover:bg-red-100"
+                    className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-2 py-1 text-ink hover:bg-[#fff4b8]"
                   >
-                    <ArrowRight className="h-3 w-3 text-red-600" />
+                    <ArrowRight className="h-3 w-3 text-[#00a9da]" />
                     <span className="font-semibold">{row.label}</span>
                     <span>{row.value}</span>
-                    <FileStack className="h-3 w-3 text-slate-500" />
+                    <FileStack className="h-3 w-3 text-[#2749a0]" />
                   </Link>
                 ))}
               </div>
@@ -476,10 +482,10 @@ export default async function DashboardPage({
       <div className="grid gap-5 xl:grid-cols-[330px_1fr]">
         <div className="space-y-3">
           <PortalBox title="Documentation par processus">
-            <div className="space-y-2 px-3 py-3 text-[10px] leading-4 text-slate-700">
+            <div className="space-y-2 px-3 py-3 text-[10px] leading-4 text-ink">
               {documentTree.map((group) => (
                 <div key={group.label}>
-                  <Link href="/documents" className="font-semibold hover:text-red-700">
+                  <Link href="/documents" className="font-semibold text-[#2749a0] hover:text-[#00a9da]">
                     {group.label}
                   </Link>
                   <ul className="mt-1 space-y-1 pl-4">
@@ -487,14 +493,14 @@ export default async function DashboardPage({
                       <li key={block.title}>
                         <Link
                           href={`/documents?q=${encodeURIComponent(block.title)}`}
-                          className="font-medium hover:text-red-700"
+                          className="font-medium hover:text-[#2749a0]"
                         >
                           {block.title}
                         </Link>
-                        <ul className="mt-0.5 space-y-0.5 pl-3 text-[9px] leading-3 text-slate-500">
+                        <ul className="mt-0.5 space-y-0.5 pl-3 text-[9px] leading-3 text-muted">
                           {block.items.map((item) => (
                             <li key={item}>
-                              <Link href={`/documents?q=${encodeURIComponent(item)}`} className="hover:text-red-700">
+                              <Link href={`/documents?q=${encodeURIComponent(item)}`} className="hover:text-[#00a9da]">
                                 {item}
                               </Link>
                             </li>
@@ -509,15 +515,15 @@ export default async function DashboardPage({
           </PortalBox>
 
           <PortalBox title="Mes Taches En Cours">
-            <div className="divide-y divide-red-100 text-[10px] leading-4">
+            <div className="divide-y divide-[#d5edf8] text-[10px] leading-4">
               {taskRows.map((row) => (
                 <Link
                   key={row.label}
                   href={row.href}
-                  className="flex items-center justify-between px-3 py-1.5 text-slate-700 hover:bg-red-100"
+                  className="flex items-center justify-between px-3 py-1.5 text-ink hover:bg-[#fff4b8]"
                 >
                   <span className="inline-flex items-center gap-2">
-                    <ClipboardCheck className="h-3 w-3 text-red-600" />
+                    <ClipboardCheck className="h-3 w-3 text-[#00a9da]" />
                     {row.label}
                   </span>
                   <span>{row.value}</span>
@@ -527,7 +533,7 @@ export default async function DashboardPage({
           </PortalBox>
 
           <PortalBox title="Mon Bloc Notes" className="min-h-32">
-            <div className="p-3 text-[10px] text-slate-500">
+            <div className="p-3 text-[10px] text-muted">
               Les notes de suivi apparaissent dans les discussions de chaque dossier.
             </div>
           </PortalBox>

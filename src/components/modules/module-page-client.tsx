@@ -167,15 +167,15 @@ export function ModulePageClient({
 
   return (
     <div className="space-y-4">
-      <section className="overflow-hidden border border-red-300 bg-red-50">
-        <div className="flex flex-col gap-2 bg-[#d2202f] px-3 py-2 text-white md:flex-row md:items-center md:justify-between">
+      <section className="overflow-hidden border border-[#8bd7ee] bg-[#f8fcff] shadow-sm">
+        <div className="flex flex-col gap-2 bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-3 py-2 text-white shadow-[inset_0_-2px_0_#ffcd12] md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide">Module Qualios</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-[#fff4b8]">Module COSUMAR QMS</div>
             <h1 className="text-base font-semibold">{config.label}</h1>
           </div>
           {canWrite ? (
             <Button
-              className="border-white/30 bg-white text-red-700 hover:bg-red-50"
+              className="border-white/40 bg-white text-[#2749a0] hover:bg-[#fff4b8]"
               onClick={() => {
                 setEditing(null);
                 setOpen(true);
@@ -186,7 +186,7 @@ export function ModulePageClient({
             </Button>
           ) : null}
         </div>
-        <div className="px-3 py-2 text-xs text-slate-700">{config.description}</div>
+        <div className="px-3 py-2 text-xs text-ink">{config.description}</div>
       </section>
 
       <div className="grid gap-2 md:grid-cols-3">
@@ -195,14 +195,14 @@ export function ModulePageClient({
           ["En cours", summary.active],
           ["Termines ou clos", summary.closed]
         ].map(([label, value]) => (
-          <div key={label} className="border border-red-200 bg-[#f7c9cd] px-3 py-2">
-            <div className="text-[10px] font-semibold uppercase text-red-900">{label}</div>
-            <div className="mt-1 text-xl font-bold text-slate-900">{value}</div>
+          <div key={label} className="border border-[#8bd7ee] bg-[#d7f8ff] px-3 py-2 shadow-sm">
+            <div className="text-[10px] font-semibold uppercase text-[#2749a0]">{label}</div>
+            <div className="mt-1 text-xl font-bold text-ink">{value}</div>
           </div>
         ))}
       </div>
 
-      <section className="space-y-3 border border-red-200 bg-white p-3">
+      <section className="space-y-3 border border-[#b9def4] bg-white p-3 shadow-sm">
         <div className="flex flex-col gap-2 md:flex-row md:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

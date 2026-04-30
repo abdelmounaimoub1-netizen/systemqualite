@@ -209,7 +209,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: FileStack,
     table: "documents",
     description: "Controlled records with ownership, review dates, and approval state.",
-    accentClass: "from-sky-500/20 via-cyan-500/10 to-transparent",
+    accentClass: "from-brand/20 via-accent/10 to-transparent",
     searchableFields: ["title", "document_code", "summary"],
     columns: [
       { key: "document_code", label: "Code" },
@@ -377,7 +377,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     table: "forms",
     description:
       "Modeles de formulaires qualite avec champs, proprietaire, indicateur cible et circuit de suivi.",
-    accentClass: "from-teal-500/20 via-sky-400/10 to-transparent",
+    accentClass: "from-accent/20 via-brand/10 to-transparent",
     searchableFields: ["code", "name", "description", "process_area", "target_indicator"],
     columns: [
       { key: "code", label: "Code" },
@@ -536,7 +536,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: Sparkles,
     table: "workflows",
     description: "Structured review and approval flows with due dates and accountability.",
-    accentClass: "from-emerald-500/20 via-teal-400/10 to-transparent",
+    accentClass: "from-accent/20 via-sun/10 to-transparent",
     searchableFields: ["title", "description"],
     columns: [
       { key: "title", label: "Workflow" },
@@ -668,7 +668,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     table: "customer_complaints",
     description:
       "Enregistrer, suivre et historiser les reclamations client jusqu'a la reponse et la cloture.",
-    accentClass: "from-red-500/20 via-rose-400/10 to-transparent",
+    accentClass: "from-sun/25 via-accent/10 to-transparent",
     searchableFields: ["reference", "customer_name", "product_reference", "description"],
     columns: [
       { key: "reference", label: "Reference" },
@@ -1051,7 +1051,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     table: "supplier_complaints",
     description:
       "Piloter les ecarts fournisseur, demandes de reponse, preuves et historique qualite.",
-    accentClass: "from-red-500/20 via-amber-400/10 to-transparent",
+    accentClass: "from-sun/25 via-brand/10 to-transparent",
     searchableFields: ["reference", "supplier_name", "issue_type", "description"],
     columns: [
       { key: "reference", label: "Reference" },
@@ -1164,7 +1164,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: ShieldAlert,
     table: "non_conformities",
     description: "Declarer les non-conformites produit, analyser la cause et piloter la cloture.",
-    accentClass: "from-rose-500/20 via-orange-400/10 to-transparent",
+    accentClass: "from-sun/25 via-accent/10 to-transparent",
     searchableFields: ["title", "description", "source", "root_cause"],
     columns: [
       { key: "title", label: "Issue" },
@@ -1351,7 +1351,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     table: "constats",
     description:
       "Tracer les constats terrain ou audit, leur analyse et les actions attendues.",
-    accentClass: "from-red-500/20 via-cyan-400/10 to-transparent",
+    accentClass: "from-brand/20 via-accent/10 to-transparent",
     searchableFields: ["reference", "title", "description", "process_area", "action_summary"],
     columns: [
       { key: "reference", label: "Reference" },
@@ -1461,7 +1461,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     table: "complaints",
     description:
       "Centraliser les plaintes internes ou externes avec traitement, reponse et preuves.",
-    accentClass: "from-red-500/20 via-violet-400/10 to-transparent",
+    accentClass: "from-sun/25 via-brand/10 to-transparent",
     searchableFields: ["reference", "complainant_name", "channel", "description"],
     columns: [
       { key: "reference", label: "Reference" },
@@ -1573,7 +1573,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: ShieldCheck,
     table: "capa_actions",
     description: "Manage corrective and preventive actions from intake to effectiveness check.",
-    accentClass: "from-amber-500/20 via-yellow-500/10 to-transparent",
+    accentClass: "from-sun/25 via-accent/10 to-transparent",
     searchableFields: ["title", "description", "effectiveness_check"],
     columns: [
       { key: "title", label: "Action" },
@@ -1671,7 +1671,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: ClipboardCheck,
     table: "audits",
     description: "Plan audits, capture findings, and keep follow-up visible.",
-    accentClass: "from-indigo-500/20 via-sky-500/10 to-transparent",
+    accentClass: "from-brand/20 via-accent/10 to-transparent",
     searchableFields: ["title", "scope"],
     columns: [
       { key: "title", label: "Audit" },
@@ -1851,7 +1851,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: Gauge,
     table: "risks",
     description: "Score risk consistently and keep mitigation ownership visible.",
-    accentClass: "from-fuchsia-500/20 via-pink-500/10 to-transparent",
+    accentClass: "from-sun/25 via-brand/10 to-transparent",
     searchableFields: ["title", "description", "mitigation_plan"],
     columns: [
       { key: "title", label: "Risk" },
@@ -1926,7 +1926,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: BookCopy,
     table: "trainings",
     description: "Track competence, assignment, certificate evidence, and expiry.",
-    accentClass: "from-violet-500/20 via-cyan-400/10 to-transparent",
+    accentClass: "from-brand/20 via-accent/10 to-transparent",
     searchableFields: ["title", "role_required", "notes"],
     columns: [
       { key: "title", label: "Training" },
@@ -1997,7 +1997,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: Wrench,
     table: "equipment",
     description: "Keep maintenance, calibration, and status visible in one place.",
-    accentClass: "from-slate-500/20 via-sky-400/10 to-transparent",
+    accentClass: "from-brand/15 via-accent/10 to-transparent",
     searchableFields: ["name", "serial_number", "location", "notes"],
     columns: [
       { key: "name", label: "Equipment" },
@@ -2071,7 +2071,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: UsersRound,
     table: "suppliers",
     description: "Centralize supplier profiles, evaluation score, documents, and audit context.",
-    accentClass: "from-lime-500/20 via-emerald-500/10 to-transparent",
+    accentClass: "from-accent/20 via-sun/10 to-transparent",
     searchableFields: ["name", "contact_name", "email", "notes"],
     columns: [
       { key: "name", label: "Supplier" },
@@ -2155,7 +2155,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     icon: Bell,
     table: "notifications",
     description: "Track reminders, due date follow-up, and read status in-app.",
-    accentClass: "from-cyan-500/20 via-sky-500/10 to-transparent",
+    accentClass: "from-accent/20 via-brand/10 to-transparent",
     searchableFields: ["title", "message", "category"],
     columns: [
       { key: "title", label: "Notification" },

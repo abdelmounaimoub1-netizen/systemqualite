@@ -9,8 +9,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Installable quality management workspace for documents, CAPA, audits, risk, and training.",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#F4F8F9",
-    theme_color: "#0F172A",
+    background_color: "#ECF7FC",
+    theme_color: "#2749A0",
     orientation: "portrait-primary",
     icons: [
       {
