@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { ArrowRight, ChevronRight, Circle, ClipboardCheck, FileStack } from "lucide-react";
 
+import cosumarLogo from "@/image/logo.png";
 import { getDashboardData } from "@/lib/modules/queries";
 
 const documentTree = [
@@ -262,9 +264,8 @@ function ProcessMap() {
         <div className="border border-slate-400 bg-[#c7d6f4] px-4 py-2 text-center text-xl font-semibold text-slate-900 shadow-sm">
           Fonctionnement normale du laboratoire
         </div>
-        <div className="rounded-sm bg-white px-3 py-2 text-[10px] font-bold text-slate-700 shadow-sm">
-          COSUMAR
-          <div className="text-[8px] font-semibold text-slate-500">Partageons le progres</div>
+        <div className="flex min-h-12 items-center justify-center rounded-sm bg-white px-3 py-2 shadow-sm">
+          <Image src={cosumarLogo} alt="COSUMAR" className="h-9 w-full object-contain" priority />
         </div>
       </div>
 
