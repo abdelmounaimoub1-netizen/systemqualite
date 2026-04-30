@@ -1,12 +1,19 @@
-const CACHE_NAME = "qms-pro-v1";
+const CACHE_NAME = "qms-pro-v2";
 const OFFLINE_URL = "/offline";
 const CORE_ASSETS = [
-  "/",
   "/offline",
   "/icons/icon-192.svg",
   "/icons/icon-512.svg",
   "/manifest.webmanifest"
 ];
+
+function isCacheableAsset(requestUrl) {
+  if (requestUrl.origin !== self.location.origin) return false;
+  if (requestUrl.pathname.startsWith("/_next/")) return false;
+  if (requestUrl.pathname.startsWith("/api/")) return false;
+
+  return CORE_ASSETS.includes(requestUrl.pathname) || /\.(?:css|js|png|jpg|jpeg|svg|webp|ico|woff2?)$/.test(requestUrl.pathname);
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -38,6 +45,9 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
+
+  const requestUrl = new URL(event.request.url);
+  if (!isCacheableAsset(requestUrl)) return;
 
   event.respondWith(
     caches.match(event.request).then((cached) => {

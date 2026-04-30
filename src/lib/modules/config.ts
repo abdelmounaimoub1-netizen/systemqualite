@@ -968,8 +968,8 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
           { key: "action", label: "Action" },
           { key: "deadline", label: "Deadline", variant: "date" },
           { key: "completion_date", label: "Date realisation", variant: "date" },
-          { key: "progress_status", label: "Avancement", variant: "status" },
-          { key: "estimated_cost", label: "Cout estime", variant: "number" }
+          { key: "comment", label: "Commentaire" },
+          { key: "progress_status", label: "% Avancement", variant: "status" }
         ],
         fields: [
           {

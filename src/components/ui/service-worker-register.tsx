@@ -20,6 +20,20 @@ export function ServiceWorkerRegister() {
   );
 
   useEffect(() => {
+    if (process.env.NODE_ENV !== "production") {
+      navigator.serviceWorker?.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => registration.unregister());
+      });
+
+      window.caches?.keys().then((cacheNames) => {
+        cacheNames
+          .filter((cacheName) => cacheName.startsWith("qms-pro-"))
+          .forEach((cacheName) => window.caches.delete(cacheName));
+      });
+
+      return;
+    }
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {
         // Avoid noisy install errors during local preview.

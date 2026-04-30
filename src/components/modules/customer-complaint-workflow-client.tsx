@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { canWriteModule } from "@/lib/permissions";
 import { cn, formatDate } from "@/lib/utils";
-import { getLookupLabel } from "@/lib/modules/config";
 import type {
   ChildModuleConfig,
   LookupCollection,
@@ -40,9 +39,14 @@ type CustomerComplaintWorkflowClientProps = {
 };
 
 const inputClass =
-  "h-9 w-full rounded border border-[#b9def4] bg-white px-2 text-sm text-ink shadow-sm outline-none focus:border-[#00a9da] focus:ring-2 focus:ring-[#00a9da]/20";
+  "h-6 w-full border border-[#b8c4ca] bg-white px-1.5 text-[11px] text-[#1f2c3a] shadow-[inset_0_1px_2px_rgba(0,0,0,0.08)] outline-none focus:border-[#008fc3] focus:ring-1 focus:ring-[#008fc3]/35 disabled:bg-slate-100";
 const textareaClass =
-  "min-h-20 w-full rounded border border-[#b9def4] bg-white px-2 py-2 text-sm text-ink shadow-sm outline-none focus:border-[#00a9da] focus:ring-2 focus:ring-[#00a9da]/20";
+  "min-h-14 w-full border border-[#b8c4ca] bg-white px-1.5 py-1 text-[11px] text-[#1f2c3a] shadow-[inset_0_1px_2px_rgba(0,0,0,0.08)] outline-none focus:border-[#008fc3] focus:ring-1 focus:ring-[#008fc3]/35";
+const qualiosPanelClass = "border border-[#c7d1d7] bg-[#f7f9fa]";
+const qualiosBlueHeader =
+  "border-b border-[#8db9cc] bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-2 py-1 text-[11px] font-bold text-white";
+const qualiosPinkHeader =
+  "border-y border-[#ffcd12] bg-[#fff4b8] px-2 py-1 text-[11px] font-bold text-[#17306b]";
 
 function fieldValue(values: Record<string, unknown>, key: string) {
   const value = values[key];
@@ -57,11 +61,11 @@ function SectionTitle({
   title: string;
 }) {
   return (
-    <div className="flex items-center gap-3 border-b border-[#b9def4] bg-[#edf7ff] px-3 py-2">
-      <span className="inline-flex h-6 w-6 items-center justify-center rounded border border-[#b9def4] bg-white text-xs text-[#2749a0]">
+    <div className="flex items-center gap-2 border-b border-[#c7d1d7] bg-[#edf1f3] px-2 py-1.5">
+      <span className="inline-flex h-5 w-5 items-center justify-center border border-[#aebbc2] bg-white text-[#006e99]">
         <ClipboardCheck className="h-4 w-4" />
       </span>
-      <h2 className="text-xl font-medium text-ink">
+      <h2 className="text-[17px] font-medium text-[#2a3138]">
         {step} {title}
       </h2>
     </div>
@@ -71,22 +75,30 @@ function SectionTitle({
 function Field({
   label,
   children,
-  wide
+  wide,
+  className = ""
 }: {
   label: string;
   children: ReactNode;
   wide?: boolean;
+  className?: string;
 }) {
   return (
-    <label className={cn("grid gap-1 text-xs font-semibold text-ink", wide ? "md:col-span-2" : "")}>
-      <span>{label}</span>
+    <label
+      className={cn(
+        "grid grid-cols-[118px_1fr] items-center gap-2 text-[10px] font-semibold text-[#2f3a43]",
+        wide ? "md:col-span-2" : "",
+        className
+      )}
+    >
+      <span className="leading-4">{label}</span>
       {children}
     </label>
   );
 }
 
 function WorkflowCard({ children }: { children: ReactNode }) {
-  return <section className="overflow-hidden rounded border border-[#b9def4] bg-white shadow-sm">{children}</section>;
+  return <section className="overflow-hidden border border-[#c7d1d7] bg-white shadow-sm">{children}</section>;
 }
 
 function ActionIconButton({
@@ -119,7 +131,7 @@ function ActionIconButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded text-white shadow-sm transition disabled:bg-slate-300",
+        "inline-flex h-7 w-7 items-center justify-center border border-white/40 text-white shadow-sm transition disabled:bg-slate-300",
         toneClasses[tone]
       )}
     >
@@ -142,8 +154,8 @@ function RadioGroup({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-4 text-sm text-ink">
-      <span className="font-semibold">{label}</span>
+    <div className="flex flex-wrap items-center gap-3 text-[11px] text-[#2f3a43]">
+      <span className="font-bold">{label}</span>
       {options.map((option) => (
         <label key={option} className="inline-flex items-center gap-1.5">
           <input
@@ -276,39 +288,42 @@ export function CustomerComplaintWorkflowClient({
   const profileOptions = lookups.profiles ?? [];
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <div className="text-center text-xl font-semibold text-ink md:text-left">
-            Formulaire de suivi des reclamations client
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted">
-            <span>Affiliation</span>
-            <span className="rounded bg-[#fff4b8] px-3 py-1 font-semibold text-[#2749a0]">
+    <div className="-m-3 min-h-[calc(100vh-3rem)] bg-[#e7f0f4] px-3 py-2 md:-m-5 md:px-5">
+      <div className="mx-auto max-w-[1220px] space-y-3">
+      <div className="border border-[#c7d1d7] bg-[#f4f6f7] px-3 py-2 shadow-sm">
+        <div className="grid gap-2 md:grid-cols-[1fr_auto_1fr] md:items-center">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#31414d]">
+            <span className="font-bold">Affiliation</span>
+            <span className="border border-[#d8c26c] bg-[#fff4b8] px-3 py-1 font-bold text-[#1f4f8f]">
               {fieldValue(values, "affiliation") || fieldValue(values, "reference")}
             </span>
             <StatusBadge value={String(values.status ?? "Open")} />
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
+          <div className="text-center text-[15px] font-bold text-[#222b33]">
+            Formulaire de suivi des reclamations client
+          </div>
+          <div className="flex flex-wrap justify-start gap-2 md:justify-end">
           <Link href="/customer-complaints">
-            <Button variant="ghost">
+            <Button variant="ghost" className="min-h-7 px-2 py-1 text-xs">
               <ArrowLeft className="h-4 w-4" />
               Retour
             </Button>
           </Link>
-          <Button onClick={() => void saveComplaint()} disabled={!canWrite || saving}>
+          <Button className="min-h-7 px-2 py-1 text-xs" onClick={() => void saveComplaint()} disabled={!canWrite || saving}>
             <Save className="h-4 w-4" />
             Enregistrer
           </Button>
+          </div>
         </div>
       </div>
 
       <WorkflowCard>
         <SectionTitle step="1/4" title="Declaration de la reclamation client" />
 
-        <div className="space-y-4 p-3">
-          <div className="grid gap-3 bg-[#fff9d8] p-3 md:grid-cols-2">
+        <div className="space-y-3 bg-[#eef4f6] p-2">
+          <div className={qualiosPanelClass}>
+            <div className={qualiosBlueHeader}>Identification du declarant et du client</div>
+            <div className="grid gap-x-5 gap-y-1.5 bg-[#fff8dc] p-2 md:grid-cols-2">
             <Field label="Affiliation">
               <input
                 className={inputClass}
@@ -379,7 +394,7 @@ export function CustomerComplaintWorkflowClient({
                 onChange={(event) => setField("contact_name", event.target.value)}
               />
             </Field>
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-x-5 gap-y-1.5 md:col-span-2 md:grid-cols-2">
               <Field label="Tel">
                 <input
                   className={inputClass}
@@ -397,8 +412,11 @@ export function CustomerComplaintWorkflowClient({
               </Field>
             </div>
           </div>
+          </div>
 
-          <div className="space-y-3 bg-[#edf7ff] p-3">
+          <div className={qualiosPanelClass}>
+            <div className={qualiosPinkHeader}>Type et description de la reclamation</div>
+            <div className="space-y-2 bg-[#eef3f6] p-2">
             <RadioGroup
               label="Type de reclamation"
               name="complaint_type"
@@ -510,6 +528,7 @@ export function CustomerComplaintWorkflowClient({
                 />
               </Field>
             </div>
+            </div>
           </div>
 
           {attachmentConfig ? (
@@ -519,12 +538,13 @@ export function CustomerComplaintWorkflowClient({
               lookups={lookups}
               role={context.role}
               parentId={String(record.id)}
+              variant="qualios"
             />
           ) : null}
 
-          <div className="space-y-3 border-t border-[#b9def4] pt-4">
-            <h3 className="text-sm font-semibold text-slate-800">Transmission pour orientation</h3>
-            <div className="grid gap-3 md:grid-cols-2">
+          <div className={qualiosPanelClass}>
+            <div className={qualiosBlueHeader}>Transmission pour orientation</div>
+            <div className="grid gap-x-5 gap-y-1.5 bg-[#f7f9fa] p-2 md:grid-cols-2">
               <Field label="Destinataire pour traitement">
                 <input
                   className={inputClass}
@@ -540,7 +560,7 @@ export function CustomerComplaintWorkflowClient({
                 />
               </Field>
             </div>
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-2 border-t border-[#d7e0e5] bg-[#f4f6f7] p-2">
               <ActionIconButton
                 label="Enregistrer"
                 icon={Save}
@@ -562,8 +582,10 @@ export function CustomerComplaintWorkflowClient({
 
       <WorkflowCard>
         <SectionTitle step="2/4" title="Orientation de la reclamation client" />
-        <div className="space-y-4 p-3">
-          <div className="bg-[#edf7ff] px-3 py-3">
+        <div className="space-y-3 bg-[#eef4f6] p-2">
+          <div className={qualiosPanelClass}>
+            <div className={qualiosPinkHeader}>Decision d&apos;orientation</div>
+            <div className="bg-[#f7f9fa] p-2">
             <RadioGroup
               label="Que voulez faire de cette reclamation ?"
               name="orientation_decision"
@@ -571,8 +593,9 @@ export function CustomerComplaintWorkflowClient({
               options={["Traiter", "Modifier", "Cloturer"]}
               onChange={(value) => setField("orientation_decision", value)}
             />
+            </div>
           </div>
-          <div className="flex justify-center gap-3">
+          <div className="flex justify-center gap-2 border border-[#c7d1d7] bg-[#f4f6f7] p-2">
             <ActionIconButton
               label="Enregistrer orientation"
               icon={Save}
@@ -620,51 +643,17 @@ export function CustomerComplaintWorkflowClient({
 
       <WorkflowCard>
         <SectionTitle step="3/4" title="Traitement de la reclamation client" />
-        <div className="space-y-4 p-3">
-          <Field label="Origine du probleme" wide>
-            <textarea
-              className={textareaClass}
-              value={fieldValue(values, "problem_origin")}
-              onChange={(event) => setField("problem_origin", event.target.value)}
-            />
-          </Field>
-
-          <div className="overflow-hidden rounded border border-[#b9def4]">
-            <div className="grid grid-cols-[1fr_1.4fr_0.8fr_0.8fr_1.1fr_0.8fr] bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-3 py-2 text-xs font-semibold text-white">
-              <span>Pilote</span>
-              <span>Action</span>
-              <span>Deadline</span>
-              <span>Date realisation</span>
-              <span>Commentaire</span>
-              <span>Avancement</span>
-            </div>
-            {actionRecords.length === 0 ? (
-              <div className="px-3 py-5 text-sm text-muted">Aucune action planifiee.</div>
-            ) : (
-              actionRecords.map((action) => (
-                <div
-                  key={String(action.id)}
-                  className="grid grid-cols-[1fr_1.4fr_0.8fr_0.8fr_1.1fr_0.8fr] border-t border-[#d5edf8] px-3 py-2 text-sm text-ink"
-                >
-                  <span>{getLookupLabel(lookups, "profiles", String(action.pilot_id ?? ""))}</span>
-                  <span>{String(action.action ?? "")}</span>
-                  <span>{formatDate(String(action.deadline ?? ""))}</span>
-                  <span>{formatDate(String(action.completion_date ?? ""))}</span>
-                  <span>{String(action.comment ?? "")}</span>
-                  <span>
-                    <StatusBadge value={String(action.progress_status ?? "Open")} />
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="text-sm text-ink">
-              Nombre d&apos;actions a realiser: <strong>{actionSummary.total}</strong>
-            </div>
-            <div className="text-sm text-ink">
-              Nombre d&apos;actions realisees: <strong>{actionSummary.done}</strong>
+        <div className="space-y-3 bg-[#eef4f6] p-2">
+          <div className={qualiosPanelClass}>
+            <div className={qualiosPinkHeader}>Analyse et plan d&apos;action</div>
+            <div className="bg-[#f7f9fa] p-2">
+              <Field label="Origine du probleme" wide className="items-start">
+                <textarea
+                  className={textareaClass}
+                  value={fieldValue(values, "problem_origin")}
+                  onChange={(event) => setField("problem_origin", event.target.value)}
+                />
+              </Field>
             </div>
           </div>
 
@@ -675,12 +664,22 @@ export function CustomerComplaintWorkflowClient({
               lookups={lookups}
               role={context.role}
               parentId={String(record.id)}
+              variant="qualios"
             />
           ) : null}
 
-          <div className="space-y-3 border-t border-[#b9def4] pt-4">
-            <h3 className="text-sm font-semibold text-ink">Transmission pour verification et cloture</h3>
-            <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="border border-[#c7d1d7] bg-white px-2 py-1 text-[11px] text-[#1f2c3a]">
+              Nombre d&apos;actions a realiser: <strong>{actionSummary.total}</strong>
+            </div>
+            <div className="border border-[#c7d1d7] bg-white px-2 py-1 text-[11px] text-[#1f2c3a]">
+              Nombre d&apos;actions realisees: <strong>{actionSummary.done}</strong>
+            </div>
+          </div>
+
+          <div className={qualiosPanelClass}>
+            <div className={qualiosBlueHeader}>Transmission pour verification et cloture</div>
+            <div className="grid gap-x-5 gap-y-1.5 bg-[#f7f9fa] p-2 md:grid-cols-2">
               <Field label="Destinataire pour verification et cloture">
                 <input
                   className={inputClass}
@@ -696,7 +695,7 @@ export function CustomerComplaintWorkflowClient({
                 />
               </Field>
             </div>
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-2 border-t border-[#d7e0e5] bg-[#f4f6f7] p-2">
               <ActionIconButton
                 label="Enregistrer traitement"
                 icon={Save}
@@ -718,24 +717,29 @@ export function CustomerComplaintWorkflowClient({
 
       <WorkflowCard>
         <SectionTitle step="4/4" title="Verification et Cloture de la reclamation client" />
-        <div className="space-y-4 p-3">
-          <RadioGroup
-            label="Les actions entreprises sont-elles efficaces ?"
-            name="actions_effective"
-            value={fieldValue(values, "actions_effective") || "Oui"}
-            options={["Oui", "Non", "A mesurer"]}
-            onChange={(value) => setField("actions_effective", value)}
-          />
+        <div className="space-y-3 bg-[#eef4f6] p-2">
+          <div className={qualiosPanelClass}>
+            <div className={qualiosPinkHeader}>Verification de l&apos;efficacite</div>
+            <div className="space-y-2 bg-[#f7f9fa] p-2">
+              <RadioGroup
+                label="Les actions entreprises sont-elles efficaces ?"
+                name="actions_effective"
+                value={fieldValue(values, "actions_effective") || "Oui"}
+                options={["Oui", "Non", "A mesurer"]}
+                onChange={(value) => setField("actions_effective", value)}
+              />
 
-          <Field label="Criteres d'efficacite" wide>
-            <textarea
-              className={textareaClass}
-              value={fieldValue(values, "effectiveness_criteria")}
-              onChange={(event) => setField("effectiveness_criteria", event.target.value)}
-            />
-          </Field>
+              <Field label="Criteres d'efficacite" wide className="items-start">
+                <textarea
+                  className={textareaClass}
+                  value={fieldValue(values, "effectiveness_criteria")}
+                  onChange={(event) => setField("effectiveness_criteria", event.target.value)}
+                />
+              </Field>
+            </div>
+          </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-x-5 gap-y-1.5 border border-[#c7d1d7] bg-white p-2 md:grid-cols-2">
             <Field label="Date de cloture">
               <input
                 type="date"
@@ -760,18 +764,18 @@ export function CustomerComplaintWorkflowClient({
             </Field>
           </div>
 
-          <div className="overflow-hidden rounded border border-[#b9def4]">
-            <div className="grid grid-cols-[1.4fr_0.8fr] bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-3 py-2 text-xs font-semibold text-white">
+          <div className="overflow-hidden border border-[#c7d1d7] bg-white">
+            <div className="grid grid-cols-[1.4fr_0.8fr] bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-2 py-1 text-[10px] font-bold text-white">
               <span>Actions entreprises</span>
               <span>Cout estime</span>
             </div>
             {actionRecords.length === 0 ? (
-              <div className="px-3 py-4 text-sm text-muted">Aucun resultat.</div>
+              <div className="px-2 py-4 text-[11px] text-muted">Aucun resultat.</div>
             ) : (
               actionRecords.map((action) => (
                 <div
                   key={String(action.id)}
-                  className="grid grid-cols-[1.4fr_0.8fr] border-t border-[#d5edf8] px-3 py-2 text-sm text-ink"
+                  className="grid grid-cols-[1.4fr_0.8fr] border-t border-[#d7e0e5] px-2 py-1 text-[11px] text-[#1f2c3a]"
                 >
                   <span>{String(action.action ?? "")}</span>
                   <span>{String(action.estimated_cost ?? "0")}</span>
@@ -780,8 +784,9 @@ export function CustomerComplaintWorkflowClient({
             )}
           </div>
 
-          <div className="space-y-3 border-t border-[#b9def4] pt-4">
-            <h3 className="text-sm font-semibold text-ink">A mesurer</h3>
+          <div className={qualiosPanelClass}>
+            <div className={qualiosBlueHeader}>A mesurer</div>
+            <div className="grid gap-x-5 gap-y-1.5 bg-[#f7f9fa] p-2 md:grid-cols-2">
             <Field label="Motif" wide>
               <input
                 className={inputClass}
@@ -797,10 +802,12 @@ export function CustomerComplaintWorkflowClient({
                 onChange={(event) => setField("measurement_deadline", event.target.value || null)}
               />
             </Field>
+            </div>
           </div>
 
-          <div className="space-y-3 border-t border-[#b9def4] pt-4">
-            <h3 className="text-sm font-semibold text-slate-800">Actions non efficaces</h3>
+          <div className={qualiosPanelClass}>
+            <div className={qualiosPinkHeader}>Actions non efficaces</div>
+            <div className="space-y-2 bg-[#f7f9fa] p-2">
             <Field label="Motif" wide>
               <input
                 className={inputClass}
@@ -812,13 +819,14 @@ export function CustomerComplaintWorkflowClient({
               <Plus className="h-4 w-4" />
               Creer une action corrective
             </Button>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-[#b9def4] pt-4 md:flex-row md:items-center md:justify-between">
-            <div className="text-xs text-slate-500">
+          <div className="flex flex-col gap-2 border border-[#c7d1d7] bg-[#f4f6f7] p-2 md:flex-row md:items-center md:justify-between">
+            <div className="text-[10px] text-slate-500">
               Suivi par {context.profile?.full_name ?? context.email} - {formatDate(String(values.updated_at ?? ""))}
             </div>
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-2">
               <ActionIconButton
                 label="Enregistrer verification"
                 icon={Save}
@@ -858,8 +866,10 @@ export function CustomerComplaintWorkflowClient({
           lookups={lookups}
           role={context.role}
           parentId={String(record.id)}
+          variant="qualios"
         />
       ) : null}
+      </div>
     </div>
   );
 }

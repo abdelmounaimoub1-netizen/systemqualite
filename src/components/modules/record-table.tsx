@@ -16,25 +16,28 @@ type RecordTableProps = {
   onEdit?: (record: Record<string, unknown>) => void;
   onDelete?: (record: Record<string, unknown>) => void;
   onDownload?: (record: Record<string, unknown>) => void;
+  compact?: boolean;
 };
 
 function renderCell(
   column: ListColumnConfig,
   record: Record<string, unknown>,
-  lookups: LookupCollection
+  lookups: LookupCollection,
+  compact = false
 ) {
   const value = record[column.key];
+  const textClass = compact ? "text-[11px] text-[#1f2c3a]" : "text-sm text-slate-600";
 
   if (column.variant === "status") {
     return <StatusBadge value={value as string | null | undefined} />;
   }
 
   if (column.variant === "date") {
-    return <span className="text-sm text-slate-600">{formatDate(String(value ?? ""))}</span>;
+    return <span className={textClass}>{formatDate(String(value ?? ""))}</span>;
   }
 
   if (column.variant === "boolean") {
-    return <span className="text-sm font-medium text-slate-600">{value ? "Yes" : "No"}</span>;
+    return <span className={textClass}>{value ? "Yes" : "No"}</span>;
   }
 
   if (column.variant === "relation") {
@@ -56,14 +59,14 @@ function renderCell(
     };
 
     return (
-      <span className="text-sm text-slate-600">
+      <span className={textClass}>
         {getLookupLabel(lookups, tablesByKey[column.key] ?? "", String(value ?? ""))}
       </span>
     );
   }
 
   return (
-    <span className="text-sm text-slate-700">
+    <span className={compact ? "text-[11px] text-[#1f2c3a]" : "text-sm text-slate-700"}>
       {value === null || value === undefined || value === "" ? "Not set" : String(value)}
     </span>
   );
@@ -76,52 +79,53 @@ export function RecordTable({
   detailBasePath,
   onEdit,
   onDelete,
-  onDownload
+  onDownload,
+  compact = false
 }: RecordTableProps) {
   return (
-    <div className="overflow-hidden rounded border border-[#b9def4] bg-white">
+    <div className={compact ? "overflow-hidden border border-[#c7d1d7] bg-white" : "overflow-hidden rounded border border-[#b9def4] bg-white"}>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-[#d5edf8]">
-          <thead className="bg-[linear-gradient(90deg,#2749a0,#00a9da)]">
+        <table className={compact ? "min-w-full divide-y divide-[#d7e0e5]" : "min-w-full divide-y divide-[#d5edf8]"}>
+          <thead className={compact ? "bg-[#2749a0]" : "bg-[linear-gradient(90deg,#2749a0,#00a9da)]"}>
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className="px-4 py-2 text-left text-xs font-semibold text-white"
+                  className={compact ? "px-2 py-1 text-left text-[10px] font-bold text-white" : "px-4 py-2 text-left text-xs font-semibold text-white"}
                 >
                   {column.label}
                 </th>
               ))}
-              <th className="px-4 py-2 text-right text-xs font-semibold text-white">
+              <th className={compact ? "px-2 py-1 text-right text-[10px] font-bold text-white" : "px-4 py-2 text-right text-xs font-semibold text-white"}>
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#eef7fc]">
+          <tbody className={compact ? "divide-y divide-[#edf2f4]" : "divide-y divide-[#eef7fc]"}>
             {records.map((record) => (
               <tr key={String(record.id)} className="hover:bg-[#fff9d8]/70">
                 {columns.map((column, index) => (
-                  <td key={column.key} className="px-4 py-3 align-top">
+                  <td key={column.key} className={compact ? "px-2 py-1 align-top" : "px-4 py-3 align-top"}>
                     {detailBasePath && index === 0 ? (
                       <a
                         href={`${detailBasePath}/${record.id}`}
                         className="font-medium text-brand hover:text-[#00a9da]"
                       >
-                        {renderCell(column, record, lookups)}
+                        {renderCell(column, record, lookups, compact)}
                       </a>
                     ) : (
-                      renderCell(column, record, lookups)
+                      renderCell(column, record, lookups, compact)
                     )}
                   </td>
                 ))}
-                <td className="px-4 py-3">
+                <td className={compact ? "px-2 py-1" : "px-4 py-3"}>
                   <div className="flex justify-end gap-2">
                     {onDownload ? (
                       <Button
                         variant="ghost"
                         title="Telecharger"
                         aria-label="Telecharger"
-                        className="h-8 min-h-0 w-8 px-0 py-0"
+                        className={compact ? "h-6 min-h-0 w-6 px-0 py-0" : "h-8 min-h-0 w-8 px-0 py-0"}
                         onClick={() => onDownload(record)}
                       >
                         <Download className="h-4 w-4" />
@@ -132,7 +136,7 @@ export function RecordTable({
                         variant="ghost"
                         title="Modifier"
                         aria-label="Modifier"
-                        className="h-8 min-h-0 w-8 px-0 py-0"
+                        className={compact ? "h-6 min-h-0 w-6 px-0 py-0" : "h-8 min-h-0 w-8 px-0 py-0"}
                         onClick={() => onEdit(record)}
                       >
                         <Pencil className="h-4 w-4" />
@@ -143,7 +147,7 @@ export function RecordTable({
                         variant="ghost"
                         title="Supprimer"
                         aria-label="Supprimer"
-                        className="h-8 min-h-0 w-8 px-0 py-0 text-danger hover:bg-danger/10 hover:text-danger"
+                        className={compact ? "h-6 min-h-0 w-6 px-0 py-0 text-danger hover:bg-danger/10 hover:text-danger" : "h-8 min-h-0 w-8 px-0 py-0 text-danger hover:bg-danger/10 hover:text-danger"}
                         onClick={() => onDelete(record)}
                       >
                         <Trash2 className="h-4 w-4" />
