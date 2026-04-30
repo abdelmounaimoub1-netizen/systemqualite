@@ -30,7 +30,7 @@ const labManagementBlocks = [
 const labRealizationBlocks = [
   {
     title: "Pre-Analytique",
-    items: ["Plan de controle", "Prelevements", "Reception", "Enregistrement", "Pretraitement"]
+    items: ["Plan de controle", "Reception", "Enregistrement", "Pretraitement"]
   },
   {
     title: "Analytique",
@@ -231,11 +231,7 @@ function VerticalBand({
 function ProcessMap() {
   return (
     <div className="bg-transparent">
-      <div className="mb-3 grid grid-cols-[150px_1fr_150px] items-center gap-3">
-        <div className="rounded-sm border border-[#b9def4] bg-white px-3 py-2 text-[10px] font-bold text-[#2749a0] shadow-sm">
-          Durrah Sugar Refinery
-          <div className="text-[8px] font-semibold text-muted">Laboratoire et controle qualite</div>
-        </div>
+      <div className="mb-3 grid grid-cols-[1fr_150px] items-center gap-3">
         <div className="border border-[#8bd7ee] bg-[linear-gradient(90deg,#fff4b8,#d7f8ff)] px-4 py-2 text-center text-xl font-semibold text-[#17306b] shadow-sm">
           Fonctionnement normale du laboratoire
         </div>
