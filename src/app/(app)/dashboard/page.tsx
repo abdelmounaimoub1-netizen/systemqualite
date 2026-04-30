@@ -6,41 +6,6 @@ import { ArrowRight, ChevronRight, Circle, ClipboardCheck, FileStack } from "luc
 import cosumarLogo from "@/image/logo.png";
 import { getDashboardData } from "@/lib/modules/queries";
 
-const documentTree = [
-  {
-    label: "Pilotage",
-    children: [
-      "Pilotage strategique",
-      "Pilotage de la performance",
-      "Audit interne & Risk management",
-      "Controle interne",
-      "Qualite, securite des aliments et environnement",
-      "Sante et securite au travail"
-    ]
-  },
-  {
-    label: "Realisation",
-    children: [
-      "Achats",
-      "Operations Industrielles",
-      "Commercial",
-      "Marketing et Innovation",
-      "Supply chain",
-      "Trading"
-    ]
-  },
-  {
-    label: "Support",
-    children: [
-      "Ressources humaines",
-      "Communication externe",
-      "Juridique",
-      "Finance",
-      "Systeme d'information"
-    ]
-  }
-];
-
 const labManagementBlocks = [
   {
     title: "Organisation et systeme de management",
@@ -102,6 +67,12 @@ const labSupportBlocks = [
     title: "Locaux et E.A",
     items: ["Acces et confidentialite", "N&H", "Securite", "Controle des CA"]
   }
+];
+
+const documentTree = [
+  { label: "Pilotage", blocks: labManagementBlocks },
+  { label: "Realisation", blocks: labRealizationBlocks },
+  { label: "Support", blocks: labSupportBlocks }
 ];
 
 function PortalBox({
@@ -511,12 +482,24 @@ export default async function DashboardPage({
                   <Link href="/documents" className="font-semibold hover:text-red-700">
                     {group.label}
                   </Link>
-                  <ul className="mt-1 space-y-0.5 pl-4">
-                    {group.children.map((child) => (
-                      <li key={child}>
-                        <Link href="/documents" className="hover:text-red-700">
-                          {child}
+                  <ul className="mt-1 space-y-1 pl-4">
+                    {group.blocks.map((block) => (
+                      <li key={block.title}>
+                        <Link
+                          href={`/documents?q=${encodeURIComponent(block.title)}`}
+                          className="font-medium hover:text-red-700"
+                        >
+                          {block.title}
                         </Link>
+                        <ul className="mt-0.5 space-y-0.5 pl-3 text-[9px] leading-3 text-slate-500">
+                          {block.items.map((item) => (
+                            <li key={item}>
+                              <Link href={`/documents?q=${encodeURIComponent(item)}`} className="hover:text-red-700">
+                                {item}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
                       </li>
                     ))}
                   </ul>
