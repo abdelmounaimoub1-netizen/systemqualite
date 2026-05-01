@@ -613,6 +613,59 @@ alter table public.comments enable row level security;
 alter table public.attachments enable row level security;
 alter table public.app_settings enable row level security;
 
+drop policy if exists "roles_select_authenticated" on public.roles;
+drop policy if exists "roles_manage_quality" on public.roles;
+drop policy if exists "departments_select_authenticated" on public.departments;
+drop policy if exists "departments_manage_quality" on public.departments;
+drop policy if exists "document_categories_select_authenticated" on public.document_categories;
+drop policy if exists "document_categories_manage_quality" on public.document_categories;
+drop policy if exists "profiles_select_authenticated" on public.profiles;
+drop policy if exists "profiles_update_self_or_quality" on public.profiles;
+drop policy if exists "profiles_manage_admin" on public.profiles;
+drop policy if exists "documents_select_role_based" on public.documents;
+drop policy if exists "documents_manage_quality" on public.documents;
+drop policy if exists "document_versions_select_role_based" on public.document_versions;
+drop policy if exists "document_versions_manage_quality" on public.document_versions;
+drop policy if exists "forms_select_internal" on public.forms;
+drop policy if exists "forms_manage_quality" on public.forms;
+drop policy if exists "form_entries_select_internal" on public.form_entries;
+drop policy if exists "form_entries_manage_internal" on public.form_entries;
+drop policy if exists "workflows_select_internal" on public.workflows;
+drop policy if exists "workflows_manage_internal" on public.workflows;
+drop policy if exists "workflow_steps_select_internal" on public.workflow_steps;
+drop policy if exists "workflow_steps_manage_internal" on public.workflow_steps;
+drop policy if exists "non_conformities_select_internal" on public.non_conformities;
+drop policy if exists "non_conformities_manage_internal" on public.non_conformities;
+drop policy if exists "capa_actions_select_internal" on public.capa_actions;
+drop policy if exists "capa_actions_manage_quality" on public.capa_actions;
+drop policy if exists "audits_select_internal" on public.audits;
+drop policy if exists "audits_manage_quality" on public.audits;
+drop policy if exists "audit_checklists_select_internal" on public.audit_checklists;
+drop policy if exists "audit_checklists_manage_quality" on public.audit_checklists;
+drop policy if exists "audit_findings_select_internal" on public.audit_findings;
+drop policy if exists "audit_findings_manage_quality" on public.audit_findings;
+drop policy if exists "risks_select_internal" on public.risks;
+drop policy if exists "risks_manage_quality" on public.risks;
+drop policy if exists "trainings_select_role_based" on public.trainings;
+drop policy if exists "trainings_manage_quality" on public.trainings;
+drop policy if exists "equipment_select_internal" on public.equipment;
+drop policy if exists "equipment_manage_quality" on public.equipment;
+drop policy if exists "suppliers_select_role_based" on public.suppliers;
+drop policy if exists "suppliers_manage_quality" on public.suppliers;
+drop policy if exists "notifications_select_recipient" on public.notifications;
+drop policy if exists "notifications_insert_internal" on public.notifications;
+drop policy if exists "notifications_update_recipient" on public.notifications;
+drop policy if exists "notifications_delete_quality" on public.notifications;
+drop policy if exists "audit_trail_select_quality" on public.audit_trail;
+drop policy if exists "comments_select_authenticated" on public.comments;
+drop policy if exists "comments_manage_internal" on public.comments;
+drop policy if exists "attachments_select_authenticated" on public.attachments;
+drop policy if exists "attachments_manage_internal" on public.attachments;
+drop policy if exists "app_settings_select_internal" on public.app_settings;
+drop policy if exists "app_settings_manage_quality" on public.app_settings;
+drop policy if exists "storage_read_qms_files" on storage.objects;
+drop policy if exists "storage_write_qms_files" on storage.objects;
+
 create policy "roles_select_authenticated" on public.roles
 for select to authenticated
 using (true);
@@ -1195,6 +1248,49 @@ on conflict (id) do update
 set
   name = excluded.name,
   description = excluded.description;
+
+-- Keep demo auth users idempotent when this script is re-run after partial seeds.
+delete from auth.identities
+where provider = 'email'
+  and (
+    provider_id in (
+      'admin@qualios.ma',
+      'manager@qmspro.demo',
+      'auditor@qmspro.demo',
+      'employee@qmspro.demo',
+      'supplier@qmspro.demo'
+    )
+    or identity_data ->> 'email' in (
+      'admin@qualios.ma',
+      'manager@qmspro.demo',
+      'auditor@qmspro.demo',
+      'employee@qmspro.demo',
+      'supplier@qmspro.demo'
+    )
+    or user_id in (
+      '40000000-0000-0000-0000-000000000001',
+      '40000000-0000-0000-0000-000000000002',
+      '40000000-0000-0000-0000-000000000003',
+      '40000000-0000-0000-0000-000000000004',
+      '40000000-0000-0000-0000-000000000005'
+    )
+  );
+
+delete from auth.users
+where email in (
+    'admin@qualios.ma',
+    'manager@qmspro.demo',
+    'auditor@qmspro.demo',
+    'employee@qmspro.demo',
+    'supplier@qmspro.demo'
+  )
+  and id not in (
+    '40000000-0000-0000-0000-000000000001',
+    '40000000-0000-0000-0000-000000000002',
+    '40000000-0000-0000-0000-000000000003',
+    '40000000-0000-0000-0000-000000000004',
+    '40000000-0000-0000-0000-000000000005'
+  );
 
 insert into auth.users (
   instance_id,
