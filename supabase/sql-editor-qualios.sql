@@ -2015,3 +2015,5 @@ set
   setting_key = excluded.setting_key,
   setting_value = excluded.setting_value;
 
+-- Force Supabase/PostgREST to refresh the schema cache after creating tables.
+notify pgrst, 'reload schema';
