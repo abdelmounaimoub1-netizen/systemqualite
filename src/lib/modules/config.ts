@@ -204,65 +204,65 @@ function attachmentModule(
 export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   documents: {
     slug: "documents",
-    label: "GED Documents",
+    label: "Documents GED",
     singular: "Document",
     icon: FileStack,
     table: "documents",
-    description: "Controlled records with ownership, review dates, and approval state.",
+    description: "Gestion documentaire controlee avec version, statut, pilote et dates de revue.",
     accentClass: "from-brand/20 via-accent/10 to-transparent",
     searchableFields: ["title", "document_code", "summary"],
     columns: [
       { key: "document_code", label: "Code" },
-      { key: "title", label: "Title" },
-      { key: "category_id", label: "Category", variant: "relation" },
-      { key: "status", label: "Status", variant: "status" },
-      { key: "owner_id", label: "Owner", variant: "relation" },
-      { key: "review_date", label: "Review date", variant: "date" }
+      { key: "title", label: "Titre" },
+      { key: "category_id", label: "Categorie", variant: "relation" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "owner_id", label: "Pilote", variant: "relation" },
+      { key: "review_date", label: "Date de revue", variant: "date" }
     ],
     fields: [
       {
         key: "document_code",
-        label: "Document code",
+        label: "Code document",
         type: "text",
         required: true,
-        placeholder: "DOC-001"
+        placeholder: "PR-LAB-001"
       },
       {
         key: "title",
-        label: "Title",
+        label: "Titre",
         type: "text",
         required: true,
-        placeholder: "Quality handbook"
+        placeholder: "Procedure gestion stocks et consommables"
       },
       {
         key: "summary",
-        label: "Summary",
+        label: "Resume / objet",
         type: "textarea",
-        placeholder: "Short purpose and scope."
+        placeholder: "Objet, domaine d'application et remarques."
       },
       {
         key: "category_id",
-        label: "Category",
+        label: "Categorie",
         type: "select",
         relation: categoryRelation,
         required: true
       },
       {
         key: "owner_id",
-        label: "Owner",
+        label: "Pilote / proprietaire",
         type: "select",
         relation: profileRelation,
         required: true
       },
       {
         key: "department_id",
-        label: "Department",
+        label: "Departement",
         type: "select",
         relation: departmentRelation
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         required: true,
         options: [
@@ -274,26 +274,26 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "version_current",
-        label: "Current version",
+        label: "Version courante",
         type: "text",
         required: true,
         placeholder: "1.0"
       },
       {
         key: "effective_date",
-        label: "Effective date",
+        label: "Date d'application",
         type: "date"
       },
       {
         key: "review_date",
-        label: "Review date",
+        label: "Date de revue",
         type: "date"
       },
       {
         key: "file_path",
-        label: "Primary file path",
+        label: "Fichier principal",
         type: "text",
-        placeholder: "qms-files/documents/...",
+        placeholder: "documents/primary/...",
         storageFolder: "documents/primary",
         accept: ".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
       }
@@ -307,7 +307,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       "review_date",
       "owner_id"
     ],
-    emptyState: "Start your controlled document library with a handbook, SOP, or policy.",
+    emptyState: "Ajoute le premier document controle: procedure, processus, formulaire ou politique.",
     writeRoles: ["admin", "quality_manager"],
     childModules: [
       {

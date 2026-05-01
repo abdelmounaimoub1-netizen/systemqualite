@@ -49,7 +49,7 @@ export async function uploadFileToStorage({
   return filePath;
 }
 
-export async function openStorageFile(filePath: string, expiresIn = 60) {
+export async function getStorageSignedUrl(filePath: string, expiresIn = 300) {
   if (!filePath) {
     throw new Error("No file is attached to this record yet.");
   }
@@ -60,8 +60,14 @@ export async function openStorageFile(filePath: string, expiresIn = 60) {
     .createSignedUrl(filePath, expiresIn);
 
   if (error || !data?.signedUrl) {
-    throw new Error(error?.message ?? "Unable to generate a download link.");
+    throw new Error(error?.message ?? "Unable to generate a file link.");
   }
 
-  window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  return data.signedUrl;
+}
+
+export async function openStorageFile(filePath: string, expiresIn = 300) {
+  const signedUrl = await getStorageSignedUrl(filePath, expiresIn);
+
+  window.open(signedUrl, "_blank", "noopener,noreferrer");
 }

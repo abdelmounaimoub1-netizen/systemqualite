@@ -144,7 +144,7 @@ export function ChildRecordsSection({
     try {
       await openStorageFile(String(record.file_path ?? ""));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to download file.");
+      toast.error(error instanceof Error ? error.message : "Unable to open file.");
     }
   }
 

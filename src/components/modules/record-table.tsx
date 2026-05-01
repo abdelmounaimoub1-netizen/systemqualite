@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Pencil, Trash2 } from "lucide-react";
+import { Eye, FileText, Pencil, Trash2 } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,11 @@ type RecordTableProps = {
   records: Array<Record<string, unknown>>;
   lookups: LookupCollection;
   detailBasePath?: string;
+  onOpen?: (record: Record<string, unknown>) => void;
   onEdit?: (record: Record<string, unknown>) => void;
   onDelete?: (record: Record<string, unknown>) => void;
   onDownload?: (record: Record<string, unknown>) => void;
+  canDownload?: (record: Record<string, unknown>) => boolean;
   compact?: boolean;
 };
 
@@ -77,9 +79,11 @@ export function RecordTable({
   records,
   lookups,
   detailBasePath,
+  onOpen,
   onEdit,
   onDelete,
   onDownload,
+  canDownload,
   compact = false
 }: RecordTableProps) {
   return (
@@ -120,15 +124,26 @@ export function RecordTable({
                 ))}
                 <td className={compact ? "px-2 py-1" : "px-4 py-3"}>
                   <div className="flex justify-end gap-2">
-                    {onDownload ? (
+                    {onOpen ? (
                       <Button
                         variant="ghost"
-                        title="Telecharger"
-                        aria-label="Telecharger"
+                        title="Ouvrir"
+                        aria-label="Ouvrir"
+                        className={compact ? "h-6 min-h-0 w-6 px-0 py-0" : "h-8 min-h-0 w-8 px-0 py-0"}
+                        onClick={() => onOpen(record)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    ) : null}
+                    {onDownload && (canDownload?.(record) ?? true) ? (
+                      <Button
+                        variant="ghost"
+                        title="Ouvrir fichier"
+                        aria-label="Ouvrir fichier"
                         className={compact ? "h-6 min-h-0 w-6 px-0 py-0" : "h-8 min-h-0 w-8 px-0 py-0"}
                         onClick={() => onDownload(record)}
                       >
-                        <Download className="h-4 w-4" />
+                        <FileText className="h-4 w-4" />
                       </Button>
                     ) : null}
                     {onEdit ? (

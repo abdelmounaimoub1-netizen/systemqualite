@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, Download, Pencil } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, FileText, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -14,7 +14,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { getLookupLabel } from "@/lib/modules/config";
 import { canWriteModule } from "@/lib/permissions";
-import { getStorageFieldKey, openStorageFile } from "@/lib/storage";
+import { getStorageFieldKey, getStorageSignedUrl, openStorageFile } from "@/lib/storage";
 import type {
   LookupCollection,
   SerializableModuleConfig,
@@ -67,6 +67,12 @@ function renderDetailValue(field: string, value: unknown, lookups: LookupCollect
   return value === null || value === undefined || value === "" ? "Not set" : String(value);
 }
 
+function canPreviewInline(filePath: string) {
+  const extension = filePath.split("?")[0]?.split(".").pop()?.toLowerCase() ?? "";
+
+  return ["pdf", "png", "jpg", "jpeg", "gif", "webp"].includes(extension);
+}
+
 export function RecordDetailClient({
   context,
   config,
@@ -76,11 +82,43 @@ export function RecordDetailClient({
 }: RecordDetailClientProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [filePreview, setFilePreview] = useState<{ path: string; url: string } | null>(null);
+  const [fileError, setFileError] = useState<{ path: string; message: string } | null>(null);
   const canWrite = canWriteModule(context.role, config.slug);
   const storageFieldKey = getStorageFieldKey(config.fields);
+  const filePath = storageFieldKey ? String(record[storageFieldKey] ?? "") : "";
   const hasDownloadableFile = Boolean(
-    storageFieldKey && String(record[storageFieldKey] ?? "").length > 0
+    storageFieldKey && filePath.trim().length > 0
   );
+  const showInlinePreview = useMemo(() => canPreviewInline(filePath), [filePath]);
+  const currentFileUrl = filePreview?.path === filePath ? filePreview.url : null;
+  const currentFileError = fileError?.path === filePath ? fileError.message : null;
+  const fieldLabels = useMemo(
+    () => Object.fromEntries(config.fields.map((field) => [field.key, field.label])),
+    [config.fields]
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    if (!hasDownloadableFile) return;
+
+    getStorageSignedUrl(filePath)
+      .then((signedUrl) => {
+        if (active) setFilePreview({ path: filePath, url: signedUrl });
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setFileError({
+          path: filePath,
+          message: error instanceof Error ? error.message : "Unable to prepare file preview."
+        });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [filePath, hasDownloadableFile]);
 
   async function saveRecord(values: Record<string, unknown>) {
     const response = await fetch(`/api/records/${config.table}`, {
@@ -110,9 +148,9 @@ export function RecordDetailClient({
     if (!storageFieldKey) return;
 
     try {
-      await openStorageFile(String(record[storageFieldKey] ?? ""));
+      await openStorageFile(filePath);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to download file.");
+      toast.error(error instanceof Error ? error.message : "Unable to open file.");
     }
   }
 
@@ -135,8 +173,8 @@ export function RecordDetailClient({
             </Link>
             {hasDownloadableFile ? (
               <Button className="border-white/40 bg-white text-[#2749a0] hover:bg-[#fff4b8]" onClick={() => void downloadRecordFile()}>
-                <Download className="h-4 w-4" />
-                Fichier
+                <FileText className="h-4 w-4" />
+                Ouvrir fichier
               </Button>
             ) : null}
             {canWrite ? (
@@ -162,7 +200,7 @@ export function RecordDetailClient({
           {config.detailFields.map((field) => (
             <div key={field} className="border border-[#d5edf8] bg-[#f8fcff] p-3">
               <div className="text-[10px] font-semibold uppercase text-[#2749a0]">
-                {field.replace(/_/g, " ")}
+                {fieldLabels[field] ?? field.replace(/_/g, " ")}
               </div>
               <div className="mt-2 text-sm leading-6 text-ink">
                 {renderDetailValue(field, record[field], lookups)}
@@ -171,6 +209,48 @@ export function RecordDetailClient({
           ))}
         </div>
       </section>
+
+      {hasDownloadableFile ? (
+        <section className="overflow-hidden border border-[#b9def4] bg-white shadow-sm">
+          <div className="flex flex-col gap-2 border-b border-[#d5edf8] bg-[#f8fcff] px-3 py-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="text-[10px] font-semibold uppercase text-[#2749a0]">
+                Apercu document
+              </div>
+              <div className="text-sm font-semibold text-ink">{filePath}</div>
+            </div>
+            <Button variant="secondary" onClick={() => void downloadRecordFile()}>
+              <FileText className="h-4 w-4" />
+              Ouvrir dans un onglet
+            </Button>
+          </div>
+          <div className="bg-[#eef9fd] p-3">
+            {currentFileError ? (
+              <div className="border border-[#f1c4c4] bg-[#fff7f7] px-3 py-4 text-sm text-danger">
+                {currentFileError}
+              </div>
+            ) : currentFileUrl && showInlinePreview ? (
+              <iframe
+                title={`Apercu ${String(record.title ?? record.document_code ?? config.singular)}`}
+                src={currentFileUrl}
+                className="h-[70vh] min-h-[420px] w-full border border-[#b9def4] bg-white"
+              />
+            ) : currentFileUrl ? (
+              <div className="border border-[#d5edf8] bg-white px-3 py-5 text-sm text-slate-600">
+                Ce format ne peut pas etre affiche directement ici. Utilise le bouton
+                {" "}
+                <span className="font-semibold text-[#2749a0]">Ouvrir dans un onglet</span>
+                {" "}
+                pour le consulter.
+              </div>
+            ) : (
+              <div className="border border-[#d5edf8] bg-white px-3 py-5 text-sm text-slate-500">
+                Preparation de l&apos;apercu...
+              </div>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {(config.childModules ?? []).map((child) => (
         <ChildRecordsSection

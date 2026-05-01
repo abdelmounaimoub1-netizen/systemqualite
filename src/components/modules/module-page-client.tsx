@@ -161,7 +161,7 @@ export function ModulePageClient({
     try {
       await openStorageFile(String(record[storageFieldKey] ?? ""));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to download file.");
+      toast.error(error instanceof Error ? error.message : "Unable to open file.");
     }
   }
 
@@ -242,7 +242,13 @@ export function ModulePageClient({
             records={filteredRecords}
             lookups={lookups}
             detailBasePath={`/${config.slug}`}
+            onOpen={(record) => router.push(`/${config.slug}/${record.id}`)}
             onDownload={storageFieldKey ? downloadRecord : undefined}
+            canDownload={
+              storageFieldKey
+                ? (record) => String(record[storageFieldKey] ?? "").trim().length > 0
+                : undefined
+            }
             onEdit={
               canWrite
                 ? (record) => {
