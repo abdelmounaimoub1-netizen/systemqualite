@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { ArrowRight, ChevronRight, Circle, ClipboardCheck, FileStack } from "lucide-react";
 
+import { ProcessDocumentTree } from "@/components/dashboard/process-document-tree";
 import cosumarLogo from "@/image/logo.png";
 import { getDashboardData } from "@/lib/modules/queries";
 
@@ -478,36 +479,7 @@ export default async function DashboardPage({
       <div className="grid gap-5 xl:grid-cols-[330px_1fr]">
         <div className="space-y-3">
           <PortalBox title="Documentation par processus">
-            <div className="space-y-2 px-3 py-3 text-[10px] leading-4 text-ink">
-              {documentTree.map((group) => (
-                <div key={group.label}>
-                  <Link href="/documents" className="font-semibold text-[#2749a0] hover:text-[#00a9da]">
-                    {group.label}
-                  </Link>
-                  <ul className="mt-1 space-y-1 pl-4">
-                    {group.blocks.map((block) => (
-                      <li key={block.title}>
-                        <Link
-                          href={`/documents?q=${encodeURIComponent(block.title)}`}
-                          className="font-medium hover:text-[#2749a0]"
-                        >
-                          {block.title}
-                        </Link>
-                        <ul className="mt-0.5 space-y-0.5 pl-3 text-[9px] leading-3 text-muted">
-                          {block.items.map((item) => (
-                            <li key={item}>
-                              <Link href={`/documents?q=${encodeURIComponent(item)}`} className="hover:text-[#00a9da]">
-                                {item}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+            <ProcessDocumentTree groups={documentTree} />
           </PortalBox>
 
           <PortalBox title="Mes Taches En Cours">
