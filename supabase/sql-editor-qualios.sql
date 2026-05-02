@@ -55,6 +55,11 @@ create table if not exists public.documents (
   document_code text not null unique,
   title text not null,
   summary text,
+  document_type text not null default 'Procedure' check (document_type in ('Procedure', 'Processus', 'Politique', 'Formulaire', 'Instruction', 'Enregistrement', 'Externe')),
+  process_family text check (process_family is null or process_family in ('Pilotage', 'Realisation', 'Support')),
+  process_group text,
+  process_activity text,
+  confidentiality_level text not null default 'Interne' check (confidentiality_level in ('Public portail', 'Interne', 'Confidentiel', 'Fournisseur')),
   category_id uuid references public.document_categories (id) on delete set null,
   owner_id uuid references public.profiles (id) on delete set null,
   department_id uuid references public.departments (id) on delete set null,
@@ -62,6 +67,13 @@ create table if not exists public.documents (
   version_current text not null default '1.0',
   effective_date date,
   review_date date,
+  review_frequency_months integer not null default 12,
+  validation_level integer not null default 2 check (validation_level between 1 and 5),
+  approval_mode text not null default 'Sequential' check (approval_mode in ('Sequential', 'Parallel')),
+  diffusion_scope text not null default 'Portail Qualite',
+  read_ack_required boolean not null default true,
+  archive_rule text not null default 'Archivage automatique si nouvelle version',
+  retention_period_months integer not null default 60,
   file_path text,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
@@ -76,6 +88,119 @@ create table if not exists public.document_versions (
   change_summary text,
   approval_date date,
   file_path text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  created_by uuid references auth.users (id) on delete set null
+);
+
+alter table public.documents
+  add column if not exists document_type text not null default 'Procedure',
+  add column if not exists process_family text,
+  add column if not exists process_group text,
+  add column if not exists process_activity text,
+  add column if not exists confidentiality_level text not null default 'Interne',
+  add column if not exists review_frequency_months integer not null default 12,
+  add column if not exists validation_level integer not null default 2,
+  add column if not exists approval_mode text not null default 'Sequential',
+  add column if not exists diffusion_scope text not null default 'Portail Qualite',
+  add column if not exists read_ack_required boolean not null default true,
+  add column if not exists archive_rule text not null default 'Archivage automatique si nouvelle version',
+  add column if not exists retention_period_months integer not null default 60;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'documents_document_type_check') then
+    alter table public.documents
+      add constraint documents_document_type_check
+      check (document_type in ('Procedure', 'Processus', 'Politique', 'Formulaire', 'Instruction', 'Enregistrement', 'Externe'));
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'documents_process_family_check') then
+    alter table public.documents
+      add constraint documents_process_family_check
+      check (process_family is null or process_family in ('Pilotage', 'Realisation', 'Support'));
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'documents_confidentiality_level_check') then
+    alter table public.documents
+      add constraint documents_confidentiality_level_check
+      check (confidentiality_level in ('Public portail', 'Interne', 'Confidentiel', 'Fournisseur'));
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'documents_validation_level_check') then
+    alter table public.documents
+      add constraint documents_validation_level_check
+      check (validation_level between 1 and 5);
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'documents_approval_mode_check') then
+    alter table public.documents
+      add constraint documents_approval_mode_check
+      check (approval_mode in ('Sequential', 'Parallel'));
+  end if;
+end $$;
+
+create table if not exists public.document_approvals (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid not null references public.documents (id) on delete cascade,
+  step_order integer not null default 1,
+  approver_id uuid references public.profiles (id) on delete set null,
+  role_label text,
+  decision text not null default 'Pending' check (decision in ('Pending', 'Approved', 'Rejected', 'Skipped')),
+  due_date date,
+  signed_at timestamptz,
+  comment text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  created_by uuid references auth.users (id) on delete set null
+);
+
+create table if not exists public.document_distributions (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid not null references public.documents (id) on delete cascade,
+  recipient_id uuid references public.profiles (id) on delete set null,
+  recipient_group text,
+  channel text not null default 'Portail' check (channel in ('Portail', 'Email', 'Extranet')),
+  requires_ack boolean not null default true,
+  status text not null default 'To Acknowledge' check (status in ('To Acknowledge', 'Acknowledged', 'Overdue', 'Cancelled')),
+  due_date date,
+  acknowledged_at timestamptz,
+  comment text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  created_by uuid references auth.users (id) on delete set null
+);
+
+create table if not exists public.document_review_cycles (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid not null references public.documents (id) on delete cascade,
+  reviewer_id uuid references public.profiles (id) on delete set null,
+  planned_review_date date,
+  status text not null default 'Planned' check (status in ('Planned', 'In Review', 'Completed', 'Late')),
+  conclusion text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  created_by uuid references auth.users (id) on delete set null
+);
+
+create table if not exists public.document_suggestions (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid not null references public.documents (id) on delete cascade,
+  suggested_by uuid references public.profiles (id) on delete set null,
+  suggestion text not null,
+  status text not null default 'Open' check (status in ('Open', 'Accepted', 'Rejected', 'Converted')),
+  response text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  created_by uuid references auth.users (id) on delete set null
+);
+
+create table if not exists public.document_consultations (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid not null references public.documents (id) on delete cascade,
+  user_id uuid references public.profiles (id) on delete set null,
+  consulted_at timestamptz not null default timezone('utc', now()),
+  source text,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
   created_by uuid references auth.users (id) on delete set null
@@ -334,7 +459,21 @@ create index if not exists idx_profiles_department_id on public.profiles (depart
 create index if not exists idx_documents_status on public.documents (status);
 create index if not exists idx_documents_owner_id on public.documents (owner_id);
 create index if not exists idx_documents_review_date on public.documents (review_date);
+create index if not exists idx_documents_process_family on public.documents (process_family);
 create index if not exists idx_document_versions_document_id on public.document_versions (document_id);
+create index if not exists idx_document_approvals_document_id on public.document_approvals (document_id);
+create index if not exists idx_document_approvals_approver_id on public.document_approvals (approver_id);
+create index if not exists idx_document_approvals_due_date on public.document_approvals (due_date);
+create index if not exists idx_document_distributions_document_id on public.document_distributions (document_id);
+create index if not exists idx_document_distributions_recipient_id on public.document_distributions (recipient_id);
+create index if not exists idx_document_distributions_due_date on public.document_distributions (due_date);
+create index if not exists idx_document_review_cycles_document_id on public.document_review_cycles (document_id);
+create index if not exists idx_document_review_cycles_planned_date on public.document_review_cycles (planned_review_date);
+create index if not exists idx_document_suggestions_document_id on public.document_suggestions (document_id);
+create index if not exists idx_document_suggestions_status on public.document_suggestions (status);
+create index if not exists idx_document_consultations_document_id on public.document_consultations (document_id);
+create index if not exists idx_document_consultations_user_id on public.document_consultations (user_id);
+create index if not exists idx_document_consultations_consulted_at on public.document_consultations (consulted_at);
 create index if not exists idx_forms_status on public.forms (status);
 create index if not exists idx_forms_owner_id on public.forms (owner_id);
 create index if not exists idx_form_entries_form_id on public.form_entries (form_id);
@@ -528,6 +667,11 @@ begin
     'profiles',
     'documents',
     'document_versions',
+    'document_approvals',
+    'document_distributions',
+    'document_review_cycles',
+    'document_suggestions',
+    'document_consultations',
     'forms',
     'form_entries',
     'workflows',
@@ -564,6 +708,11 @@ begin
     'profiles',
     'documents',
     'document_versions',
+    'document_approvals',
+    'document_distributions',
+    'document_review_cycles',
+    'document_suggestions',
+    'document_consultations',
     'forms',
     'form_entries',
     'workflows',
@@ -594,6 +743,11 @@ alter table public.document_categories enable row level security;
 alter table public.profiles enable row level security;
 alter table public.documents enable row level security;
 alter table public.document_versions enable row level security;
+alter table public.document_approvals enable row level security;
+alter table public.document_distributions enable row level security;
+alter table public.document_review_cycles enable row level security;
+alter table public.document_suggestions enable row level security;
+alter table public.document_consultations enable row level security;
 alter table public.forms enable row level security;
 alter table public.form_entries enable row level security;
 alter table public.workflows enable row level security;
@@ -626,6 +780,16 @@ drop policy if exists "documents_select_role_based" on public.documents;
 drop policy if exists "documents_manage_quality" on public.documents;
 drop policy if exists "document_versions_select_role_based" on public.document_versions;
 drop policy if exists "document_versions_manage_quality" on public.document_versions;
+drop policy if exists "document_approvals_select_role_based" on public.document_approvals;
+drop policy if exists "document_approvals_manage_quality" on public.document_approvals;
+drop policy if exists "document_distributions_select_role_based" on public.document_distributions;
+drop policy if exists "document_distributions_manage_quality" on public.document_distributions;
+drop policy if exists "document_review_cycles_select_internal" on public.document_review_cycles;
+drop policy if exists "document_review_cycles_manage_quality" on public.document_review_cycles;
+drop policy if exists "document_suggestions_select_internal" on public.document_suggestions;
+drop policy if exists "document_suggestions_manage_internal" on public.document_suggestions;
+drop policy if exists "document_consultations_select_quality" on public.document_consultations;
+drop policy if exists "document_consultations_manage_quality" on public.document_consultations;
 drop policy if exists "forms_select_internal" on public.forms;
 drop policy if exists "forms_manage_quality" on public.forms;
 drop policy if exists "form_entries_select_internal" on public.form_entries;
@@ -737,6 +901,74 @@ create policy "document_versions_manage_quality" on public.document_versions
 for all to authenticated
 using (public.has_role(array['admin', 'quality_manager']))
 with check (public.has_role(array['admin', 'quality_manager']));
+
+create policy "document_approvals_select_role_based" on public.document_approvals
+for select to authenticated
+using (
+  public.has_role(array['admin', 'quality_manager', 'auditor', 'employee'])
+  or (
+    public.current_role() = 'supplier_viewer'
+    and exists (
+      select 1
+      from public.documents d
+      where d.id = document_approvals.document_id
+        and d.status = 'Approved'
+    )
+  )
+);
+
+create policy "document_approvals_manage_quality" on public.document_approvals
+for all to authenticated
+using (public.has_role(array['admin', 'quality_manager']))
+with check (public.has_role(array['admin', 'quality_manager']));
+
+create policy "document_distributions_select_role_based" on public.document_distributions
+for select to authenticated
+using (
+  public.has_role(array['admin', 'quality_manager', 'auditor', 'employee'])
+  or recipient_id = auth.uid()
+  or (
+    public.current_role() = 'supplier_viewer'
+    and exists (
+      select 1
+      from public.documents d
+      where d.id = document_distributions.document_id
+        and d.status = 'Approved'
+    )
+  )
+);
+
+create policy "document_distributions_manage_quality" on public.document_distributions
+for all to authenticated
+using (public.has_role(array['admin', 'quality_manager']))
+with check (public.has_role(array['admin', 'quality_manager']));
+
+create policy "document_review_cycles_select_internal" on public.document_review_cycles
+for select to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor', 'employee']));
+
+create policy "document_review_cycles_manage_quality" on public.document_review_cycles
+for all to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor']))
+with check (public.has_role(array['admin', 'quality_manager', 'auditor']));
+
+create policy "document_suggestions_select_internal" on public.document_suggestions
+for select to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor', 'employee']));
+
+create policy "document_suggestions_manage_internal" on public.document_suggestions
+for all to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor', 'employee']))
+with check (public.has_role(array['admin', 'quality_manager', 'auditor', 'employee']));
+
+create policy "document_consultations_select_quality" on public.document_consultations
+for select to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor']));
+
+create policy "document_consultations_manage_quality" on public.document_consultations
+for all to authenticated
+using (public.has_role(array['admin', 'quality_manager', 'auditor']))
+with check (public.has_role(array['admin', 'quality_manager', 'auditor']));
 
 create policy "forms_select_internal" on public.forms
 for select to authenticated
@@ -1492,6 +1724,54 @@ values
   ('50000000-0000-0000-0000-000000000003', 'FRM-022', 'Supplier Evaluation Form', 'Controlled scoring sheet for supplier onboarding and annual review.', '30000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000003', 'Approved', '1.0', current_date - 120, current_date + 180, 'documents/forms/supplier-evaluation-form.pdf', '40000000-0000-0000-0000-000000000001')
 on conflict (id) do nothing;
 
+update public.documents
+set
+  document_type = 'Politique',
+  process_family = 'Pilotage',
+  process_group = 'Organisation et systeme de management',
+  process_activity = 'Politique et objectifs',
+  confidentiality_level = 'Interne',
+  validation_level = 2,
+  approval_mode = 'Sequential',
+  diffusion_scope = 'Portail Qualite',
+  read_ack_required = true,
+  review_frequency_months = 12,
+  archive_rule = 'Archivage automatique si nouvelle version',
+  retention_period_months = 72
+where id = '50000000-0000-0000-0000-000000000001';
+
+update public.documents
+set
+  document_type = 'Procedure',
+  process_family = 'Realisation',
+  process_group = 'Pre-Analytique',
+  process_activity = 'Reception',
+  confidentiality_level = 'Interne',
+  validation_level = 3,
+  approval_mode = 'Sequential',
+  diffusion_scope = 'Laboratoire et production',
+  read_ack_required = true,
+  review_frequency_months = 12,
+  archive_rule = 'Archivage automatique si nouvelle version',
+  retention_period_months = 60
+where id = '50000000-0000-0000-0000-000000000002';
+
+update public.documents
+set
+  document_type = 'Formulaire',
+  process_family = 'Support',
+  process_group = 'Evaluation fournisseurs',
+  process_activity = 'Qualification et suivi',
+  confidentiality_level = 'Fournisseur',
+  validation_level = 2,
+  approval_mode = 'Parallel',
+  diffusion_scope = 'Supply Chain et fournisseurs approuves',
+  read_ack_required = false,
+  review_frequency_months = 24,
+  archive_rule = 'Archivage manuel apres remplacement',
+  retention_period_months = 84
+where id = '50000000-0000-0000-0000-000000000003';
+
 insert into public.document_versions (
   id,
   document_id,
@@ -1505,6 +1785,86 @@ insert into public.document_versions (
 values
   ('51000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', '2.0', 'Approved', 'Aligned terminology to the new management review cycle.', current_date - 90, 'documents/versions/pol-001-v2.pdf', '40000000-0000-0000-0000-000000000001'),
   ('51000000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000002', '1.3', 'Under Review', 'Added second sign-off for startup checks.', current_date - 2, 'documents/versions/sop-014-v1-3.pdf', '40000000-0000-0000-0000-000000000002')
+on conflict (id) do nothing;
+
+insert into public.document_approvals (
+  id,
+  document_id,
+  step_order,
+  approver_id,
+  role_label,
+  decision,
+  due_date,
+  signed_at,
+  comment,
+  created_by
+)
+values
+  ('51100000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', 1, '40000000-0000-0000-0000-000000000002', 'Verification qualite', 'Approved', current_date - 95, timezone('utc', now()) - interval '95 days', 'Structure et diffusion confirmees.', '40000000-0000-0000-0000-000000000001'),
+  ('51100000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000001', 2, '40000000-0000-0000-0000-000000000001', 'Approbation direction qualite', 'Approved', current_date - 90, timezone('utc', now()) - interval '90 days', 'Document approuve pour diffusion portail.', '40000000-0000-0000-0000-000000000001'),
+  ('51100000-0000-0000-0000-000000000003', '50000000-0000-0000-0000-000000000002', 1, '40000000-0000-0000-0000-000000000002', 'Verification documentaire', 'Pending', current_date + 2, null, 'Attente retour production.', '40000000-0000-0000-0000-000000000002'),
+  ('51100000-0000-0000-0000-000000000004', '50000000-0000-0000-0000-000000000002', 2, '40000000-0000-0000-0000-000000000001', 'Approbation finale', 'Pending', current_date + 5, null, null, '40000000-0000-0000-0000-000000000002')
+on conflict (id) do nothing;
+
+insert into public.document_distributions (
+  id,
+  document_id,
+  recipient_id,
+  recipient_group,
+  channel,
+  requires_ack,
+  status,
+  due_date,
+  acknowledged_at,
+  comment,
+  created_by
+)
+values
+  ('51200000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', null, 'Tous les utilisateurs', 'Portail', true, 'Acknowledged', current_date - 80, timezone('utc', now()) - interval '82 days', 'Diffusion initiale terminee.', '40000000-0000-0000-0000-000000000001'),
+  ('51200000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000004', 'Operations', 'Portail', true, 'To Acknowledge', current_date + 7, null, 'Accuse requis apres approbation.', '40000000-0000-0000-0000-000000000002'),
+  ('51200000-0000-0000-0000-000000000003', '50000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000005', 'Fournisseurs approuves', 'Extranet', false, 'Acknowledged', current_date - 30, timezone('utc', now()) - interval '35 days', 'Disponible pour fournisseur pilote.', '40000000-0000-0000-0000-000000000002')
+on conflict (id) do nothing;
+
+insert into public.document_review_cycles (
+  id,
+  document_id,
+  reviewer_id,
+  planned_review_date,
+  status,
+  conclusion,
+  created_by
+)
+values
+  ('51300000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000002', current_date + 270, 'Planned', 'Relecture annuelle programmee.', '40000000-0000-0000-0000-000000000001'),
+  ('51300000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000003', current_date + 60, 'In Review', 'Verifier impact du deuxieme visa sur les equipes.', '40000000-0000-0000-0000-000000000002')
+on conflict (id) do nothing;
+
+insert into public.document_suggestions (
+  id,
+  document_id,
+  suggested_by,
+  suggestion,
+  status,
+  response,
+  created_by
+)
+values
+  ('51400000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000004', 'Ajouter un exemple de check-list avant demarrage lot.', 'Open', null, '40000000-0000-0000-0000-000000000004'),
+  ('51400000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000003', 'Clarifier le lien avec la revue de direction.', 'Accepted', 'Integre dans la version 2.0.', '40000000-0000-0000-0000-000000000003')
+on conflict (id) do nothing;
+
+insert into public.document_consultations (
+  id,
+  document_id,
+  user_id,
+  consulted_at,
+  source,
+  created_by
+)
+values
+  ('51500000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000004', timezone('utc', now()) - interval '5 days', 'Portail documentaire', '40000000-0000-0000-0000-000000000004'),
+  ('51500000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000003', timezone('utc', now()) - interval '3 days', 'Recherche full text', '40000000-0000-0000-0000-000000000003'),
+  ('51500000-0000-0000-0000-000000000003', '50000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000004', timezone('utc', now()) - interval '1 days', 'Boite des taches', '40000000-0000-0000-0000-000000000004')
 on conflict (id) do nothing;
 
 insert into public.forms (

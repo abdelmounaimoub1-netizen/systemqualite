@@ -93,6 +93,10 @@ export async function getDashboardData() {
 
   const [
     docs,
+    pendingDocumentApprovals,
+    pendingDocumentDistributions,
+    pendingDocumentReviews,
+    openDocumentSuggestions,
     forms,
     customerComplaints,
     supplierComplaints,
@@ -106,6 +110,22 @@ export async function getDashboardData() {
     notifications
   ] = await Promise.all([
     supabase.from("documents").select("id", { count: "exact", head: true }),
+    supabase
+      .from("document_approvals")
+      .select("id", { count: "exact", head: true })
+      .eq("decision", "Pending"),
+    supabase
+      .from("document_distributions")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "To Acknowledge"),
+    supabase
+      .from("document_review_cycles")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["Planned", "In Review", "Late"]),
+    supabase
+      .from("document_suggestions")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "Open"),
     supabase.from("forms").select("id", { count: "exact", head: true }).eq("status", "Active"),
     supabase
       .from("customer_complaints")
@@ -156,6 +176,10 @@ export async function getDashboardData() {
     lookups,
     metrics: {
       documents: docs.count ?? 0,
+      pendingDocumentApprovals: pendingDocumentApprovals.count ?? 0,
+      pendingDocumentDistributions: pendingDocumentDistributions.count ?? 0,
+      pendingDocumentReviews: pendingDocumentReviews.count ?? 0,
+      openDocumentSuggestions: openDocumentSuggestions.count ?? 0,
       forms: forms.count ?? 0,
       openCustomerComplaints: customerComplaints.count ?? 0,
       openSupplierComplaints: supplierComplaints.count ?? 0,

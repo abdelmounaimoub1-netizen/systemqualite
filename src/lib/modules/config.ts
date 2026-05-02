@@ -54,6 +54,29 @@ const observationStatusOptions = [
   { label: "Clos", value: "Closed" }
 ];
 
+const documentStatusOptions = [
+  { label: "Brouillon", value: "Draft" },
+  { label: "En validation", value: "Under Review" },
+  { label: "Approuve", value: "Approved" },
+  { label: "Archive", value: "Archived" }
+];
+
+const documentTypeOptions = [
+  { label: "Procedure", value: "Procedure" },
+  { label: "Processus", value: "Processus" },
+  { label: "Politique", value: "Politique" },
+  { label: "Formulaire", value: "Formulaire" },
+  { label: "Instruction", value: "Instruction" },
+  { label: "Enregistrement", value: "Enregistrement" },
+  { label: "Document externe", value: "Externe" }
+];
+
+const processFamilyOptions = [
+  { label: "Pilotage", value: "Pilotage" },
+  { label: "Realisation", value: "Realisation" },
+  { label: "Support", value: "Support" }
+];
+
 export const lookupSelectMap: Record<TableName, string> = {
   roles: "id,name,slug,description,created_at,updated_at,created_by",
   departments: "id,name,description,created_at,updated_at,created_by",
@@ -61,9 +84,19 @@ export const lookupSelectMap: Record<TableName, string> = {
   profiles:
     "id,email,full_name,job_title,phone,role_id,department_id,avatar_url,supplier_company,is_active,created_at,updated_at,created_by",
   documents:
-    "id,document_code,title,summary,category_id,owner_id,department_id,status,version_current,effective_date,review_date,file_path,created_at,updated_at,created_by",
+    "id,document_code,title,summary,document_type,process_family,process_group,process_activity,confidentiality_level,category_id,owner_id,department_id,status,version_current,effective_date,review_date,review_frequency_months,validation_level,approval_mode,diffusion_scope,read_ack_required,archive_rule,retention_period_months,file_path,created_at,updated_at,created_by",
   document_versions:
     "id,document_id,version_number,status,change_summary,approval_date,file_path,created_at,updated_at,created_by",
+  document_approvals:
+    "id,document_id,step_order,approver_id,role_label,decision,due_date,signed_at,comment,created_at,updated_at,created_by",
+  document_distributions:
+    "id,document_id,recipient_id,recipient_group,channel,requires_ack,status,due_date,acknowledged_at,comment,created_at,updated_at,created_by",
+  document_review_cycles:
+    "id,document_id,reviewer_id,planned_review_date,status,conclusion,created_at,updated_at,created_by",
+  document_suggestions:
+    "id,document_id,suggested_by,suggestion,status,response,created_at,updated_at,created_by",
+  document_consultations:
+    "id,document_id,user_id,consulted_at,source,created_at,updated_at,created_by",
   forms:
     "id,code,name,description,process_area,owner_id,department_id,status,fields_schema,target_indicator,created_at,updated_at,created_by",
   form_entries:
@@ -208,12 +241,21 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     singular: "Document",
     icon: FileStack,
     table: "documents",
-    description: "Gestion documentaire controlee avec version, statut, pilote et dates de revue.",
+    description:
+      "GED Qualios: creation, validation multi-niveaux, diffusion avec accuse, relecture et archivage.",
     accentClass: "from-brand/20 via-accent/10 to-transparent",
-    searchableFields: ["title", "document_code", "summary"],
+    searchableFields: [
+      "title",
+      "document_code",
+      "summary",
+      "process_family",
+      "process_group",
+      "process_activity"
+    ],
     columns: [
       { key: "document_code", label: "Code" },
       { key: "title", label: "Titre" },
+      { key: "process_family", label: "Processus" },
       { key: "category_id", label: "Categorie", variant: "relation" },
       { key: "status", label: "Statut", variant: "status" },
       { key: "owner_id", label: "Pilote", variant: "relation" },
@@ -224,6 +266,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
         key: "document_code",
         label: "Code document",
         type: "text",
+        section: "Creer la fiche documentaire",
         required: true,
         placeholder: "PR-LAB-001"
       },
@@ -231,6 +274,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
         key: "title",
         label: "Titre",
         type: "text",
+        section: "Creer la fiche documentaire",
         required: true,
         placeholder: "Procedure gestion stocks et consommables"
       },
@@ -238,12 +282,22 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
         key: "summary",
         label: "Resume / objet",
         type: "textarea",
+        section: "Creer la fiche documentaire",
         placeholder: "Objet, domaine d'application et remarques."
+      },
+      {
+        key: "document_type",
+        label: "Type documentaire",
+        type: "select",
+        section: "Creer la fiche documentaire",
+        defaultValue: "Procedure",
+        options: documentTypeOptions
       },
       {
         key: "category_id",
         label: "Categorie",
         type: "select",
+        section: "Creer la fiche documentaire",
         relation: categoryRelation,
         required: true
       },
@@ -251,6 +305,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
         key: "owner_id",
         label: "Pilote / proprietaire",
         type: "select",
+        section: "Creer la fiche documentaire",
         relation: profileRelation,
         required: true
       },
@@ -258,41 +313,139 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
         key: "department_id",
         label: "Departement",
         type: "select",
+        section: "Creer la fiche documentaire",
         relation: departmentRelation
+      },
+      {
+        key: "process_family",
+        label: "Famille processus",
+        type: "select",
+        section: "Classer par processus",
+        defaultValue: "Pilotage",
+        options: processFamilyOptions,
+        helperText: "Pilotage, Realisation ou Support comme dans le portail documentaire."
+      },
+      {
+        key: "process_group",
+        label: "Processus / chapitre",
+        type: "text",
+        section: "Classer par processus",
+        placeholder: "Management de la qualite, Pre-Analytique, Gestion du personnel..."
+      },
+      {
+        key: "process_activity",
+        label: "Sous-processus / rubrique",
+        type: "text",
+        section: "Classer par processus",
+        placeholder: "Analyse et suivi des indicateurs, Reception, Recrutement..."
+      },
+      {
+        key: "confidentiality_level",
+        label: "Niveau d'acces",
+        type: "select",
+        section: "Classer par processus",
+        defaultValue: "Interne",
+        options: [
+          { label: "Public portail", value: "Public portail" },
+          { label: "Interne", value: "Interne" },
+          { label: "Confidentiel", value: "Confidentiel" },
+          { label: "Fournisseur", value: "Fournisseur" }
+        ]
       },
       {
         key: "status",
         label: "Statut",
         type: "select",
+        section: "Valider et signer",
         required: true,
-        options: [
-          { label: "Draft", value: "Draft" },
-          { label: "Under Review", value: "Under Review" },
-          { label: "Approved", value: "Approved" },
-          { label: "Archived", value: "Archived" }
-        ]
+        defaultValue: "Draft",
+        options: documentStatusOptions
       },
       {
         key: "version_current",
         label: "Version courante",
         type: "text",
+        section: "Valider et signer",
         required: true,
+        defaultValue: "1.0",
         placeholder: "1.0"
+      },
+      {
+        key: "validation_level",
+        label: "Nombre de niveaux de validation",
+        type: "number",
+        section: "Valider et signer",
+        defaultValue: 2,
+        min: 1,
+        max: 5,
+        helperText: "Les signataires sont geres ensuite dans le tableau Visa / signatures."
+      },
+      {
+        key: "approval_mode",
+        label: "Mode de signature",
+        type: "select",
+        section: "Valider et signer",
+        defaultValue: "Sequential",
+        options: [
+          { label: "Sequentiel", value: "Sequential" },
+          { label: "Parallele", value: "Parallel" }
+        ]
       },
       {
         key: "effective_date",
         label: "Date d'application",
-        type: "date"
+        type: "date",
+        section: "Diffuser sur portail"
+      },
+      {
+        key: "diffusion_scope",
+        label: "Portail / population de diffusion",
+        type: "text",
+        section: "Diffuser sur portail",
+        defaultValue: "Portail Qualite",
+        placeholder: "Tous les utilisateurs, Laboratoire, Production, Fournisseurs..."
+      },
+      {
+        key: "read_ack_required",
+        label: "Accuse de reception obligatoire",
+        type: "checkbox",
+        section: "Diffuser sur portail",
+        defaultValue: true
       },
       {
         key: "review_date",
-        label: "Date de revue",
-        type: "date"
+        label: "Prochaine relecture",
+        type: "date",
+        section: "Reviser et archiver"
+      },
+      {
+        key: "review_frequency_months",
+        label: "Frequence de relecture (mois)",
+        type: "number",
+        section: "Reviser et archiver",
+        defaultValue: 12,
+        min: 1
+      },
+      {
+        key: "archive_rule",
+        label: "Regle d'archivage",
+        type: "text",
+        section: "Reviser et archiver",
+        defaultValue: "Archivage automatique si nouvelle version"
+      },
+      {
+        key: "retention_period_months",
+        label: "Duree conservation archive (mois)",
+        type: "number",
+        section: "Reviser et archiver",
+        defaultValue: 60,
+        min: 1
       },
       {
         key: "file_path",
         label: "Fichier principal",
         type: "text",
+        section: "Reviser et archiver",
         placeholder: "documents/primary/...",
         storageFolder: "documents/primary",
         accept: ".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
@@ -302,10 +455,18 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       "document_code",
       "title",
       "summary",
+      "document_type",
+      "process_family",
+      "process_group",
+      "process_activity",
       "status",
       "version_current",
+      "effective_date",
       "review_date",
-      "owner_id"
+      "owner_id",
+      "diffusion_scope",
+      "read_ack_required",
+      "archive_rule"
     ],
     emptyState: "Ajoute le premier document controle: procedure, processus, formulaire ou politique.",
     writeRoles: ["admin", "quality_manager"],
@@ -336,12 +497,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
             label: "Status",
             type: "select",
             required: true,
-            options: [
-              { label: "Draft", value: "Draft" },
-              { label: "Under Review", value: "Under Review" },
-              { label: "Approved", value: "Approved" },
-              { label: "Archived", value: "Archived" }
-            ]
+            options: documentStatusOptions
           },
           {
             key: "approval_date",
@@ -364,6 +520,276 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
           }
         ],
         writeRoles: ["admin", "quality_manager"]
+      },
+      {
+        key: "document-approvals",
+        label: "Visa / signatures",
+        description: "Circuit de validation multi-niveaux avec delais, decision et commentaire.",
+        table: "document_approvals",
+        parentField: "document_id",
+        searchableFields: ["role_label", "comment"],
+        columns: [
+          { key: "step_order", label: "Niveau", variant: "number" },
+          { key: "approver_id", label: "Signataire", variant: "relation" },
+          { key: "decision", label: "Decision", variant: "status" },
+          { key: "due_date", label: "Echeance", variant: "date" },
+          { key: "signed_at", label: "Signature", variant: "date" }
+        ],
+        fields: [
+          {
+            key: "step_order",
+            label: "Niveau",
+            type: "number",
+            required: true,
+            defaultValue: 1,
+            min: 1
+          },
+          {
+            key: "approver_id",
+            label: "Signataire",
+            type: "select",
+            relation: profileRelation
+          },
+          {
+            key: "role_label",
+            label: "Role attendu",
+            type: "text",
+            placeholder: "Redacteur, Verificateur, Approbateur..."
+          },
+          {
+            key: "decision",
+            label: "Decision",
+            type: "select",
+            required: true,
+            defaultValue: "Pending",
+            options: [
+              { label: "En attente", value: "Pending" },
+              { label: "Approuve", value: "Approved" },
+              { label: "Rejete", value: "Rejected" },
+              { label: "Ignore", value: "Skipped" }
+            ]
+          },
+          {
+            key: "due_date",
+            label: "Echeance signature",
+            type: "date"
+          },
+          {
+            key: "signed_at",
+            label: "Date signature",
+            type: "date"
+          },
+          {
+            key: "comment",
+            label: "Commentaire visa",
+            type: "textarea"
+          }
+        ],
+        writeRoles: ["admin", "quality_manager"]
+      },
+      {
+        key: "document-distributions",
+        label: "Diffusion / accuse reception",
+        description: "Destinataires portail, demandes d'accuse de reception et relances de lecture.",
+        table: "document_distributions",
+        parentField: "document_id",
+        searchableFields: ["recipient_group", "channel", "comment"],
+        columns: [
+          { key: "recipient_group", label: "Groupe" },
+          { key: "recipient_id", label: "Utilisateur", variant: "relation" },
+          { key: "status", label: "Accuse", variant: "status" },
+          { key: "due_date", label: "Echeance", variant: "date" },
+          { key: "acknowledged_at", label: "Lu le", variant: "date" }
+        ],
+        fields: [
+          {
+            key: "recipient_group",
+            label: "Groupe / service",
+            type: "text",
+            placeholder: "Tous les utilisateurs, Laboratoire, Support..."
+          },
+          {
+            key: "recipient_id",
+            label: "Utilisateur cible",
+            type: "select",
+            relation: profileRelation
+          },
+          {
+            key: "channel",
+            label: "Canal",
+            type: "select",
+            defaultValue: "Portail",
+            options: [
+              { label: "Portail", value: "Portail" },
+              { label: "Email", value: "Email" },
+              { label: "Extranet", value: "Extranet" }
+            ]
+          },
+          {
+            key: "requires_ack",
+            label: "Accuse de reception demande",
+            type: "checkbox",
+            defaultValue: true
+          },
+          {
+            key: "status",
+            label: "Statut accuse",
+            type: "select",
+            required: true,
+            defaultValue: "To Acknowledge",
+            options: [
+              { label: "A accuser", value: "To Acknowledge" },
+              { label: "Accuse", value: "Acknowledged" },
+              { label: "En retard", value: "Overdue" },
+              { label: "Annule", value: "Cancelled" }
+            ]
+          },
+          {
+            key: "due_date",
+            label: "Echeance lecture",
+            type: "date"
+          },
+          {
+            key: "acknowledged_at",
+            label: "Date accuse",
+            type: "date"
+          },
+          {
+            key: "comment",
+            label: "Commentaire diffusion",
+            type: "textarea"
+          }
+        ],
+        writeRoles: ["admin", "quality_manager"]
+      },
+      {
+        key: "document-review-cycles",
+        label: "Relectures programmees",
+        description: "Planifier les cycles de relecture et garder la conclusion de revision.",
+        table: "document_review_cycles",
+        parentField: "document_id",
+        searchableFields: ["conclusion"],
+        columns: [
+          { key: "planned_review_date", label: "Date prevue", variant: "date" },
+          { key: "reviewer_id", label: "Relecteur", variant: "relation" },
+          { key: "status", label: "Statut", variant: "status" },
+          { key: "conclusion", label: "Conclusion" }
+        ],
+        fields: [
+          {
+            key: "reviewer_id",
+            label: "Relecteur",
+            type: "select",
+            relation: profileRelation
+          },
+          {
+            key: "planned_review_date",
+            label: "Date de relecture",
+            type: "date",
+            required: true
+          },
+          {
+            key: "status",
+            label: "Statut",
+            type: "select",
+            required: true,
+            defaultValue: "Planned",
+            options: [
+              { label: "Planifiee", value: "Planned" },
+              { label: "En relecture", value: "In Review" },
+              { label: "Terminee", value: "Completed" },
+              { label: "En retard", value: "Late" }
+            ]
+          },
+          {
+            key: "conclusion",
+            label: "Conclusion",
+            type: "textarea",
+            placeholder: "A reconduire, a reviser, a archiver..."
+          }
+        ],
+        writeRoles: ["admin", "quality_manager", "auditor"]
+      },
+      {
+        key: "document-suggestions",
+        label: "Suggestions d'amelioration",
+        description: "Canal Qualios pour proposer une modification ou une nouvelle version.",
+        table: "document_suggestions",
+        parentField: "document_id",
+        searchableFields: ["suggestion", "response"],
+        columns: [
+          { key: "suggested_by", label: "Auteur", variant: "relation" },
+          { key: "suggestion", label: "Suggestion" },
+          { key: "status", label: "Statut", variant: "status" },
+          { key: "response", label: "Reponse" }
+        ],
+        fields: [
+          {
+            key: "suggested_by",
+            label: "Auteur",
+            type: "select",
+            relation: profileRelation
+          },
+          {
+            key: "suggestion",
+            label: "Suggestion",
+            type: "textarea",
+            required: true,
+            placeholder: "Proposer une correction, simplification ou revision."
+          },
+          {
+            key: "status",
+            label: "Statut",
+            type: "select",
+            required: true,
+            defaultValue: "Open",
+            options: [
+              { label: "Ouverte", value: "Open" },
+              { label: "Acceptee", value: "Accepted" },
+              { label: "Rejetee", value: "Rejected" },
+              { label: "Convertie en revision", value: "Converted" }
+            ]
+          },
+          {
+            key: "response",
+            label: "Reponse pilote",
+            type: "textarea"
+          }
+        ],
+        writeRoles: ["admin", "quality_manager", "auditor", "employee"]
+      },
+      {
+        key: "document-consultations",
+        label: "Statistiques consultation",
+        description: "Historique de consultation pour suivre les documents lus et peu lus.",
+        table: "document_consultations",
+        parentField: "document_id",
+        searchableFields: ["source"],
+        columns: [
+          { key: "user_id", label: "Utilisateur", variant: "relation" },
+          { key: "consulted_at", label: "Consultation", variant: "date" },
+          { key: "source", label: "Source" }
+        ],
+        fields: [
+          {
+            key: "user_id",
+            label: "Utilisateur",
+            type: "select",
+            relation: profileRelation
+          },
+          {
+            key: "consulted_at",
+            label: "Date consultation",
+            type: "date"
+          },
+          {
+            key: "source",
+            label: "Source",
+            type: "text",
+            defaultValue: "Portail documentaire"
+          }
+        ],
+        writeRoles: ["admin", "quality_manager", "auditor"]
       },
       attachmentModule("Documents", "documents", ["admin", "quality_manager"]),
       commentModule("Documents", "documents", ["admin", "quality_manager", "auditor"])

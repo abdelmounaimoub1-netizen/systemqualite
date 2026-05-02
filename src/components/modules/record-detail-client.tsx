@@ -33,6 +33,10 @@ const relationKeyToTable: Record<string, string> = {
   owner_id: "profiles",
   responsible_user_id: "profiles",
   pilot_id: "profiles",
+  approver_id: "profiles",
+  recipient_id: "profiles",
+  reviewer_id: "profiles",
+  suggested_by: "profiles",
   auditor_id: "profiles",
   employee_id: "profiles",
   submitted_by: "profiles",
@@ -62,6 +66,10 @@ function renderDetailValue(field: string, value: unknown, lookups: LookupCollect
     field === "priority"
   ) {
     return <StatusBadge value={String(value ?? "")} />;
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Oui" : "Non";
   }
 
   return value === null || value === undefined || value === "" ? "Not set" : String(value);

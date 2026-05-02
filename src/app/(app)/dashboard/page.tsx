@@ -400,7 +400,10 @@ export default async function DashboardPage({
   ];
 
   const taskRows = [
-    { label: "documents a accuser reception", value: metrics.documents, href: "/documents" },
+    { label: "signatures documentaires en attente", value: metrics.pendingDocumentApprovals, href: "/documents?view=follow" },
+    { label: "documents a accuser reception", value: metrics.pendingDocumentDistributions, href: "/documents?view=follow" },
+    { label: "relectures documentaires planifiees", value: metrics.pendingDocumentReviews, href: "/documents?view=follow" },
+    { label: "suggestions documentaires ouvertes", value: metrics.openDocumentSuggestions, href: "/documents?view=follow" },
     { label: "enregistrements a traiter", value: metrics.forms, href: "/forms" }
   ];
 

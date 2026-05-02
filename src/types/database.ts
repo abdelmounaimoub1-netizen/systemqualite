@@ -72,6 +72,11 @@ export interface Document extends BaseRecord {
   document_code: string;
   title: string;
   summary: string | null;
+  document_type: string | null;
+  process_family: string | null;
+  process_group: string | null;
+  process_activity: string | null;
+  confidentiality_level: string | null;
   category_id: string | null;
   owner_id: string | null;
   department_id: string | null;
@@ -79,6 +84,13 @@ export interface Document extends BaseRecord {
   version_current: string;
   effective_date: string | null;
   review_date: string | null;
+  review_frequency_months: number | null;
+  validation_level: number | null;
+  approval_mode: string | null;
+  diffusion_scope: string | null;
+  read_ack_required: boolean;
+  archive_rule: string | null;
+  retention_period_months: number | null;
   file_path: string | null;
 }
 
@@ -89,6 +101,52 @@ export interface DocumentVersion extends BaseRecord {
   change_summary: string | null;
   approval_date: string | null;
   file_path: string | null;
+}
+
+export interface DocumentApproval extends BaseRecord {
+  document_id: string;
+  step_order: number;
+  approver_id: string | null;
+  role_label: string | null;
+  decision: "Pending" | "Approved" | "Rejected" | "Skipped";
+  due_date: string | null;
+  signed_at: string | null;
+  comment: string | null;
+}
+
+export interface DocumentDistribution extends BaseRecord {
+  document_id: string;
+  recipient_id: string | null;
+  recipient_group: string | null;
+  channel: string;
+  requires_ack: boolean;
+  status: "To Acknowledge" | "Acknowledged" | "Overdue" | "Cancelled";
+  due_date: string | null;
+  acknowledged_at: string | null;
+  comment: string | null;
+}
+
+export interface DocumentReviewCycle extends BaseRecord {
+  document_id: string;
+  reviewer_id: string | null;
+  planned_review_date: string | null;
+  status: "Planned" | "In Review" | "Completed" | "Late";
+  conclusion: string | null;
+}
+
+export interface DocumentSuggestion extends BaseRecord {
+  document_id: string;
+  suggested_by: string | null;
+  suggestion: string;
+  status: "Open" | "Accepted" | "Rejected" | "Converted";
+  response: string | null;
+}
+
+export interface DocumentConsultation extends BaseRecord {
+  document_id: string;
+  user_id: string | null;
+  consulted_at: string;
+  source: string | null;
 }
 
 export interface QualityForm extends BaseRecord {
@@ -391,6 +449,11 @@ export type DatabaseRecordMap = {
   profiles: Profile;
   documents: Document;
   document_versions: DocumentVersion;
+  document_approvals: DocumentApproval;
+  document_distributions: DocumentDistribution;
+  document_review_cycles: DocumentReviewCycle;
+  document_suggestions: DocumentSuggestion;
+  document_consultations: DocumentConsultation;
   forms: QualityForm;
   form_entries: FormEntry;
   workflows: Workflow;

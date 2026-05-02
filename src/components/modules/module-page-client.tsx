@@ -43,7 +43,7 @@ function statusFromView(
     view === "history"
       ? ["Closed", "Archived", "Completed", "Read"]
       : view === "follow"
-        ? ["Open", "In Progress", "Planned", "Draft", "Unread"]
+        ? ["Open", "In Progress", "Under Review", "Awaiting Approval", "Planned", "Draft", "Unread"]
         : [];
 
   return preferred.find((value) => options.some((option) => option.value === value)) ?? "";
@@ -104,7 +104,9 @@ export function ModulePageClient({
 
   const summary = useMemo(() => {
     const openCount = records.filter((record) =>
-      ["Open", "In Progress", "Draft", "Planned"].includes(String(record.status ?? ""))
+      ["Open", "In Progress", "Draft", "Under Review", "Awaiting Approval", "Planned", "Unread"].includes(
+        String(record.status ?? "")
+      )
     ).length;
 
     return {

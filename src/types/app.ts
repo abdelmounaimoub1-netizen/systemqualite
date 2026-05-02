@@ -39,7 +39,9 @@ export interface FormFieldConfig {
   key: string;
   label: string;
   type: FieldType;
+  section?: string;
   placeholder?: string;
+  defaultValue?: string | number | boolean | null;
   required?: boolean;
   relation?: RelationConfig;
   options?: Array<{ label: string; value: string }>;

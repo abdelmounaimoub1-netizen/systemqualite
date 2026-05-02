@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,7 +33,40 @@ export function RecordForm({
   onCancel,
   submitLabel
 }: RecordFormProps) {
-  const [values, setValues] = useState<Record<string, unknown>>(initialValues ?? {});
+  const initialDefaults = useMemo(
+    () =>
+      Object.fromEntries(
+        fields
+          .filter((field) => field.defaultValue !== undefined)
+          .map((field) => [field.key, field.defaultValue])
+      ),
+    [fields]
+  );
+  const fieldGroups = useMemo(() => {
+    const groups: Array<{ section: string | null; fields: ReadonlyArray<FormFieldConfig> }> = [];
+
+    fields.forEach((field) => {
+      const section = field.section ?? null;
+      const current = groups[groups.length - 1];
+
+      if (current?.section === section) {
+        groups[groups.length - 1] = {
+          ...current,
+          fields: [...current.fields, field]
+        };
+        return;
+      }
+
+      groups.push({ section, fields: [field] });
+    });
+
+    return groups;
+  }, [fields]);
+  const hasSections = fieldGroups.some((group) => group.section);
+  const [values, setValues] = useState<Record<string, unknown>>({
+    ...initialDefaults,
+    ...(initialValues ?? {})
+  });
   const [submitting, setSubmitting] = useState(false);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
 
@@ -67,10 +100,7 @@ export function RecordForm({
     }
   }
 
-  return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
-      <div className="grid gap-4 md:grid-cols-2">
-        {fields.map((field) => {
+  function renderField(field: FormFieldConfig) {
           const containerClass =
             field.type === "textarea" || field.storageFolder ? "md:col-span-2" : "";
           const label = (
@@ -118,6 +148,7 @@ export function RecordForm({
                     setValues((current) => ({ ...current, [field.key]: event.target.value || null }))
                   }
                   disabled={field.readOnly}
+                  required={field.required}
                 >
                   <option value="">Select...</option>
                   {relationOptions.map((option) => (
@@ -222,8 +253,34 @@ export function RecordForm({
               {field.helperText ? <p className="mt-2 text-xs text-slate-400">{field.helperText}</p> : null}
             </div>
           );
-        })}
-      </div>
+  }
+
+  return (
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      {hasSections ? (
+        <div className="space-y-4">
+          {fieldGroups.map((group, index) => (
+            <section
+              key={`${group.section ?? "general"}-${index}`}
+              className="border border-[#d5edf8] bg-[#f8fcff] p-3"
+            >
+              {group.section ? (
+                <div className="mb-3 flex items-center gap-2 border-b border-[#d5edf8] pb-2">
+                  <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#2749a0] text-xs font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <h3 className="text-sm font-bold text-[#2749a0]">{group.section}</h3>
+                </div>
+              ) : null}
+              <div className="grid gap-4 md:grid-cols-2">{group.fields.map(renderField)}</div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {fields.map(renderField)}
+        </div>
+      )}
 
       <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
         <Button type="button" variant="ghost" onClick={onCancel}>
