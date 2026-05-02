@@ -12,13 +12,13 @@ export async function DELETE(
   const tableName = table as TableName;
 
   if (!tableRegistry.has(tableName)) {
-    return NextResponse.json({ error: "Unsupported table." }, { status: 404 });
+    return NextResponse.json({ error: "Table non prise en charge." }, { status: 404 });
   }
 
   const context = await getCurrentUserContext({ redirectToAuth: false });
 
   if (!context) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    return NextResponse.json({ error: "Authentification requise." }, { status: 401 });
   }
 
   const supabase = await createSupabaseServerClient();
@@ -37,7 +37,7 @@ export async function DELETE(
   const allowedRoles = getTableWriteRoles(tableName, values);
 
   if (!allowedRoles.includes(context.role)) {
-    return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 });
+    return NextResponse.json({ error: "Droits insuffisants." }, { status: 403 });
   }
 
   const { error } = await supabase.from(tableName).delete().eq("id", id);

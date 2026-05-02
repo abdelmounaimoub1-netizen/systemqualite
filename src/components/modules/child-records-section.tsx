@@ -65,18 +65,18 @@ export function ChildRecordsSection({
 
     const payload = (await response.json()) as { error?: string };
     if (!response.ok) {
-      toast.error(payload.error ?? "Unable to save record.");
+      toast.error(payload.error ?? "Impossible d'enregistrer la fiche.");
       return;
     }
 
-    toast.success(`${config.label} updated.`);
+    toast.success(`${config.label} mis a jour.`);
     setEditing(null);
     setOpen(false);
     router.refresh();
   }
 
   async function deleteRecord(record: Record<string, unknown>) {
-    if (!window.confirm(`Delete this ${config.label.toLowerCase()} item?`)) return;
+    if (!window.confirm(`Supprimer cet element ${config.label.toLowerCase()} ?`)) return;
 
     const response = await fetch(`/api/records/${config.table}/${record.id}`, {
       method: "DELETE"
@@ -85,11 +85,11 @@ export function ChildRecordsSection({
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      toast.error(payload.error ?? "Unable to delete record.");
+      toast.error(payload.error ?? "Impossible de supprimer la fiche.");
       return;
     }
 
-    toast.success(`${config.label} item deleted.`);
+    toast.success(`Element ${config.label} supprime.`);
     router.refresh();
   }
 
@@ -97,7 +97,7 @@ export function ChildRecordsSection({
     const tableName = String(config.fixedValues?.table_name ?? "");
 
     if (!tableName) {
-      toast.error("Missing attachment table mapping.");
+      toast.error("Configuration de piece jointe manquante.");
       return;
     }
 
@@ -128,13 +128,13 @@ export function ChildRecordsSection({
 
       const payload = (await response.json()) as { error?: string };
       if (!response.ok) {
-        throw new Error(payload.error ?? "Unable to save attachment.");
+        throw new Error(payload.error ?? "Impossible d'enregistrer la piece jointe.");
       }
 
-      toast.success("Attachment uploaded.");
+      toast.success("Piece jointe importee.");
       router.refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Upload failed.");
+      toast.error(error instanceof Error ? error.message : "Import du fichier impossible.");
     } finally {
       setUploading(false);
     }
@@ -144,7 +144,7 @@ export function ChildRecordsSection({
     try {
       await openStorageFile(String(record.file_path ?? ""));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to open file.");
+      toast.error(error instanceof Error ? error.message : "Impossible d'ouvrir le fichier.");
     }
   }
 
@@ -160,7 +160,7 @@ export function ChildRecordsSection({
                 className="inline-flex min-h-6 cursor-pointer items-center gap-1 border border-[#9eb8c2] bg-white px-2 py-1 text-[10px] font-bold text-[#2749a0] hover:bg-[#fff4b8]"
               >
                 <UploadCloud className="h-3.5 w-3.5" />
-                {uploading ? "Upload..." : "Fichier"}
+                {uploading ? "Import..." : "Fichier"}
                 <input
                   type="file"
                   className="hidden"
@@ -192,7 +192,7 @@ export function ChildRecordsSection({
         </div>
 
         {records.length === 0 ? (
-          <div className="px-2 py-2 text-[11px] text-muted">Aucun fichier</div>
+          <div className="px-2 py-2 text-[11px] text-muted">Aucun element</div>
         ) : (
           <RecordTable
             columns={config.columns}
@@ -218,8 +218,8 @@ export function ChildRecordsSection({
             setOpen(false);
             setEditing(null);
           }}
-          title={editing ? `Edit ${config.label}` : `Add ${config.label}`}
-          description="Linked to the current parent record."
+          title={editing ? `Modifier ${config.label}` : `Ajouter ${config.label}`}
+          description="Lie a la fiche courante."
         >
           <RecordForm
             key={editing ? String(editing.id ?? "edit") : `new-${parentId}`}
@@ -231,7 +231,7 @@ export function ChildRecordsSection({
               setOpen(false);
               setEditing(null);
             }}
-            submitLabel={editing ? "Save changes" : "Create item"}
+            submitLabel={editing ? "Enregistrer" : "Creer l'element"}
           />
         </Modal>
       </section>
@@ -252,7 +252,7 @@ export function ChildRecordsSection({
               className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded border border-[#b9def4] bg-[#f8fcff] px-3 py-2 text-sm font-semibold text-[#2749a0] hover:bg-[#fff4b8]"
             >
               <UploadCloud className="h-4 w-4" />
-              {uploading ? "Upload..." : "Fichier joint"}
+              {uploading ? "Import..." : "Fichier joint"}
               <input
                 type="file"
                 className="hidden"
@@ -284,9 +284,9 @@ export function ChildRecordsSection({
 
       {records.length === 0 ? (
         <EmptyState
-          title={`No ${config.label.toLowerCase()} yet`}
+          title={`Aucun element dans ${config.label.toLowerCase()}`}
           description={config.description}
-          ctaLabel={canWrite ? "Add first item" : undefined}
+          ctaLabel={canWrite ? "Ajouter le premier element" : undefined}
           onCta={canWrite ? () => setOpen(true) : undefined}
         />
       ) : (
@@ -313,8 +313,8 @@ export function ChildRecordsSection({
           setOpen(false);
           setEditing(null);
         }}
-        title={editing ? `Edit ${config.label}` : `Add ${config.label}`}
-        description="Linked to the current parent record."
+        title={editing ? `Modifier ${config.label}` : `Ajouter ${config.label}`}
+        description="Lie a la fiche courante."
       >
         <RecordForm
           key={editing ? String(editing.id ?? "edit") : `new-${parentId}`}
@@ -326,7 +326,7 @@ export function ChildRecordsSection({
             setOpen(false);
             setEditing(null);
           }}
-          submitLabel={editing ? "Save changes" : "Create item"}
+          submitLabel={editing ? "Enregistrer" : "Creer l'element"}
         />
       </Modal>
     </Card>

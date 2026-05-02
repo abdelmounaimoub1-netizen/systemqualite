@@ -47,20 +47,20 @@ export function ProfilePageClient({
     setLoading(false);
 
     if (!response.ok) {
-      toast.error(result.error ?? "Unable to update profile.");
+      toast.error(result.error ?? "Impossible de mettre a jour le profil.");
       return;
     }
 
-    toast.success("Profile updated.");
+    toast.success("Profil mis a jour.");
     router.refresh();
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="User profile"
+        eyebrow="Profil utilisateur"
         title={context.profile?.full_name ?? context.email}
-        description="Keep your role context, contact details, and department assignment current so ownership stays clear across the QMS."
+        description="Gardez votre role, vos coordonnees et votre departement a jour pour clarifier les responsabilites dans le QMS."
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
@@ -81,7 +81,7 @@ export function ProfilePageClient({
             <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
               <Building2 className="h-4 w-4 text-brand" />
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Department</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Departement</div>
                 <div className="text-sm font-medium text-ink">
                   {getLookupLabel(
                     lookups,
@@ -94,9 +94,9 @@ export function ProfilePageClient({
             <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
               <BriefcaseBusiness className="h-4 w-4 text-brand" />
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Job title</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Fonction</div>
                 <div className="text-sm font-medium text-ink">
-                  {context.profile?.job_title ?? "Not set"}
+                  {context.profile?.job_title ?? "Non renseigne"}
                 </div>
               </div>
             </div>
@@ -110,9 +110,9 @@ export function ProfilePageClient({
             <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
               <Phone className="h-4 w-4 text-brand" />
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Phone</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Telephone</div>
                 <div className="text-sm font-medium text-ink">
-                  {context.profile?.phone ?? "Not set"}
+                  {context.profile?.phone ?? "Non renseigne"}
                 </div>
               </div>
             </div>
@@ -123,7 +123,7 @@ export function ProfilePageClient({
           <form className="space-y-4" onSubmit={saveProfile}>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-600">Full name</label>
+                <label className="mb-2 block text-sm font-medium text-slate-600">Nom complet</label>
                 <Input
                   required
                   value={form.full_name}
@@ -133,7 +133,7 @@ export function ProfilePageClient({
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-600">Job title</label>
+                <label className="mb-2 block text-sm font-medium text-slate-600">Fonction</label>
                 <Input
                   value={form.job_title}
                   onChange={(event) =>
@@ -144,7 +144,7 @@ export function ProfilePageClient({
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-600">Phone</label>
+                <label className="mb-2 block text-sm font-medium text-slate-600">Telephone</label>
                 <Input
                   value={form.phone}
                   onChange={(event) =>
@@ -153,19 +153,19 @@ export function ProfilePageClient({
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-600">Supplier company</label>
+                <label className="mb-2 block text-sm font-medium text-slate-600">Societe fournisseur</label>
                 <Input
                   value={form.supplier_company}
                   onChange={(event) =>
                     setForm((current) => ({ ...current, supplier_company: event.target.value }))
                   }
-                  placeholder="For supplier viewers or external collaborators"
+                  placeholder="Pour les lecteurs fournisseurs ou collaborateurs externes"
                 />
               </div>
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={loading}>
-                {loading ? "Saving..." : "Save profile"}
+                {loading ? "Enregistrement..." : "Enregistrer le profil"}
               </Button>
             </div>
           </form>

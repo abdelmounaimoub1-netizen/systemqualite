@@ -131,17 +131,17 @@ export function ModulePageClient({
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      toast.error(payload.error ?? "Unable to save record.");
+      toast.error(payload.error ?? "Impossible d'enregistrer la fiche.");
       return;
     }
 
-    toast.success(`${config.singular} saved.`);
+    toast.success(`${config.singular} enregistre.`);
     closeEditor();
     router.refresh();
   }
 
   async function deleteRecord(record: Record<string, unknown>) {
-    if (!window.confirm(`Delete this ${config.singular.toLowerCase()}?`)) return;
+    if (!window.confirm(`Supprimer ce ${config.singular.toLowerCase()} ?`)) return;
 
     const response = await fetch(`/api/records/${config.table}/${record.id}`, {
       method: "DELETE"
@@ -149,11 +149,11 @@ export function ModulePageClient({
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      toast.error(payload.error ?? "Unable to delete record.");
+      toast.error(payload.error ?? "Impossible de supprimer la fiche.");
       return;
     }
 
-    toast.success(`${config.singular} deleted.`);
+    toast.success(`${config.singular} supprime.`);
     router.refresh();
   }
 
@@ -163,7 +163,7 @@ export function ModulePageClient({
     try {
       await openStorageFile(String(record[storageFieldKey] ?? ""));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to open file.");
+      toast.error(error instanceof Error ? error.message : "Impossible d'ouvrir le fichier.");
     }
   }
 

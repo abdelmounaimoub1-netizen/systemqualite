@@ -19,7 +19,7 @@ function buildStoragePath(folder: string, fileName: string) {
     .map(normalizeStorageSegment)
     .filter(Boolean)
     .join("/");
-  const normalizedBaseName = normalizeStorageSegment(baseName) || "file";
+  const normalizedBaseName = normalizeStorageSegment(baseName) || "fichier";
 
   return `${normalizedFolder}/${Date.now()}-${normalizedBaseName}${extension}`;
 }
@@ -51,7 +51,7 @@ export async function uploadFileToStorage({
 
 export async function getStorageSignedUrl(filePath: string, expiresIn = 300) {
   if (!filePath) {
-    throw new Error("No file is attached to this record yet.");
+    throw new Error("Aucun fichier n'est joint a cette fiche.");
   }
 
   const supabase = getSupabaseBrowserClient();
@@ -60,7 +60,7 @@ export async function getStorageSignedUrl(filePath: string, expiresIn = 300) {
     .createSignedUrl(filePath, expiresIn);
 
   if (error || !data?.signedUrl) {
-    throw new Error(error?.message ?? "Unable to generate a file link.");
+    throw new Error(error?.message ?? "Impossible de generer le lien du fichier.");
   }
 
   return data.signedUrl;

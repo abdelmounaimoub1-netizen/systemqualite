@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   const context = await getCurrentUserContext({ redirectToAuth: false });
 
   if (!context) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    return NextResponse.json({ error: "Authentification requise." }, { status: 401 });
   }
 
   const body = (await request.json()) as {

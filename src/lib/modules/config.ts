@@ -34,10 +34,10 @@ const nonConformityRelation = {
 };
 
 const severityOptions = [
-  { label: "Low", value: "Low" },
-  { label: "Medium", value: "Medium" },
-  { label: "High", value: "High" },
-  { label: "Critical", value: "Critical" }
+  { label: "Faible", value: "Low" },
+  { label: "Moyen", value: "Medium" },
+  { label: "Eleve", value: "High" },
+  { label: "Critique", value: "Critical" }
 ];
 
 const improvementStatusOptions = [
@@ -153,7 +153,7 @@ function commentModule(
   return {
     key: `comments-${tableName}`,
     label: "Discussion",
-    description: `Track working notes and follow-up on ${label.toLowerCase()}.`,
+    description: `Suivre les notes de travail et les relances sur ${label.toLowerCase()}.`,
     table: "comments",
     parentField: "record_id",
     searchableFields: ["body"],
@@ -161,16 +161,16 @@ function commentModule(
       table_name: tableName
     },
     columns: [
-      { key: "body", label: "Comment" },
-      { key: "created_at", label: "Added", variant: "date" }
+      { key: "body", label: "Commentaire" },
+      { key: "created_at", label: "Ajoute", variant: "date" }
     ],
     fields: [
       {
         key: "body",
-        label: "Comment",
+        label: "Commentaire",
         type: "textarea",
         required: true,
-        placeholder: "Add a note, escalation detail, or follow-up."
+        placeholder: "Ajouter une note, une relance ou un detail d'escalade."
       }
     ],
     writeRoles
@@ -184,8 +184,8 @@ function attachmentModule(
 ): ChildModuleConfig {
   return {
     key: `attachments-${tableName}`,
-    label: "Attachments",
-    description: `Upload evidence and related files for ${label.toLowerCase()}.`,
+    label: "Pieces jointes",
+    description: `Importer les preuves et fichiers lies a ${label.toLowerCase()}.`,
     table: "attachments",
     parentField: "record_id",
     searchableFields: ["file_name", "note"],
@@ -193,41 +193,41 @@ function attachmentModule(
       table_name: tableName
     },
     columns: [
-      { key: "file_name", label: "File" },
+      { key: "file_name", label: "Fichier" },
       { key: "note", label: "Note" },
-      { key: "created_at", label: "Uploaded", variant: "date" }
+      { key: "created_at", label: "Importe", variant: "date" }
     ],
     fields: [
       {
         key: "file_name",
-        label: "File name",
+        label: "Nom du fichier",
         type: "text",
         required: true,
-        placeholder: "Auto-populated when uploading."
+        placeholder: "Renseigne automatiquement a l'import."
       },
       {
         key: "file_path",
-        label: "Storage path",
+        label: "Chemin stockage",
         type: "text",
         required: true,
-        placeholder: "Generated after upload."
+        placeholder: "Genere apres l'import."
       },
       {
         key: "mime_type",
-        label: "MIME type",
+        label: "Type MIME",
         type: "text",
         placeholder: "application/pdf"
       },
       {
         key: "file_size",
-        label: "File size (bytes)",
+        label: "Taille fichier (octets)",
         type: "number"
       },
       {
         key: "note",
         label: "Note",
         type: "textarea",
-        placeholder: "Context for this attachment."
+        placeholder: "Contexte de cette piece jointe."
       }
     ],
     writeRoles
@@ -473,40 +473,40 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     childModules: [
       {
         key: "document-versions",
-        label: "Version history",
-        description: "Track revisions, approval dates, and stored file paths.",
+        label: "Historique des versions",
+        description: "Suivre les revisions, dates d'approbation et chemins des fichiers.",
         table: "document_versions",
         parentField: "document_id",
         searchableFields: ["version_number", "change_summary"],
         columns: [
           { key: "version_number", label: "Version" },
-          { key: "status", label: "Status", variant: "status" },
-          { key: "approval_date", label: "Approved", variant: "date" },
-          { key: "change_summary", label: "Change summary" }
+          { key: "status", label: "Statut", variant: "status" },
+          { key: "approval_date", label: "Approbation", variant: "date" },
+          { key: "change_summary", label: "Synthese changement" }
         ],
         fields: [
           {
             key: "version_number",
-            label: "Version number",
+            label: "Numero de version",
             type: "text",
             required: true,
             placeholder: "1.1"
           },
           {
             key: "status",
-            label: "Status",
+            label: "Statut",
             type: "select",
             required: true,
             options: documentStatusOptions
           },
           {
             key: "approval_date",
-            label: "Approval date",
+            label: "Date d'approbation",
             type: "date"
           },
           {
             key: "file_path",
-            label: "Version file path",
+            label: "Fichier de version",
             type: "text",
             placeholder: "qms-files/documents/versions/...",
             storageFolder: "documents/versions",
@@ -514,9 +514,9 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
           },
           {
             key: "change_summary",
-            label: "Change summary",
+            label: "Synthese changement",
             type: "textarea",
-            placeholder: "Explain the revision in a sentence or two."
+            placeholder: "Expliquer la revision en une ou deux phrases."
           }
         ],
         writeRoles: ["admin", "quality_manager"]
@@ -858,9 +858,9 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
         type: "select",
         required: true,
         options: [
-          { label: "Draft", value: "Draft" },
-          { label: "Active", value: "Active" },
-          { label: "Archived", value: "Archived" }
+          { label: "Brouillon", value: "Draft" },
+          { label: "Actif", value: "Active" },
+          { label: "Archive", value: "Archived" }
         ]
       },
       {
@@ -931,11 +931,11 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
             type: "select",
             required: true,
             options: [
-              { label: "Draft", value: "Draft" },
-              { label: "Submitted", value: "Submitted" },
-              { label: "In Review", value: "In Review" },
-              { label: "Approved", value: "Approved" },
-              { label: "Rejected", value: "Rejected" }
+              { label: "Brouillon", value: "Draft" },
+              { label: "Soumis", value: "Submitted" },
+              { label: "En revue", value: "In Review" },
+              { label: "Approuve", value: "Approved" },
+              { label: "Rejete", value: "Rejected" }
             ]
           },
           {
@@ -957,89 +957,89 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
   },
   workflows: {
     slug: "workflows",
-    label: "Workflows",
+    label: "Circuits",
     singular: "Workflow",
     icon: Sparkles,
     table: "workflows",
-    description: "Structured review and approval flows with due dates and accountability.",
+    description: "Circuits de revue et d'approbation avec echeances et responsabilites.",
     accentClass: "from-accent/20 via-sun/10 to-transparent",
     searchableFields: ["title", "description"],
     columns: [
-      { key: "title", label: "Workflow" },
-      { key: "status", label: "Status", variant: "status" },
-      { key: "due_date", label: "Due date", variant: "date" },
-      { key: "responsible_user_id", label: "Responsible", variant: "relation" },
-      { key: "approval_required", label: "Approval", variant: "boolean" }
+      { key: "title", label: "Circuit" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "due_date", label: "Echeance", variant: "date" },
+      { key: "responsible_user_id", label: "Responsable", variant: "relation" },
+      { key: "approval_required", label: "Approbation", variant: "boolean" }
     ],
     fields: [
       {
         key: "title",
-        label: "Workflow name",
+        label: "Nom du circuit",
         type: "text",
         required: true,
-        placeholder: "Supplier onboarding approval"
+        placeholder: "Validation onboarding fournisseur"
       },
       {
         key: "description",
         label: "Description",
         type: "textarea",
-        placeholder: "How this workflow should move through review."
+        placeholder: "Decrire le deroulement du circuit de revue."
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         required: true,
         options: [
-          { label: "Draft", value: "Draft" },
-          { label: "In Progress", value: "In Progress" },
-          { label: "Awaiting Approval", value: "Awaiting Approval" },
-          { label: "Approved", value: "Approved" },
-          { label: "Rejected", value: "Rejected" },
-          { label: "Completed", value: "Completed" }
+          { label: "Brouillon", value: "Draft" },
+          { label: "En cours", value: "In Progress" },
+          { label: "En attente approbation", value: "Awaiting Approval" },
+          { label: "Approuve", value: "Approved" },
+          { label: "Rejete", value: "Rejected" },
+          { label: "Termine", value: "Completed" }
         ]
       },
       {
         key: "due_date",
-        label: "Due date",
+        label: "Echeance",
         type: "date"
       },
       {
         key: "responsible_user_id",
-        label: "Responsible user",
+        label: "Responsable",
         type: "select",
         relation: profileRelation
       },
       {
         key: "approval_required",
-        label: "Approval required",
+        label: "Approbation requise",
         type: "checkbox"
       }
     ],
     detailFields: ["title", "description", "status", "due_date", "responsible_user_id"],
-    emptyState: "Map recurring approval flows so teams know what happens next.",
+    emptyState: "Cartographiez les circuits recurrents pour clarifier la suite des actions.",
     writeRoles: ["admin", "quality_manager", "employee"],
     childModules: [
       {
         key: "workflow-steps",
-        label: "Workflow steps",
-        description: "Assign accountable users and step-level due dates.",
+        label: "Etapes du circuit",
+        description: "Affecter les responsables et echeances de chaque etape.",
         table: "workflow_steps",
         parentField: "workflow_id",
         searchableFields: ["step_name", "description"],
         columns: [
-          { key: "step_name", label: "Step" },
-          { key: "responsible_user_id", label: "Owner", variant: "relation" },
-          { key: "due_date", label: "Due", variant: "date" },
-          { key: "status", label: "Status", variant: "status" }
+          { key: "step_name", label: "Etape" },
+          { key: "responsible_user_id", label: "Pilote", variant: "relation" },
+          { key: "due_date", label: "Echeance", variant: "date" },
+          { key: "status", label: "Statut", variant: "status" }
         ],
         fields: [
           {
             key: "step_name",
-            label: "Step name",
+            label: "Nom de l'etape",
             type: "text",
             required: true,
-            placeholder: "Manager review"
+            placeholder: "Revue responsable"
           },
           {
             key: "description",
@@ -1048,36 +1048,36 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
           },
           {
             key: "responsible_user_id",
-            label: "Responsible user",
+            label: "Responsable",
             type: "select",
             relation: profileRelation
           },
           {
             key: "due_date",
-            label: "Due date",
+            label: "Echeance",
             type: "date"
           },
           {
             key: "status",
-            label: "Status",
+            label: "Statut",
             type: "select",
             options: [
-              { label: "Draft", value: "Draft" },
-              { label: "In Progress", value: "In Progress" },
-              { label: "Awaiting Approval", value: "Awaiting Approval" },
-              { label: "Approved", value: "Approved" },
-              { label: "Rejected", value: "Rejected" },
-              { label: "Completed", value: "Completed" }
+              { label: "Brouillon", value: "Draft" },
+              { label: "En cours", value: "In Progress" },
+              { label: "En attente approbation", value: "Awaiting Approval" },
+              { label: "Approuve", value: "Approved" },
+              { label: "Rejete", value: "Rejected" },
+              { label: "Termine", value: "Completed" }
             ]
           },
           {
             key: "approval_state",
-            label: "Approval state",
+            label: "Etat d'approbation",
             type: "select",
             options: [
-              { label: "Pending", value: "Pending" },
-              { label: "Approved", value: "Approved" },
-              { label: "Rejected", value: "Rejected" }
+              { label: "En attente", value: "Pending" },
+              { label: "Approuve", value: "Approved" },
+              { label: "Rejete", value: "Rejected" }
             ]
           }
         ],
@@ -1354,7 +1354,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "measurement_deadline",
-        label: "Deadline mesure",
+        label: "Echeance mesure",
         type: "date"
       },
       {
@@ -1392,7 +1392,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
         columns: [
           { key: "pilot_id", label: "Pilote", variant: "relation" },
           { key: "action", label: "Action" },
-          { key: "deadline", label: "Deadline", variant: "date" },
+          { key: "deadline", label: "Echeance", variant: "date" },
           { key: "completion_date", label: "Date realisation", variant: "date" },
           { key: "comment", label: "Commentaire" },
           { key: "progress_status", label: "% Avancement", variant: "status" }
@@ -1413,7 +1413,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
           },
           {
             key: "deadline",
-            label: "Deadline",
+            label: "Echeance",
             type: "date"
           },
           {
@@ -1432,10 +1432,10 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
             type: "select",
             required: true,
             options: [
-              { label: "Open", value: "Open" },
-              { label: "In Progress", value: "In Progress" },
-              { label: "Done", value: "Done" },
-              { label: "Ineffective", value: "Ineffective" }
+              { label: "Ouvert", value: "Open" },
+              { label: "En cours", value: "In Progress" },
+              { label: "Realise", value: "Done" },
+              { label: "Inefficace", value: "Ineffective" }
             ]
           },
           {
@@ -1593,76 +1593,76 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     accentClass: "from-sun/25 via-accent/10 to-transparent",
     searchableFields: ["title", "description", "source", "root_cause"],
     columns: [
-      { key: "title", label: "Issue" },
-      { key: "severity", label: "Severity", variant: "status" },
-      { key: "status", label: "Status", variant: "status" },
-      { key: "department_id", label: "Department", variant: "relation" },
-      { key: "responsible_user_id", label: "Responsible", variant: "relation" }
+      { key: "title", label: "Ecart" },
+      { key: "severity", label: "Criticite", variant: "status" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "department_id", label: "Departement", variant: "relation" },
+      { key: "responsible_user_id", label: "Responsable", variant: "relation" }
     ],
     fields: [
       {
         key: "title",
-        label: "Title",
+        label: "Titre",
         type: "text",
         required: true,
-        placeholder: "Temperature log not completed"
+        placeholder: "Releve temperature non complete"
       },
       {
         key: "description",
         label: "Description",
         type: "textarea",
         required: true,
-        placeholder: "Describe what happened."
+        placeholder: "Decrire les faits constates."
       },
       {
         key: "severity",
-        label: "Severity",
+        label: "Criticite",
         type: "select",
         required: true,
         options: [
-          { label: "Low", value: "Low" },
-          { label: "Medium", value: "Medium" },
-          { label: "High", value: "High" },
-          { label: "Critical", value: "Critical" }
+          { label: "Faible", value: "Low" },
+          { label: "Moyen", value: "Medium" },
+          { label: "Eleve", value: "High" },
+          { label: "Critique", value: "Critical" }
         ]
       },
       {
         key: "source",
         label: "Source",
         type: "text",
-        placeholder: "Audit, complaint, internal review..."
+        placeholder: "Audit, reclamation, revue interne..."
       },
       {
         key: "department_id",
-        label: "Department",
+        label: "Departement",
         type: "select",
         relation: departmentRelation
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         required: true,
         options: [
-          { label: "Open", value: "Open" },
-          { label: "In Progress", value: "In Progress" },
-          { label: "Closed", value: "Closed" }
+          { label: "Ouvert", value: "Open" },
+          { label: "En cours", value: "In Progress" },
+          { label: "Clos", value: "Closed" }
         ]
       },
       {
         key: "responsible_user_id",
-        label: "Responsible person",
+        label: "Responsable",
         type: "select",
         relation: profileRelation
       },
       {
         key: "root_cause",
-        label: "Root cause",
+        label: "Cause racine",
         type: "textarea"
       },
       {
         key: "due_date",
-        label: "Target closure date",
+        label: "Date cible de cloture",
         type: "date"
       }
     ],
@@ -1675,33 +1675,33 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       "responsible_user_id",
       "root_cause"
     ],
-    emptyState: "Log the first issue so CAPA and audit follow-up have a single source of truth.",
+    emptyState: "Declarez le premier ecart pour centraliser le suivi CAPA et audit.",
     writeRoles: ["admin", "quality_manager", "auditor", "employee"],
     childModules: [
       {
         key: "linked-capa",
-        label: "Linked CAPA actions",
-        description: "Corrective and preventive actions tied directly to this issue.",
+        label: "Actions CAPA liees",
+        description: "Actions correctives et preventives directement liees a cet ecart.",
         table: "capa_actions",
         parentField: "non_conformity_id",
         searchableFields: ["title", "description", "effectiveness_check"],
         columns: [
           { key: "title", label: "Action" },
           { key: "action_type", label: "Type" },
-          { key: "priority", label: "Priority", variant: "status" },
-          { key: "status", label: "Status", variant: "status" },
-          { key: "deadline", label: "Deadline", variant: "date" }
+          { key: "priority", label: "Priorite", variant: "status" },
+          { key: "status", label: "Statut", variant: "status" },
+          { key: "deadline", label: "Echeance", variant: "date" }
         ],
         fields: [
           {
             key: "title",
-            label: "Action title",
+            label: "Titre de l'action",
             type: "text",
             required: true
           },
           {
             key: "action_type",
-            label: "Action type",
+            label: "Type d'action",
             type: "select",
             options: [
               { label: "Corrective", value: "Corrective" },
@@ -1716,52 +1716,52 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
           },
           {
             key: "responsible_user_id",
-            label: "Responsible user",
+            label: "Responsable",
             type: "select",
             relation: profileRelation
           },
           {
             key: "deadline",
-            label: "Deadline",
+            label: "Echeance",
             type: "date"
           },
           {
             key: "priority",
-            label: "Priority",
+            label: "Priorite",
             type: "select",
             options: [
-              { label: "Low", value: "Low" },
-              { label: "Medium", value: "Medium" },
-              { label: "High", value: "High" },
-              { label: "Critical", value: "Critical" }
+              { label: "Faible", value: "Low" },
+              { label: "Moyen", value: "Medium" },
+              { label: "Eleve", value: "High" },
+              { label: "Critique", value: "Critical" }
             ]
           },
           {
             key: "status",
-            label: "Status",
+            label: "Statut",
             type: "select",
             options: [
-              { label: "Open", value: "Open" },
-              { label: "In Progress", value: "In Progress" },
+              { label: "Ouvert", value: "Open" },
+              { label: "En cours", value: "In Progress" },
               { label: "Verification", value: "Verification" },
-              { label: "Closed", value: "Closed" }
+              { label: "Clos", value: "Closed" }
             ]
           },
           {
             key: "effectiveness_check",
-            label: "Effectiveness check",
+            label: "Verification d'efficacite",
             type: "textarea"
           }
         ],
         writeRoles: ["admin", "quality_manager", "auditor"]
       },
-      attachmentModule("Non-conformities", "non_conformities", [
+      attachmentModule("Non-conformites", "non_conformities", [
         "admin",
         "quality_manager",
         "auditor",
         "employee"
       ]),
-      commentModule("Non-conformities", "non_conformities", [
+      commentModule("Non-conformites", "non_conformities", [
         "admin",
         "quality_manager",
         "auditor",
@@ -1998,26 +1998,26 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     singular: "Action corrective",
     icon: ShieldCheck,
     table: "capa_actions",
-    description: "Manage corrective and preventive actions from intake to effectiveness check.",
+    description: "Gerer les actions correctives et preventives jusqu'a la verification d'efficacite.",
     accentClass: "from-sun/25 via-accent/10 to-transparent",
     searchableFields: ["title", "description", "effectiveness_check"],
     columns: [
       { key: "title", label: "Action" },
       { key: "action_type", label: "Type" },
-      { key: "priority", label: "Priority", variant: "status" },
-      { key: "status", label: "Status", variant: "status" },
-      { key: "deadline", label: "Deadline", variant: "date" }
+      { key: "priority", label: "Priorite", variant: "status" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "deadline", label: "Echeance", variant: "date" }
     ],
     fields: [
       {
         key: "title",
-        label: "Action title",
+        label: "Titre de l'action",
         type: "text",
         required: true
       },
       {
         key: "action_type",
-        label: "Action type",
+        label: "Type d'action",
         type: "select",
         required: true,
         options: [
@@ -2027,7 +2027,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "non_conformity_id",
-        label: "Linked non-conformity",
+        label: "Non-conformite liee",
         type: "select",
         relation: nonConformityRelation
       },
@@ -2038,40 +2038,40 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "responsible_user_id",
-        label: "Responsible person",
+        label: "Responsable",
         type: "select",
         relation: profileRelation
       },
       {
         key: "deadline",
-        label: "Deadline",
+        label: "Echeance",
         type: "date"
       },
       {
         key: "priority",
-        label: "Priority",
+        label: "Priorite",
         type: "select",
         options: [
-          { label: "Low", value: "Low" },
-          { label: "Medium", value: "Medium" },
-          { label: "High", value: "High" },
-          { label: "Critical", value: "Critical" }
+          { label: "Faible", value: "Low" },
+          { label: "Moyen", value: "Medium" },
+          { label: "Eleve", value: "High" },
+          { label: "Critique", value: "Critical" }
         ]
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         options: [
-          { label: "Open", value: "Open" },
-          { label: "In Progress", value: "In Progress" },
+          { label: "Ouvert", value: "Open" },
+          { label: "En cours", value: "In Progress" },
           { label: "Verification", value: "Verification" },
-          { label: "Closed", value: "Closed" }
+          { label: "Clos", value: "Closed" }
         ]
       },
       {
         key: "effectiveness_check",
-        label: "Effectiveness check",
+        label: "Verification d'efficacite",
         type: "textarea"
       }
     ],
@@ -2083,7 +2083,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       "deadline",
       "responsible_user_id"
     ],
-    emptyState: "Create the actions that close the loop after an issue or preventive review.",
+    emptyState: "Creez les actions qui cloturent un ecart ou une revue preventive.",
     writeRoles: ["admin", "quality_manager", "auditor"],
     childModules: [
       attachmentModule("CAPA", "capa_actions", ["admin", "quality_manager", "auditor"]),
@@ -2096,70 +2096,70 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     singular: "Audit",
     icon: ClipboardCheck,
     table: "audits",
-    description: "Plan audits, capture findings, and keep follow-up visible.",
+    description: "Planifier les audits, saisir les constats et garder le suivi visible.",
     accentClass: "from-brand/20 via-accent/10 to-transparent",
     searchableFields: ["title", "scope"],
     columns: [
       { key: "title", label: "Audit" },
       { key: "audit_type", label: "Type" },
-      { key: "status", label: "Status", variant: "status" },
-      { key: "planned_date", label: "Planned", variant: "date" },
-      { key: "auditor_id", label: "Auditor", variant: "relation" }
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "planned_date", label: "Planifie", variant: "date" },
+      { key: "auditor_id", label: "Auditeur", variant: "relation" }
     ],
     fields: [
       {
         key: "title",
-        label: "Audit title",
+        label: "Titre audit",
         type: "text",
         required: true,
-        placeholder: "Internal GMP audit - packaging"
+        placeholder: "Audit interne BPF - conditionnement"
       },
       {
         key: "audit_type",
-        label: "Audit type",
+        label: "Type audit",
         type: "select",
         required: true,
         options: [
-          { label: "Internal", value: "Internal" },
-          { label: "External", value: "External" }
+          { label: "Interne", value: "Internal" },
+          { label: "Externe", value: "External" }
         ]
       },
       {
         key: "scope",
-        label: "Scope",
+        label: "Perimetre",
         type: "textarea"
       },
       {
         key: "auditor_id",
-        label: "Assigned auditor",
+        label: "Auditeur affecte",
         type: "select",
         relation: profileRelation
       },
       {
         key: "planned_date",
-        label: "Planned date",
+        label: "Date planifiee",
         type: "date"
       },
       {
         key: "follow_up_date",
-        label: "Follow-up date",
+        label: "Date de suivi",
         type: "date"
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         options: [
-          { label: "Planned", value: "Planned" },
-          { label: "In Progress", value: "In Progress" },
-          { label: "Completed", value: "Completed" },
-          { label: "Closed", value: "Closed" }
+          { label: "Planifie", value: "Planned" },
+          { label: "En cours", value: "In Progress" },
+          { label: "Termine", value: "Completed" },
+          { label: "Clos", value: "Closed" }
         ],
         required: true
       },
       {
         key: "report_path",
-        label: "Report path",
+        label: "Rapport",
         type: "text",
         placeholder: "qms-files/audits/reports/...",
         storageFolder: "audits/reports",
@@ -2167,41 +2167,41 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       }
     ],
     detailFields: ["title", "audit_type", "scope", "status", "planned_date", "auditor_id"],
-    emptyState: "Schedule your next audit so findings and follow-up do not live in email threads.",
+    emptyState: "Planifiez le prochain audit pour sortir les constats et suivis des emails.",
     writeRoles: ["admin", "quality_manager", "auditor"],
     childModules: [
       {
         key: "audit-checklist",
         label: "Checklist",
-        description: "Build and complete the audit question set.",
+        description: "Construire et renseigner la grille de questions audit.",
         table: "audit_checklists",
         parentField: "audit_id",
         searchableFields: ["item_text", "notes"],
         columns: [
-          { key: "item_text", label: "Checklist item" },
-          { key: "response_status", label: "Response", variant: "status" },
-          { key: "is_required", label: "Required", variant: "boolean" }
+          { key: "item_text", label: "Point de controle" },
+          { key: "response_status", label: "Reponse", variant: "status" },
+          { key: "is_required", label: "Obligatoire", variant: "boolean" }
         ],
         fields: [
           {
             key: "item_text",
-            label: "Checklist item",
+            label: "Point de controle",
             type: "textarea",
             required: true
           },
           {
             key: "is_required",
-            label: "Required item",
+            label: "Point obligatoire",
             type: "checkbox"
           },
           {
             key: "response_status",
-            label: "Response",
+            label: "Reponse",
             type: "select",
             options: [
-              { label: "Pending", value: "Pending" },
-              { label: "Pass", value: "Pass" },
-              { label: "Fail", value: "Fail" },
+              { label: "En attente", value: "Pending" },
+              { label: "Conforme", value: "Pass" },
+              { label: "Non conforme", value: "Fail" },
               { label: "N/A", value: "N/A" }
             ]
           },
@@ -2215,21 +2215,21 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "audit-findings",
-        label: "Findings",
-        description: "Capture findings that require corrective action or closure evidence.",
+        label: "Constats audit",
+        description: "Saisir les constats necessitant action corrective ou preuve de cloture.",
         table: "audit_findings",
         parentField: "audit_id",
         searchableFields: ["title", "description"],
         columns: [
-          { key: "title", label: "Finding" },
-          { key: "severity", label: "Severity", variant: "status" },
-          { key: "status", label: "Status", variant: "status" },
-          { key: "owner_id", label: "Owner", variant: "relation" }
+          { key: "title", label: "Constat" },
+          { key: "severity", label: "Criticite", variant: "status" },
+          { key: "status", label: "Statut", variant: "status" },
+          { key: "owner_id", label: "Pilote", variant: "relation" }
         ],
         fields: [
           {
             key: "title",
-            label: "Finding title",
+            label: "Titre du constat",
             type: "text",
             required: true
           },
@@ -2240,28 +2240,28 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
           },
           {
             key: "severity",
-            label: "Severity",
+            label: "Criticite",
             type: "select",
             options: [
-              { label: "Minor", value: "Minor" },
-              { label: "Major", value: "Major" },
-              { label: "Critical", value: "Critical" }
+              { label: "Mineur", value: "Minor" },
+              { label: "Majeur", value: "Major" },
+              { label: "Critique", value: "Critical" }
             ]
           },
           {
             key: "owner_id",
-            label: "Owner",
+            label: "Pilote",
             type: "select",
             relation: profileRelation
           },
           {
             key: "status",
-            label: "Status",
+            label: "Statut",
             type: "select",
             options: [
-              { label: "Open", value: "Open" },
-              { label: "Action Planned", value: "Action Planned" },
-              { label: "Closed", value: "Closed" }
+              { label: "Ouvert", value: "Open" },
+              { label: "Action planifiee", value: "Action Planned" },
+              { label: "Clos", value: "Closed" }
             ]
           }
         ],
@@ -2276,20 +2276,20 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     singular: "Risque",
     icon: Gauge,
     table: "risks",
-    description: "Score risk consistently and keep mitigation ownership visible.",
+    description: "Evaluer les risques de facon homogene et rendre les plans de maitrise visibles.",
     accentClass: "from-sun/25 via-brand/10 to-transparent",
     searchableFields: ["title", "description", "mitigation_plan"],
     columns: [
-      { key: "title", label: "Risk" },
-      { key: "probability", label: "Probability", variant: "number" },
+      { key: "title", label: "Risque" },
+      { key: "probability", label: "Probabilite", variant: "number" },
       { key: "impact", label: "Impact", variant: "number" },
-      { key: "risk_level", label: "Level", variant: "status" },
-      { key: "review_date", label: "Review", variant: "date" }
+      { key: "risk_level", label: "Niveau", variant: "status" },
+      { key: "review_date", label: "Revue", variant: "date" }
     ],
     fields: [
       {
         key: "title",
-        label: "Risk title",
+        label: "Titre du risque",
         type: "text",
         required: true
       },
@@ -2300,7 +2300,7 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "probability",
-        label: "Probability (1-5)",
+        label: "Probabilite (1-5)",
         type: "number",
         min: 1,
         max: 5,
@@ -2316,18 +2316,18 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "mitigation_plan",
-        label: "Mitigation plan",
+        label: "Plan de maitrise",
         type: "textarea"
       },
       {
         key: "owner_id",
-        label: "Owner",
+        label: "Pilote",
         type: "select",
         relation: profileRelation
       },
       {
         key: "review_date",
-        label: "Review date",
+        label: "Date de revue",
         type: "date"
       }
     ],
@@ -2341,9 +2341,9 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       "owner_id",
       "mitigation_plan"
     ],
-    emptyState: "Start the register with the most material operational or compliance risk.",
+    emptyState: "Demarrez le registre avec le risque operationnel ou conformite le plus significatif.",
     writeRoles: ["admin", "quality_manager", "auditor"],
-    childModules: [commentModule("Risks", "risks", ["admin", "quality_manager", "auditor"])]
+    childModules: [commentModule("Risques", "risks", ["admin", "quality_manager", "auditor"])]
   },
   trainings: {
     slug: "trainings",
@@ -2351,55 +2351,55 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     singular: "Formation",
     icon: BookCopy,
     table: "trainings",
-    description: "Track competence, assignment, certificate evidence, and expiry.",
+    description: "Suivre les competences, affectations, preuves de certificat et expirations.",
     accentClass: "from-brand/20 via-accent/10 to-transparent",
     searchableFields: ["title", "role_required", "notes"],
     columns: [
-      { key: "title", label: "Training" },
-      { key: "employee_id", label: "Employee", variant: "relation" },
-      { key: "status", label: "Status", variant: "status" },
-      { key: "expiry_date", label: "Expiry", variant: "date" },
-      { key: "role_required", label: "Required role" }
+      { key: "title", label: "Formation" },
+      { key: "employee_id", label: "Collaborateur", variant: "relation" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "expiry_date", label: "Expiration", variant: "date" },
+      { key: "role_required", label: "Role requis" }
     ],
     fields: [
       {
         key: "title",
-        label: "Training title",
+        label: "Titre de formation",
         type: "text",
         required: true
       },
       {
         key: "employee_id",
-        label: "Employee",
+        label: "Collaborateur",
         type: "select",
         relation: profileRelation
       },
       {
         key: "role_required",
-        label: "Required by role",
+        label: "Requis par role",
         type: "text",
-        placeholder: "Operator, Auditor, Supervisor..."
+        placeholder: "Operateur, auditeur, superviseur..."
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         options: [
-          { label: "Planned", value: "Planned" },
-          { label: "In Progress", value: "In Progress" },
-          { label: "Completed", value: "Completed" },
-          { label: "Expired", value: "Expired" }
+          { label: "Planifie", value: "Planned" },
+          { label: "En cours", value: "In Progress" },
+          { label: "Termine", value: "Completed" },
+          { label: "Expire", value: "Expired" }
         ],
         required: true
       },
       {
         key: "expiry_date",
-        label: "Expiry date",
+        label: "Date d'expiration",
         type: "date"
       },
       {
         key: "certificate_path",
-        label: "Certificate path",
+        label: "Certificat",
         type: "text",
         placeholder: "qms-files/trainings/certificates/...",
         storageFolder: "trainings/certificates",
@@ -2412,9 +2412,9 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       }
     ],
     detailFields: ["title", "employee_id", "status", "expiry_date", "role_required", "notes"],
-    emptyState: "Add required training records so competence and expiry stop living in spreadsheets.",
+    emptyState: "Ajoutez les formations requises pour sortir competences et expirations des tableurs.",
     writeRoles: ["admin", "quality_manager"],
-    childModules: [attachmentModule("Training", "trainings", ["admin", "quality_manager"])]
+    childModules: [attachmentModule("Formations", "trainings", ["admin", "quality_manager"])]
   },
   equipment: {
     slug: "equipment",
@@ -2422,26 +2422,26 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     singular: "Equipement",
     icon: Wrench,
     table: "equipment",
-    description: "Keep maintenance, calibration, and status visible in one place.",
+    description: "Garder maintenance, etalonnage et statut visibles au meme endroit.",
     accentClass: "from-brand/15 via-accent/10 to-transparent",
     searchableFields: ["name", "serial_number", "location", "notes"],
     columns: [
-      { key: "name", label: "Equipment" },
-      { key: "serial_number", label: "Serial no." },
+      { key: "name", label: "Equipement" },
+      { key: "serial_number", label: "N serie" },
       { key: "location", label: "Location" },
-      { key: "status", label: "Status", variant: "status" },
-      { key: "calibration_date", label: "Calibration", variant: "date" }
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "calibration_date", label: "Etalonnage", variant: "date" }
     ],
     fields: [
       {
         key: "name",
-        label: "Equipment name",
+        label: "Nom equipement",
         type: "text",
         required: true
       },
       {
         key: "serial_number",
-        label: "Serial number",
+        label: "Numero de serie",
         type: "text"
       },
       {
@@ -2451,29 +2451,29 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "maintenance_date",
-        label: "Maintenance date",
+        label: "Date maintenance",
         type: "date"
       },
       {
         key: "calibration_date",
-        label: "Calibration date",
+        label: "Date etalonnage",
         type: "date"
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         options: [
-          { label: "Active", value: "Active" },
+          { label: "Actif", value: "Active" },
           { label: "Maintenance", value: "Maintenance" },
-          { label: "Calibration Due", value: "Calibration Due" },
-          { label: "Retired", value: "Retired" }
+          { label: "Etalonnage du", value: "Calibration Due" },
+          { label: "Retire", value: "Retired" }
         ],
         required: true
       },
       {
         key: "notes",
-        label: "Maintenance history / notes",
+        label: "Historique maintenance / notes",
         type: "textarea"
       }
     ],
@@ -2486,9 +2486,9 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       "status",
       "notes"
     ],
-    emptyState: "Create the equipment list so preventive upkeep and calibration dates are visible.",
+    emptyState: "Creez la liste des equipements pour rendre visibles maintenance preventive et etalonnage.",
     writeRoles: ["admin", "quality_manager"],
-    childModules: [commentModule("Equipment", "equipment", ["admin", "quality_manager"])]
+    childModules: [commentModule("Equipements", "equipment", ["admin", "quality_manager"])]
   },
   suppliers: {
     slug: "suppliers",
@@ -2496,26 +2496,26 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     singular: "Fournisseur",
     icon: UsersRound,
     table: "suppliers",
-    description: "Centralize supplier profiles, evaluation score, documents, and audit context.",
+    description: "Centraliser les fiches fournisseurs, scores, documents et contexte audit.",
     accentClass: "from-accent/20 via-sun/10 to-transparent",
     searchableFields: ["name", "contact_name", "email", "notes"],
     columns: [
-      { key: "name", label: "Supplier" },
+      { key: "name", label: "Fournisseur" },
       { key: "contact_name", label: "Contact" },
       { key: "evaluation_score", label: "Score", variant: "number" },
-      { key: "status", label: "Status", variant: "status" },
+      { key: "status", label: "Statut", variant: "status" },
       { key: "email", label: "Email" }
     ],
     fields: [
       {
         key: "name",
-        label: "Supplier name",
+        label: "Nom fournisseur",
         type: "text",
         required: true
       },
       {
         key: "contact_name",
-        label: "Contact name",
+        label: "Nom contact",
         type: "text"
       },
       {
@@ -2525,30 +2525,30 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "phone",
-        label: "Phone",
+        label: "Telephone",
         type: "tel"
       },
       {
         key: "evaluation_score",
-        label: "Evaluation score",
+        label: "Score evaluation",
         type: "number",
         min: 0,
         max: 100
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         options: [
-          { label: "Approved", value: "Approved" },
-          { label: "Under Review", value: "Under Review" },
-          { label: "Blocked", value: "Blocked" }
+          { label: "Approuve", value: "Approved" },
+          { label: "En revue", value: "Under Review" },
+          { label: "Bloque", value: "Blocked" }
         ],
         required: true
       },
       {
         key: "audit_history",
-        label: "Audit history",
+        label: "Historique audit",
         type: "textarea"
       },
       {
@@ -2567,11 +2567,11 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       "audit_history",
       "notes"
     ],
-    emptyState: "Add approved and in-review suppliers so evaluations and evidence stay linked.",
+    emptyState: "Ajoutez les fournisseurs approuves ou en revue pour lier evaluations et preuves.",
     writeRoles: ["admin", "quality_manager"],
     childModules: [
-      attachmentModule("Suppliers", "suppliers", ["admin", "quality_manager"]),
-      commentModule("Suppliers", "suppliers", ["admin", "quality_manager"])
+      attachmentModule("Fournisseurs", "suppliers", ["admin", "quality_manager"]),
+      commentModule("Fournisseurs", "suppliers", ["admin", "quality_manager"])
     ]
   },
   notifications: {
@@ -2580,20 +2580,20 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
     singular: "Alerte",
     icon: Bell,
     table: "notifications",
-    description: "Track reminders, due date follow-up, and read status in-app.",
+    description: "Suivre les rappels, echeances et statuts de lecture dans l'application.",
     accentClass: "from-accent/20 via-brand/10 to-transparent",
     searchableFields: ["title", "message", "category"],
     columns: [
       { key: "title", label: "Notification" },
-      { key: "category", label: "Category" },
-      { key: "status", label: "Status", variant: "status" },
-      { key: "due_date", label: "Due", variant: "date" },
-      { key: "user_id", label: "Recipient", variant: "relation" }
+      { key: "category", label: "Categorie" },
+      { key: "status", label: "Statut", variant: "status" },
+      { key: "due_date", label: "Echeance", variant: "date" },
+      { key: "user_id", label: "Destinataire", variant: "relation" }
     ],
     fields: [
       {
         key: "title",
-        label: "Title",
+        label: "Titre",
         type: "text",
         required: true
       },
@@ -2605,40 +2605,40 @@ export const moduleConfigs: Record<ModuleSlug, ModuleConfig> = {
       },
       {
         key: "category",
-        label: "Category",
+        label: "Categorie",
         type: "text",
-        placeholder: "Due date, approval, audit..."
+        placeholder: "Echeance, approbation, audit..."
       },
       {
         key: "status",
-        label: "Status",
+        label: "Statut",
         type: "select",
         required: true,
         options: [
-          { label: "Unread", value: "Unread" },
-          { label: "Read", value: "Read" }
+          { label: "Non lue", value: "Unread" },
+          { label: "Lue", value: "Read" }
         ]
       },
       {
         key: "due_date",
-        label: "Due date",
+        label: "Echeance",
         type: "date"
       },
       {
         key: "user_id",
-        label: "Recipient",
+        label: "Destinataire",
         type: "select",
         relation: profileRelation
       },
       {
         key: "action_url",
-        label: "Action URL",
+        label: "Lien d'action",
         type: "url",
         placeholder: "/audits/..."
       }
     ],
     detailFields: ["title", "message", "category", "status", "due_date", "user_id"],
-    emptyState: "Create reminders for approvals, audits, and approaching due dates.",
+    emptyState: "Creez des rappels pour les approbations, audits et echeances proches.",
     writeRoles: [
       "admin",
       "quality_manager",
@@ -2688,73 +2688,73 @@ export const settingsTableConfigs = {
       { key: "description", label: "Description" }
     ],
     fields: [
-      { key: "name", label: "Role name", type: "text", required: true },
+      { key: "name", label: "Nom du role", type: "text", required: true },
       { key: "slug", label: "Slug", type: "text", required: true },
       { key: "description", label: "Description", type: "textarea" }
     ]
   },
   departments: {
-    label: "Departments",
+    label: "Departements",
     table: "departments" as TableName,
     columns: [
-      { key: "name", label: "Department" },
+      { key: "name", label: "Departement" },
       { key: "description", label: "Description" }
     ],
     fields: [
-      { key: "name", label: "Department name", type: "text", required: true },
+      { key: "name", label: "Nom du departement", type: "text", required: true },
       { key: "description", label: "Description", type: "textarea" }
     ]
   },
   document_categories: {
-    label: "Document categories",
+    label: "Categories documentaires",
     table: "document_categories" as TableName,
     columns: [
-      { key: "name", label: "Category" },
+      { key: "name", label: "Categorie" },
       { key: "description", label: "Description" }
     ],
     fields: [
-      { key: "name", label: "Category name", type: "text", required: true },
+      { key: "name", label: "Nom de categorie", type: "text", required: true },
       { key: "description", label: "Description", type: "textarea" }
     ]
   },
   profiles: {
-    label: "Users",
+    label: "Utilisateurs",
     table: "profiles" as TableName,
     columns: [
-      { key: "full_name", label: "Name" },
+      { key: "full_name", label: "Nom" },
       { key: "email", label: "Email" },
       { key: "role_id", label: "Role", variant: "relation" },
-      { key: "department_id", label: "Department", variant: "relation" },
-      { key: "is_active", label: "Active", variant: "boolean" }
+      { key: "department_id", label: "Departement", variant: "relation" },
+      { key: "is_active", label: "Actif", variant: "boolean" }
     ],
     fields: [
-      { key: "full_name", label: "Full name", type: "text", required: true },
+      { key: "full_name", label: "Nom complet", type: "text", required: true },
       { key: "email", label: "Email", type: "email", readOnly: true },
-      { key: "job_title", label: "Job title", type: "text" },
-      { key: "phone", label: "Phone", type: "tel" },
+      { key: "job_title", label: "Fonction", type: "text" },
+      { key: "phone", label: "Telephone", type: "tel" },
       { key: "role_id", label: "Role", type: "select", relation: roleRelation },
       {
         key: "department_id",
-        label: "Department",
+        label: "Departement",
         type: "select",
         relation: departmentRelation
       },
-      { key: "supplier_company", label: "Supplier company", type: "text" },
-      { key: "is_active", label: "Active user", type: "checkbox" }
+      { key: "supplier_company", label: "Societe fournisseur", type: "text" },
+      { key: "is_active", label: "Utilisateur actif", type: "checkbox" }
     ]
   },
   app_settings: {
-    label: "App configuration",
+    label: "Configuration application",
     table: "app_settings" as TableName,
     columns: [
-      { key: "setting_key", label: "Key" },
-      { key: "updated_at", label: "Updated", variant: "date" }
+      { key: "setting_key", label: "Cle" },
+      { key: "updated_at", label: "Mis a jour", variant: "date" }
     ],
     fields: [
-      { key: "setting_key", label: "Setting key", type: "text", required: true },
+      { key: "setting_key", label: "Cle de reglage", type: "text", required: true },
       {
         key: "setting_value",
-        label: "Setting value (JSON)",
+        label: "Valeur du reglage (JSON)",
         type: "textarea",
         required: true,
         placeholder: "{\"theme\":\"coastal\"}"
@@ -2779,6 +2779,6 @@ export function getLookupLabel(
   table: string,
   id?: string | null
 ) {
-  if (!id) return "Unassigned";
+  if (!id) return "Non affecte";
   return lookups[table]?.find((option) => option.id === id)?.label ?? id;
 }

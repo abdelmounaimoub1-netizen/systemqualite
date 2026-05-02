@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   const context = await getCurrentUserContext({ redirectToAuth: false });
 
   if (!context || !canInviteUsers(context.role)) {
-    return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 });
+    return NextResponse.json({ error: "Droits insuffisants." }, { status: 403 });
   }
 
   const body = (await request.json()) as {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   if (!body.email || !body.full_name) {
     return NextResponse.json(
-      { error: "Email and full name are required." },
+      { error: "Email et nom complet sont obligatoires." },
       { status: 400 }
     );
   }
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   if (invite.error || !invite.data.user) {
     return NextResponse.json(
-      { error: invite.error?.message ?? "Failed to invite user." },
+      { error: invite.error?.message ?? "Impossible d'envoyer l'invitation." },
       { status: 400 }
     );
   }

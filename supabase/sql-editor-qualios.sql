@@ -1449,11 +1449,11 @@ with check (public.has_role(array['admin', 'quality_manager', 'auditor', 'employ
 
 insert into public.roles (id, name, slug, description)
 values
-  ('10000000-0000-0000-0000-000000000001', 'Admin', 'admin', 'Full system administrator access.'),
-  ('10000000-0000-0000-0000-000000000002', 'Quality Manager', 'quality_manager', 'Oversees quality governance, documents, CAPA, and settings.'),
-  ('10000000-0000-0000-0000-000000000003', 'Auditor', 'auditor', 'Runs audits, findings, and risk reviews.'),
-  ('10000000-0000-0000-0000-000000000004', 'Employee', 'employee', 'General employee access for day-to-day quality participation.'),
-  ('10000000-0000-0000-0000-000000000005', 'Supplier Viewer', 'supplier_viewer', 'Read-oriented supplier collaborator access.')
+  ('10000000-0000-0000-0000-000000000001', 'Admin', 'admin', 'Acces administrateur complet.'),
+  ('10000000-0000-0000-0000-000000000002', 'Responsable qualite', 'quality_manager', 'Pilote la gouvernance qualite, les documents, les CAPA et les reglages.'),
+  ('10000000-0000-0000-0000-000000000003', 'Auditeur', 'auditor', 'Realise les audits, suit les constats et les revues de risques.'),
+  ('10000000-0000-0000-0000-000000000004', 'Collaborateur', 'employee', 'Acces general pour la participation qualite quotidienne.'),
+  ('10000000-0000-0000-0000-000000000005', 'Lecteur fournisseur', 'supplier_viewer', 'Acces fournisseur en lecture et collaboration limitee.')
 on conflict (id) do update
 set
   name = excluded.name,
@@ -1462,10 +1462,10 @@ set
 
 insert into public.departments (id, name, description)
 values
-  ('20000000-0000-0000-0000-000000000001', 'Quality', 'Quality systems, CAPA, and audit oversight.'),
-  ('20000000-0000-0000-0000-000000000002', 'Operations', 'Production and day-to-day execution.'),
-  ('20000000-0000-0000-0000-000000000003', 'Supply Chain', 'Suppliers, logistics, and incoming material flow.'),
-  ('20000000-0000-0000-0000-000000000004', 'Maintenance', 'Equipment upkeep and calibration.')
+  ('20000000-0000-0000-0000-000000000001', 'Qualite', 'Systeme qualite, CAPA et supervision des audits.'),
+  ('20000000-0000-0000-0000-000000000002', 'Operations', 'Production et execution quotidienne.'),
+  ('20000000-0000-0000-0000-000000000003', 'Supply Chain', 'Fournisseurs, logistique et flux matieres entrants.'),
+  ('20000000-0000-0000-0000-000000000004', 'Maintenance', 'Entretien des equipements et etalonnage.')
 on conflict (id) do update
 set
   name = excluded.name,
@@ -1473,9 +1473,9 @@ set
 
 insert into public.document_categories (id, name, description)
 values
-  ('30000000-0000-0000-0000-000000000001', 'Policies', 'Governance and management-level controlled documents.'),
-  ('30000000-0000-0000-0000-000000000002', 'SOPs', 'Operational standard operating procedures.'),
-  ('30000000-0000-0000-0000-000000000003', 'Forms', 'Templates, checklists, and controlled forms.')
+  ('30000000-0000-0000-0000-000000000001', 'Politiques', 'Documents maitrises de gouvernance et de management.'),
+  ('30000000-0000-0000-0000-000000000002', 'Procedures', 'Procedures operationnelles standard.'),
+  ('30000000-0000-0000-0000-000000000003', 'Formulaires', 'Modeles, checklists et formulaires maitrises.')
 on conflict (id) do update
 set
   name = excluded.name,
@@ -1551,7 +1551,7 @@ values
     crypt('QmsDemo123!', gen_salt('bf')),
     timezone('utc', now()),
     '{"provider":"email","providers":["email"]}',
-    '{"full_name":"Amina Laurent","job_title":"Head of Quality"}',
+    '{"full_name":"Amina Laurent","job_title":"Directrice qualite"}',
     timezone('utc', now()),
     timezone('utc', now()),
     '',
@@ -1568,7 +1568,7 @@ values
     crypt('QmsDemo123!', gen_salt('bf')),
     timezone('utc', now()),
     '{"provider":"email","providers":["email"]}',
-    '{"full_name":"Marco Rivet","job_title":"Quality Manager"}',
+    '{"full_name":"Marco Rivet","job_title":"Responsable qualite"}',
     timezone('utc', now()),
     timezone('utc', now()),
     '',
@@ -1585,7 +1585,7 @@ values
     crypt('QmsDemo123!', gen_salt('bf')),
     timezone('utc', now()),
     '{"provider":"email","providers":["email"]}',
-    '{"full_name":"Elena Ortiz","job_title":"Lead Auditor"}',
+    '{"full_name":"Elena Ortiz","job_title":"Auditrice principale"}',
     timezone('utc', now()),
     timezone('utc', now()),
     '',
@@ -1602,7 +1602,7 @@ values
     crypt('QmsDemo123!', gen_salt('bf')),
     timezone('utc', now()),
     '{"provider":"email","providers":["email"]}',
-    '{"full_name":"Samir Benali","job_title":"Production Supervisor"}',
+    '{"full_name":"Samir Benali","job_title":"Superviseur production"}',
     timezone('utc', now()),
     timezone('utc', now()),
     '',
@@ -1619,7 +1619,7 @@ values
     crypt('QmsDemo123!', gen_salt('bf')),
     timezone('utc', now()),
     '{"provider":"email","providers":["email"]}',
-    '{"full_name":"Noah Fischer","job_title":"Supplier Contact"}',
+    '{"full_name":"Noah Fischer","job_title":"Contact fournisseur"}',
     timezone('utc', now()),
     timezone('utc', now()),
     '',
@@ -1719,9 +1719,9 @@ insert into public.documents (
   created_by
 )
 values
-  ('50000000-0000-0000-0000-000000000001', 'POL-001', 'Quality Policy', 'Top-level quality policy and commitments.', '30000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000001', 'Approved', '2.0', current_date - 90, current_date + 270, 'documents/policies/quality-policy-v2.pdf', '40000000-0000-0000-0000-000000000001'),
-  ('50000000-0000-0000-0000-000000000002', 'SOP-014', 'Line Clearance Procedure', 'Operator checks before each batch start.', '30000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000002', 'Under Review', '1.3', current_date - 30, current_date + 60, 'documents/sops/line-clearance-v1-3.pdf', '40000000-0000-0000-0000-000000000002'),
-  ('50000000-0000-0000-0000-000000000003', 'FRM-022', 'Supplier Evaluation Form', 'Controlled scoring sheet for supplier onboarding and annual review.', '30000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000003', 'Approved', '1.0', current_date - 120, current_date + 180, 'documents/forms/supplier-evaluation-form.pdf', '40000000-0000-0000-0000-000000000001')
+  ('50000000-0000-0000-0000-000000000001', 'POL-001', 'Politique qualite', 'Politique qualite et engagements de haut niveau.', '30000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000001', 'Approved', '2.0', current_date - 90, current_date + 270, 'documents/policies/politique-qualite-v2.pdf', '40000000-0000-0000-0000-000000000001'),
+  ('50000000-0000-0000-0000-000000000002', 'SOP-014', 'Procedure de liberation de ligne', 'Controles operateur avant chaque demarrage de lot.', '30000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000002', 'Under Review', '1.3', current_date - 30, current_date + 60, 'documents/sops/liberation-ligne-v1-3.pdf', '40000000-0000-0000-0000-000000000002'),
+  ('50000000-0000-0000-0000-000000000003', 'FRM-022', 'Formulaire evaluation fournisseur', 'Grille maitrisee pour integration fournisseur et revue annuelle.', '30000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000003', 'Approved', '1.0', current_date - 120, current_date + 180, 'documents/forms/formulaire-evaluation-fournisseur.pdf', '40000000-0000-0000-0000-000000000001')
 on conflict (id) do nothing;
 
 update public.documents
@@ -1783,8 +1783,8 @@ insert into public.document_versions (
   created_by
 )
 values
-  ('51000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', '2.0', 'Approved', 'Aligned terminology to the new management review cycle.', current_date - 90, 'documents/versions/pol-001-v2.pdf', '40000000-0000-0000-0000-000000000001'),
-  ('51000000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000002', '1.3', 'Under Review', 'Added second sign-off for startup checks.', current_date - 2, 'documents/versions/sop-014-v1-3.pdf', '40000000-0000-0000-0000-000000000002')
+  ('51000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', '2.0', 'Approved', 'Terminologie alignee sur le nouveau cycle de revue de direction.', current_date - 90, 'documents/versions/pol-001-v2.pdf', '40000000-0000-0000-0000-000000000001'),
+  ('51000000-0000-0000-0000-000000000002', '50000000-0000-0000-0000-000000000002', '1.3', 'Under Review', 'Ajout du deuxieme visa pour les controles de demarrage.', current_date - 2, 'documents/versions/sop-014-v1-3.pdf', '40000000-0000-0000-0000-000000000002')
 on conflict (id) do nothing;
 
 insert into public.document_approvals (

@@ -9,21 +9,21 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(value?: string | null) {
-  if (!value) return "Not set";
+  if (!value) return "Non renseigne";
   const date = parseISO(value);
   if (!isValid(date)) return value;
   return format(date, "dd MMM yyyy");
 }
 
 export function formatDateTime(value?: string | null) {
-  if (!value) return "Not set";
+  if (!value) return "Non renseigne";
   const date = parseISO(value);
   if (!isValid(date)) return value;
   return format(date, "dd MMM yyyy, HH:mm");
 }
 
 export function formatRelative(value?: string | null) {
-  if (!value) return "No activity";
+  if (!value) return "Aucune activite";
   const date = parseISO(value);
   if (!isValid(date)) return value;
   return formatDistanceToNowStrict(date, { addSuffix: true });

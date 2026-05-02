@@ -39,7 +39,7 @@ function renderCell(
   }
 
   if (column.variant === "boolean") {
-    return <span className={textClass}>{value ? "Yes" : "No"}</span>;
+    return <span className={textClass}>{value ? "Oui" : "Non"}</span>;
   }
 
   if (column.variant === "relation") {
@@ -73,7 +73,7 @@ function renderCell(
 
   return (
     <span className={compact ? "text-[11px] text-[#1f2c3a]" : "text-sm text-slate-700"}>
-      {value === null || value === undefined || value === "" ? "Not set" : String(value)}
+      {value === null || value === undefined || value === "" ? "Non renseigne" : String(value)}
     </span>
   );
 }

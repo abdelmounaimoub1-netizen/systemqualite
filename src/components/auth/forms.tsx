@@ -47,18 +47,18 @@ function AuthShell({
               COSUMAR QMS
             </div>
             <h1 className="mt-8 text-5xl font-semibold leading-tight">
-              Quality systems built for the floor, the audit, and the follow-up.
+              Systeme qualite concu pour le terrain, l'audit et le suivi.
             </h1>
             <p className="mt-6 max-w-lg text-base leading-8 text-[#d7f8ff]">
-              Mobile installable. Desktop ready. Documents, CAPA, audits, risk, suppliers, and training in one original workspace.
+              Installable sur mobile, pret pour le bureau. Documents, CAPA, audits, risques, fournisseurs et formations dans un seul espace.
             </p>
           </div>
           <div className="rounded-[2rem] bg-white/10 p-6">
-            <div className="text-sm font-semibold text-white">What ships in this MVP</div>
+            <div className="text-sm font-semibold text-white">Inclus dans cette version</div>
             <div className="mt-4 grid gap-3 text-sm text-slate-200">
-              <div>Role-based access on Supabase Auth and RLS.</div>
-              <div>Functional CRUD across every requested QMS module.</div>
-              <div>PWA manifest, service worker, offline page, and install prompt support.</div>
+              <div>Acces par role avec Supabase Auth et RLS.</div>
+              <div>Gestion complete des modules qualite demandes.</div>
+              <div>Application installable, mode hors ligne et page de secours.</div>
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@ function AuthShell({
       <div className="flex items-center justify-center px-6 py-10">
         <Card className="w-full max-w-xl rounded-[2rem] p-8">
           <div className="mb-8">
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">Secure access</div>
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">Acces securise</div>
             <h2 className="mt-3 text-3xl font-semibold text-ink">{title}</h2>
             <p className="mt-3 text-sm leading-7 text-muted">{description}</p>
           </div>
@@ -85,8 +85,8 @@ export function SignInForm() {
 
   return (
     <AuthShell
-      title="Sign in"
-      description="Use your QMS Pro account to access documents, audits, CAPA actions, and the rest of your quality workspace."
+      title="Connexion"
+      description="Utilisez votre compte QMS Pro pour acceder aux documents, audits, actions CAPA et a tout l'espace qualite."
     >
       <form
         className="space-y-4"
@@ -98,7 +98,7 @@ export function SignInForm() {
             const supabase = getSupabaseBrowserClient();
             const { error } = await withRequestTimeout(
               supabase.auth.signInWithPassword({ email: email.trim(), password }),
-              "Supabase did not respond. Check the production environment variables and network access."
+              "Supabase ne repond pas. Verifiez les variables d'environnement et l'acces reseau."
             );
 
             if (error) {
@@ -106,12 +106,12 @@ export function SignInForm() {
               return;
             }
 
-            toast.success("Signed in successfully.");
+            toast.success("Connexion reussie.");
             const nextPath =
               new URLSearchParams(window.location.search).get("next") ?? "/dashboard";
             window.location.href = nextPath;
           } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Unable to sign in.");
+            toast.error(error instanceof Error ? error.message : "Connexion impossible.");
           } finally {
             setLoading(false);
           }
@@ -128,25 +128,25 @@ export function SignInForm() {
           />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-600">Password</label>
+          <label className="mb-2 block text-sm font-medium text-slate-600">Mot de passe</label>
           <Input
             type="password"
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="Enter your password"
+            placeholder="Saisir votre mot de passe"
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Signing in..." : "Sign in"}
+          {loading ? "Connexion..." : "Se connecter"}
         </Button>
       </form>
       <div className="mt-6 flex justify-between text-sm text-slate-500">
         <Link href="/auth/forgot-password" className="font-medium text-brand">
-          Forgot password
+          Mot de passe oublie
         </Link>
         <Link href="/auth/sign-up" className="font-medium text-brand">
-          Create account
+          Creer un compte
         </Link>
       </div>
     </AuthShell>
@@ -166,8 +166,8 @@ export function SignUpForm() {
 
   return (
     <AuthShell
-      title="Create account"
-      description="Start with a self-service employee account. Admins can later invite and assign governed roles in Settings."
+      title="Creer un compte"
+      description="Demarrez avec un compte collaborateur. Les admins pourront ensuite inviter et attribuer les roles dans les reglages."
     >
       <form
         className="space-y-4"
@@ -196,21 +196,21 @@ export function SignUpForm() {
           }
 
           if (data.session) {
-            toast.success("Account created.");
+            toast.success("Compte cree.");
             window.location.href = "/dashboard";
           } else {
-            toast.success("Account created. Check your inbox to confirm your email.");
+            toast.success("Compte cree. Verifiez votre boite mail pour confirmer l'adresse.");
             router.replace("/auth/sign-in");
           }
         }}
       >
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-600">Full name</label>
+          <label className="mb-2 block text-sm font-medium text-slate-600">Nom complet</label>
           <Input
             required
             value={form.fullName}
             onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
-            placeholder="Jane Patel"
+            placeholder="Mounir Mestouria"
           />
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -225,23 +225,23 @@ export function SignUpForm() {
             />
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-600">Password</label>
+            <label className="mb-2 block text-sm font-medium text-slate-600">Mot de passe</label>
             <Input
               type="password"
               required
               minLength={8}
               value={form.password}
               onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
-              placeholder="At least 8 characters"
+              placeholder="Au moins 8 caracteres"
             />
           </div>
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-600">Job title</label>
+          <label className="mb-2 block text-sm font-medium text-slate-600">Fonction</label>
           <Input
             value={form.jobTitle}
             onChange={(event) => setForm((current) => ({ ...current, jobTitle: event.target.value }))}
-            placeholder="Quality specialist"
+            placeholder="Specialiste qualite"
           />
         </div>
         <div>
@@ -249,17 +249,17 @@ export function SignUpForm() {
           <Textarea
             value={form.note}
             onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))}
-            placeholder="Optional onboarding note or department context."
+            placeholder="Note d'accueil ou contexte de departement facultatif."
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Creating account..." : "Create account"}
+          {loading ? "Creation du compte..." : "Creer le compte"}
         </Button>
       </form>
       <div className="mt-6 text-sm text-slate-500">
-        Already have access?{" "}
+        Vous avez deja un acces ?{" "}
         <Link href="/auth/sign-in" className="font-medium text-brand">
-          Sign in
+          Se connecter
         </Link>
       </div>
     </AuthShell>
@@ -272,8 +272,8 @@ export function ForgotPasswordForm() {
 
   return (
     <AuthShell
-      title="Reset password"
-      description="Enter your email and QMS Pro will send a password reset link back to this app."
+      title="Reinitialiser le mot de passe"
+      description="Saisissez votre email et QMS Pro enverra un lien de reinitialisation vers cette application."
     >
       <form
         className="space-y-4"
@@ -292,7 +292,7 @@ export function ForgotPasswordForm() {
             return;
           }
 
-          toast.success("Reset link sent.");
+          toast.success("Lien de reinitialisation envoye.");
         }}
       >
         <div>
@@ -306,12 +306,12 @@ export function ForgotPasswordForm() {
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Sending..." : "Send reset link"}
+          {loading ? "Envoi..." : "Envoyer le lien"}
         </Button>
       </form>
       <div className="mt-6 text-sm text-slate-500">
         <Link href="/auth/sign-in" className="font-medium text-brand">
-          Back to sign in
+          Retour a la connexion
         </Link>
       </div>
     </AuthShell>
@@ -325,8 +325,8 @@ export function ResetPasswordForm() {
 
   return (
     <AuthShell
-      title="Choose a new password"
-      description="Create a new password for your QMS Pro account after returning from the secure recovery link."
+      title="Choisir un nouveau mot de passe"
+      description="Creez un nouveau mot de passe apres le retour depuis le lien de recuperation securise."
     >
       <form
         className="space-y-4"
@@ -342,23 +342,23 @@ export function ResetPasswordForm() {
             return;
           }
 
-          toast.success("Password updated.");
+          toast.success("Mot de passe mis a jour.");
           window.location.href = "/dashboard";
         }}
       >
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-600">New password</label>
+          <label className="mb-2 block text-sm font-medium text-slate-600">Nouveau mot de passe</label>
           <Input
             type="password"
             required
             minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="Create a strong password"
+            placeholder="Creer un mot de passe robuste"
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Saving..." : "Update password"}
+          {loading ? "Enregistrement..." : "Mettre a jour le mot de passe"}
         </Button>
       </form>
     </AuthShell>

@@ -35,9 +35,58 @@ const badgeStyles: Record<string, string> = {
   Blocked: "bg-danger/10 text-danger"
 };
 
+const badgeLabels: Record<string, string> = {
+  Draft: "Brouillon",
+  "Under Review": "En validation",
+  Approved: "Approuve",
+  Archived: "Archive",
+  Open: "Ouvert",
+  "In Progress": "En cours",
+  Closed: "Clos",
+  Verification: "Verification",
+  Planned: "Planifie",
+  Completed: "Termine",
+  "Awaiting Approval": "En attente d'approbation",
+  Rejected: "Rejete",
+  Low: "Faible",
+  Medium: "Moyen",
+  High: "Eleve",
+  Critical: "Critique",
+  Active: "Actif",
+  Maintenance: "Maintenance",
+  "Calibration Due": "Etalonnage a prevoir",
+  Retired: "Retire",
+  Unread: "Non lu",
+  Read: "Lu",
+  Pending: "En attente",
+  Pass: "Conforme",
+  Fail: "Non conforme",
+  "N/A": "N/A",
+  Minor: "Mineur",
+  Major: "Majeur",
+  "Action Planned": "Action planifiee",
+  Corrective: "Corrective",
+  Preventive: "Preventive",
+  Blocked: "Bloque",
+  Submitted: "Soumis",
+  Answered: "Repondu",
+  Analyzed: "Analyse",
+  Expired: "Expire",
+  Done: "Realise",
+  Ineffective: "Inefficace",
+  Accepted: "Accepte",
+  Converted: "Converti",
+  Skipped: "Ignore",
+  "To Acknowledge": "A accuser",
+  Acknowledged: "Accuse",
+  Overdue: "En retard",
+  Cancelled: "Annule",
+  Late: "En retard"
+};
+
 export function StatusBadge({ value }: { value?: string | number | null }) {
   if (value === undefined || value === null || value === "") {
-    return <span className="text-sm text-slate-400">Not set</span>;
+    return <span className="text-sm text-slate-400">Non renseigne</span>;
   }
 
   const text = String(value);
@@ -49,7 +98,7 @@ export function StatusBadge({ value }: { value?: string | number | null }) {
         badgeStyles[text] ?? "bg-[#edf7ff] text-[#2749a0]"
       )}
     >
-      {text}
+      {badgeLabels[text] ?? text}
     </span>
   );
 }

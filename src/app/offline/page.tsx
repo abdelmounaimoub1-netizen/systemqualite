@@ -11,13 +11,13 @@ export default function OfflinePage() {
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand/10 text-brand">
           <WifiOff className="h-7 w-7" />
         </div>
-        <h1 className="mt-6 text-3xl font-semibold text-ink">You&apos;re offline</h1>
+        <h1 className="mt-6 text-3xl font-semibold text-ink">Vous etes hors ligne</h1>
         <p className="mt-4 text-sm leading-7 text-slate-500">
-          QMS Pro cached the shell so you can reopen the app, but live records and Supabase actions need a connection.
+          QMS Pro a garde l'application en cache, mais les enregistrements et actions Supabase ont besoin d'une connexion.
         </p>
         <div className="mt-6 flex justify-center">
           <Link href="/">
-            <Button>Return to app</Button>
+            <Button>Retour a l'application</Button>
           </Link>
         </div>
       </Card>

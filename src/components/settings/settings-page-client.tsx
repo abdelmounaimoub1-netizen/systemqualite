@@ -64,7 +64,7 @@ export function SettingsPageClient({
   const sectionSummaries = useMemo(
     () => [
       {
-        label: "Users",
+        label: "Utilisateurs",
         value: settings.profiles.length,
         icon: Users
       },
@@ -74,7 +74,7 @@ export function SettingsPageClient({
         icon: Shield
       },
       {
-        label: "Departments",
+        label: "Departements",
         value: settings.departments.length,
         icon: Users
       }
@@ -105,18 +105,18 @@ export function SettingsPageClient({
     const result = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      toast.error(result.error ?? "Unable to save settings record.");
+      toast.error(result.error ?? "Impossible d'enregistrer cet element.");
       return;
     }
 
-    toast.success(`${config.label} updated.`);
+    toast.success(`${config.label} mis a jour.`);
     setActiveSection(null);
     setEditing(null);
     router.refresh();
   }
 
   async function deleteRecord(section: SectionKey, record: Record<string, unknown>) {
-    if (!window.confirm("Delete this record?")) return;
+    if (!window.confirm("Supprimer cet element ?")) return;
 
     const response = await fetch(`/api/records/${settingsTableConfigs[section].table}/${record.id}`, {
       method: "DELETE"
@@ -124,11 +124,11 @@ export function SettingsPageClient({
     const result = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      toast.error(result.error ?? "Unable to delete record.");
+      toast.error(result.error ?? "Impossible de supprimer cet element.");
       return;
     }
 
-    toast.success("Record deleted.");
+    toast.success("Element supprime.");
     router.refresh();
   }
 
@@ -152,11 +152,11 @@ export function SettingsPageClient({
     setSendingInvite(false);
 
     if (!response.ok) {
-      toast.error(result.error ?? "Unable to send invitation.");
+      toast.error(result.error ?? "Impossible d'envoyer l'invitation.");
       return;
     }
 
-    toast.success("Invitation sent.");
+    toast.success("Invitation envoyee.");
     setInviteForm({
       full_name: "",
       email: "",
@@ -171,8 +171,8 @@ export function SettingsPageClient({
     <div className="space-y-6">
       <PageHeader
         eyebrow="Administration"
-        title="Settings"
-        description="Manage master data, users, roles, document categories, and the app configuration that shapes QMS Pro."
+        title="Reglages"
+        description="Gerez les donnees de reference, utilisateurs, roles, categories documentaires et la configuration de QMS Pro."
       />
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -193,14 +193,14 @@ export function SettingsPageClient({
       {canInvite ? (
         <Card>
           <div className="mb-5">
-            <h2 className="text-xl font-semibold text-ink">Invite a new user</h2>
+            <h2 className="text-xl font-semibold text-ink">Inviter un nouvel utilisateur</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Create a governed user account with the right role and department from the start.
+              Creez un compte avec le bon role et le bon departement des le depart.
             </p>
           </div>
           <form className="grid gap-4 md:grid-cols-2" onSubmit={inviteUser}>
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-600">Full name</label>
+              <label className="mb-2 block text-sm font-medium text-slate-600">Nom complet</label>
               <Input
                 required
                 value={inviteForm.full_name}
@@ -229,7 +229,7 @@ export function SettingsPageClient({
                   setInviteForm((current) => ({ ...current, role_id: event.target.value }))
                 }
               >
-                <option value="">Select role</option>
+                <option value="">Selectionner un role</option>
                 {lookups.roles?.map((role) => (
                   <option key={role.id} value={role.id}>
                     {role.label}
@@ -238,7 +238,7 @@ export function SettingsPageClient({
               </select>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-600">Department</label>
+              <label className="mb-2 block text-sm font-medium text-slate-600">Departement</label>
               <select
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
                 value={inviteForm.department_id}
@@ -246,7 +246,7 @@ export function SettingsPageClient({
                   setInviteForm((current) => ({ ...current, department_id: event.target.value }))
                 }
               >
-                <option value="">Select department</option>
+                <option value="">Selectionner un departement</option>
                 {lookups.departments?.map((department) => (
                   <option key={department.id} value={department.id}>
                     {department.label}
@@ -255,19 +255,19 @@ export function SettingsPageClient({
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="mb-2 block text-sm font-medium text-slate-600">Job title</label>
+              <label className="mb-2 block text-sm font-medium text-slate-600">Fonction</label>
               <Input
                 value={inviteForm.job_title}
                 onChange={(event) =>
                   setInviteForm((current) => ({ ...current, job_title: event.target.value }))
                 }
-                placeholder="Quality engineer"
+                placeholder="Ingenieur qualite"
               />
             </div>
             <div className="md:col-span-2 flex justify-end">
               <Button type="submit" disabled={sendingInvite}>
                 <Send className="h-4 w-4" />
-                {sendingInvite ? "Sending..." : "Send invite"}
+                {sendingInvite ? "Envoi..." : "Envoyer l'invitation"}
               </Button>
             </div>
           </form>
@@ -287,8 +287,8 @@ export function SettingsPageClient({
                       <h2 className="text-xl font-semibold text-ink">{sectionConfig.label}</h2>
                       <p className="mt-1 text-sm text-slate-500">
                         {sectionKey === "profiles"
-                          ? "Manage invited users. Use the invite form above to create new accounts."
-                          : "Manage shared master data used across QMS Pro."}
+                          ? "Gerez les utilisateurs invites. Utilisez le formulaire ci-dessus pour creer de nouveaux comptes."
+                          : "Gerez les donnees de reference partagees dans QMS Pro."}
                       </p>
                     </div>
                     {!isProfilesSection ? (
@@ -299,7 +299,7 @@ export function SettingsPageClient({
                           setActiveSection(sectionKey);
                         }}
                       >
-                        Add record
+                        Ajouter
                       </Button>
                     ) : null}
                   </div>
@@ -323,9 +323,9 @@ export function SettingsPageClient({
         </div>
       ) : (
         <Card>
-          <h2 className="text-xl font-semibold text-ink">Limited access</h2>
+          <h2 className="text-xl font-semibold text-ink">Acces limite</h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-500">
-            Your role is <strong>{ROLE_LABELS[context.role]}</strong>. Administrative settings are restricted to Admin and Quality Manager users.
+            Votre role est <strong>{ROLE_LABELS[context.role]}</strong>. Les reglages administratifs sont reserves aux admins et responsables qualite.
           </p>
         </Card>
       )}
@@ -333,9 +333,9 @@ export function SettingsPageClient({
       {canAudit ? (
         <Card className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold text-ink">Recent audit trail</h2>
+            <h2 className="text-xl font-semibold text-ink">Journal d'audit recent</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Last 12 logged actions across the QMS Pro workspace.
+              Les 12 dernieres actions tracees dans l'espace QMS Pro.
             </p>
           </div>
           <div className="space-y-3">
@@ -350,7 +350,7 @@ export function SettingsPageClient({
                     <span className="font-medium text-ink">{String(entry.table_name ?? "")}</span>
                   </div>
                   <div className="mt-2 text-sm text-slate-500">
-                    Record {String(entry.record_id ?? "")}
+                    Enregistrement {String(entry.record_id ?? "")}
                   </div>
                 </div>
                 <div className="text-sm text-slate-500">
@@ -369,8 +369,8 @@ export function SettingsPageClient({
             setActiveSection(null);
             setEditing(null);
           }}
-          title={editing ? `Edit ${settingsTableConfigs[activeSection].label}` : `Add ${settingsTableConfigs[activeSection].label}`}
-          description="Changes here affect shared app behavior and master data."
+          title={editing ? `Modifier ${settingsTableConfigs[activeSection].label}` : `Ajouter ${settingsTableConfigs[activeSection].label}`}
+          description="Ces changements affectent le comportement partage et les donnees de reference."
         >
           <RecordForm
             key={`${activeSection}-${editing ? String(editing.id ?? "edit") : "new"}`}
@@ -389,7 +389,7 @@ export function SettingsPageClient({
               setActiveSection(null);
               setEditing(null);
             }}
-            submitLabel={editing ? "Save changes" : "Create record"}
+            submitLabel={editing ? "Enregistrer" : "Creer"}
           />
         </Modal>
       ) : null}

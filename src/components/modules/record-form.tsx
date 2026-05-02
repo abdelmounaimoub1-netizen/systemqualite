@@ -92,9 +92,9 @@ export function RecordForm({
       });
 
       setValues((current) => ({ ...current, [field.key]: filePath }));
-      toast.success(`${field.label} uploaded.`);
+      toast.success(`${field.label} importe.`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Upload failed.");
+      toast.error(error instanceof Error ? error.message : "Import du fichier impossible.");
     } finally {
       setUploadingField(null);
     }
@@ -150,7 +150,7 @@ export function RecordForm({
                   disabled={field.readOnly}
                   required={field.required}
                 >
-                  <option value="">Select...</option>
+                  <option value="">Selectionner...</option>
                   {relationOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -210,7 +210,7 @@ export function RecordForm({
                   />
                   <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded border border-[#b9def4] bg-[#f8fcff] px-3 py-2 text-sm font-semibold text-[#2749a0] hover:bg-[#fff4b8]">
                     <UploadCloud className="h-4 w-4" />
-                    {isUploading ? "Upload..." : "Fichier joint"}
+                    {isUploading ? "Import..." : "Fichier joint"}
                     <input
                       type="file"
                       className="hidden"
@@ -284,10 +284,10 @@ export function RecordForm({
 
       <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancel
+          Annuler
         </Button>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Saving..." : submitLabel}
+          {submitting ? "Enregistrement..." : submitLabel}
         </Button>
       </div>
     </form>

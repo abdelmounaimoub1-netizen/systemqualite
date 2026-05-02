@@ -72,7 +72,7 @@ function renderDetailValue(field: string, value: unknown, lookups: LookupCollect
     return value ? "Oui" : "Non";
   }
 
-  return value === null || value === undefined || value === "" ? "Not set" : String(value);
+  return value === null || value === undefined || value === "" ? "Non renseigne" : String(value);
 }
 
 function canPreviewInline(filePath: string) {
@@ -119,7 +119,7 @@ export function RecordDetailClient({
         if (!active) return;
         setFileError({
           path: filePath,
-          message: error instanceof Error ? error.message : "Unable to prepare file preview."
+          message: error instanceof Error ? error.message : "Impossible de preparer l'apercu."
         });
       });
 
@@ -143,11 +143,11 @@ export function RecordDetailClient({
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      toast.error(payload.error ?? "Unable to update record.");
+      toast.error(payload.error ?? "Impossible de mettre a jour la fiche.");
       return;
     }
 
-    toast.success(`${config.singular} updated.`);
+    toast.success(`${config.singular} mis a jour.`);
     setOpen(false);
     router.refresh();
   }
@@ -158,7 +158,7 @@ export function RecordDetailClient({
     try {
       await openStorageFile(filePath);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to open file.");
+      toast.error(error instanceof Error ? error.message : "Impossible d'ouvrir le fichier.");
     }
   }
 
