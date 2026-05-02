@@ -23,19 +23,22 @@ export default async function ModulePage({
 }) {
   const { module } = await params;
   const filters = searchParams ? await searchParams : {};
+  const pageKey = [
+    module,
+    firstSearchParam(filters.q) ?? "",
+    firstSearchParam(filters.status) ?? ""
+  ].join(":");
   const config = getModuleConfig(module);
 
   if (!config) {
     notFound();
   }
 
-  const data = await getModulePageData(module as ModuleSlug, {
-    q: firstSearchParam(filters.q),
-    status: firstSearchParam(filters.status)
-  });
+  const data = await getModulePageData(module as ModuleSlug);
 
   return (
     <ModulePageClient
+      key={pageKey}
       context={data.context}
       config={toSerializableModuleConfig(config)}
       records={data.records}

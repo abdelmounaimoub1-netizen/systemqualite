@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Funnel, Plus, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Funnel, Plus, Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -86,17 +86,28 @@ export function ModulePageClient({
 
   const canWrite = canWriteModule(context.role, config.slug);
   const statusField = config.fields.find((field) => field.key === "status");
-  const query = searchParams.get("q") ?? "";
-  const status = statusFromView(searchParams, statusField);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState(() => statusFromView(searchParams, statusField));
   const storageFieldKey = useMemo(() => getStorageFieldKey(config.fields), [config.fields]);
   const searchSeedValues = useMemo(() => getSearchSeedValues(config, query), [config, query]);
   const openFromQuery = searchParams.get("new") === "1" && canWrite;
   const modalOpen = open || openFromQuery;
 
+  useEffect(() => {
+    const nextParams = new URLSearchParams(window.location.search);
+
+    if (!nextParams.has("q")) return;
+
+    nextParams.delete("q");
+    const nextQuery = nextParams.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", nextUrl);
+  }, []);
+
   function clearNewParam() {
     if (!openFromQuery) return;
 
-    const nextParams = new URLSearchParams(searchParams.toString());
+    const nextParams = new URLSearchParams(window.location.search);
     nextParams.delete("new");
     const nextQuery = nextParams.toString();
     router.replace(`/${config.slug}${nextQuery ? `?${nextQuery}` : ""}`, { scroll: false });
@@ -109,7 +120,13 @@ export function ModulePageClient({
   }
 
   function updateSearchParam(key: "q" | "status", value: string) {
-    const nextParams = new URLSearchParams(searchParams.toString());
+    if (key === "q") {
+      setQuery(value);
+    } else {
+      setStatus(value);
+    }
+
+    const nextParams = new URLSearchParams(window.location.search);
 
     if (value) {
       nextParams.set(key, value);
@@ -122,7 +139,8 @@ export function ModulePageClient({
     }
 
     const nextQuery = nextParams.toString();
-    router.replace(`/${config.slug}${nextQuery ? `?${nextQuery}` : ""}`, { scroll: false });
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", nextUrl);
   }
 
   const normalizedQuery = query.toLowerCase();
@@ -245,11 +263,22 @@ export function ModulePageClient({
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
-              className="pl-9"
+              className="pl-9 pr-9"
               placeholder={`Rechercher ${config.label.toLowerCase()}...`}
               value={query}
               onChange={(event) => updateSearchParam("q", event.target.value)}
             />
+            {query ? (
+              <button
+                type="button"
+                title="Effacer la recherche"
+                aria-label="Effacer la recherche"
+                className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded border border-transparent text-slate-400 hover:border-[#b9def4] hover:bg-[#f8fcff] hover:text-[#2749a0]"
+                onClick={() => updateSearchParam("q", "")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
 
           {statusField ? (
