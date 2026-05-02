@@ -49,6 +49,30 @@ function statusFromView(
   return preferred.find((value) => options.some((option) => option.value === value)) ?? "";
 }
 
+function getSearchSeedValues(config: SerializableModuleConfig, query: string) {
+  const trimmedQuery = query.trim();
+
+  if (!trimmedQuery) return {};
+
+  const preferredKeys = ["title", "name", "reference", "document_code", "code", "record_code"];
+  const seedField =
+    config.fields.find(
+      (field) =>
+        preferredKeys.includes(field.key) &&
+        config.searchableFields.includes(field.key) &&
+        !field.readOnly &&
+        (field.type === "text" || field.type === "textarea")
+    ) ??
+    config.fields.find(
+      (field) =>
+        config.searchableFields.includes(field.key) &&
+        !field.readOnly &&
+        (field.type === "text" || field.type === "textarea")
+    );
+
+  return seedField ? { [seedField.key]: trimmedQuery } : {};
+}
+
 export function ModulePageClient({
   context,
   config,
@@ -62,9 +86,10 @@ export function ModulePageClient({
 
   const canWrite = canWriteModule(context.role, config.slug);
   const statusField = config.fields.find((field) => field.key === "status");
-  const [query, setQuery] = useState(searchParams.get("q") ?? "");
-  const [status, setStatus] = useState(() => statusFromView(searchParams, statusField));
+  const query = searchParams.get("q") ?? "";
+  const status = statusFromView(searchParams, statusField);
   const storageFieldKey = useMemo(() => getStorageFieldKey(config.fields), [config.fields]);
+  const searchSeedValues = useMemo(() => getSearchSeedValues(config, query), [config, query]);
   const openFromQuery = searchParams.get("new") === "1" && canWrite;
   const modalOpen = open || openFromQuery;
 
@@ -83,38 +108,49 @@ export function ModulePageClient({
     clearNewParam();
   }
 
-  const filteredRecords = useMemo(
-    () =>
-      records.filter((record) => {
-        const matchesSearch =
-          query.length === 0 ||
-          config.searchableFields.some((field) =>
-            String(record[field] ?? "")
-              .toLowerCase()
-              .includes(query.toLowerCase())
-          );
+  function updateSearchParam(key: "q" | "status", value: string) {
+    const nextParams = new URLSearchParams(searchParams.toString());
 
-        const matchesStatus =
-          status.length === 0 || String(record.status ?? record.risk_level ?? "") === status;
+    if (value) {
+      nextParams.set(key, value);
+    } else {
+      nextParams.delete(key);
+    }
 
-        return matchesSearch && matchesStatus;
-      }),
-    [config.searchableFields, query, records, status]
-  );
+    if (key === "status") {
+      nextParams.delete("view");
+    }
 
-  const summary = useMemo(() => {
-    const openCount = records.filter((record) =>
-      ["Open", "In Progress", "Draft", "Under Review", "Awaiting Approval", "Planned", "Unread"].includes(
-        String(record.status ?? "")
-      )
-    ).length;
+    const nextQuery = nextParams.toString();
+    router.replace(`/${config.slug}${nextQuery ? `?${nextQuery}` : ""}`, { scroll: false });
+  }
 
-    return {
-      total: records.length,
-      active: openCount,
-      closed: records.length - openCount
-    };
-  }, [records]);
+  const normalizedQuery = query.toLowerCase();
+  const filteredRecords = records.filter((record) => {
+    const matchesSearch =
+      query.length === 0 ||
+      config.searchableFields.some((field) =>
+        String(record[field] ?? "")
+          .toLowerCase()
+          .includes(normalizedQuery)
+      );
+
+    const matchesStatus =
+      status.length === 0 || String(record.status ?? record.risk_level ?? "") === status;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const openCount = records.filter((record) =>
+    ["Open", "In Progress", "Draft", "Under Review", "Awaiting Approval", "Planned", "Unread"].includes(
+      String(record.status ?? "")
+    )
+  ).length;
+  const summary = {
+    total: records.length,
+    active: openCount,
+    closed: records.length - openCount
+  };
 
   async function saveRecord(values: Record<string, unknown>) {
     const response = await fetch(`/api/records/${config.table}`, {
@@ -212,14 +248,17 @@ export function ModulePageClient({
               className="pl-9"
               placeholder={`Rechercher ${config.label.toLowerCase()}...`}
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => updateSearchParam("q", event.target.value)}
             />
           </div>
 
           {statusField ? (
             <div className="flex items-center gap-2">
               <Funnel className="h-4 w-4 text-slate-400" />
-              <Select value={status} onChange={(event) => setStatus(event.target.value)}>
+              <Select
+                value={status}
+                onChange={(event) => updateSearchParam("status", event.target.value)}
+              >
                 <option value="">Tous les statuts</option>
                 {statusField.options?.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -274,7 +313,7 @@ export function ModulePageClient({
           key={editing ? String(editing.id ?? "edit") : "new"}
           fields={config.fields}
           lookups={lookups}
-          initialValues={editing ?? {}}
+          initialValues={editing ?? searchSeedValues}
           onSubmit={saveRecord}
           onCancel={closeEditor}
           submitLabel={editing ? "Enregistrer" : `Creer ${config.singular}`}

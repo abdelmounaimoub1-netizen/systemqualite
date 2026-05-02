@@ -47,7 +47,7 @@ function AuthShell({
               COSUMAR QMS
             </div>
             <h1 className="mt-8 text-5xl font-semibold leading-tight">
-              Systeme qualite concu pour le terrain, l'audit et le suivi.
+              Systeme qualite concu pour le terrain, l&apos;audit et le suivi.
             </h1>
             <p className="mt-6 max-w-lg text-base leading-8 text-[#d7f8ff]">
               Installable sur mobile, pret pour le bureau. Documents, CAPA, audits, risques, fournisseurs et formations dans un seul espace.

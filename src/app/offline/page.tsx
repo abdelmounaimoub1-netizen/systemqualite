@@ -13,11 +13,11 @@ export default function OfflinePage() {
         </div>
         <h1 className="mt-6 text-3xl font-semibold text-ink">Vous etes hors ligne</h1>
         <p className="mt-4 text-sm leading-7 text-slate-500">
-          QMS Pro a garde l'application en cache, mais les enregistrements et actions Supabase ont besoin d'une connexion.
+          QMS Pro a garde l&apos;application en cache, mais les enregistrements et actions Supabase ont besoin d&apos;une connexion.
         </p>
         <div className="mt-6 flex justify-center">
           <Link href="/">
-            <Button>Retour a l'application</Button>
+            <Button>Retour a l&apos;application</Button>
           </Link>
         </div>
       </Card>

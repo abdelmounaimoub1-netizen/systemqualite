@@ -13,7 +13,7 @@ export default function NotFound() {
         </div>
         <h1 className="mt-6 text-3xl font-semibold text-ink">Page introuvable</h1>
         <p className="mt-4 text-sm leading-7 text-slate-500">
-          L'enregistrement qualite ou la page demandee est introuvable.
+          L&apos;enregistrement qualite ou la page demandee est introuvable.
         </p>
         <div className="mt-6 flex justify-center">
           <Link href="/dashboard">

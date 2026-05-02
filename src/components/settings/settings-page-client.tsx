@@ -333,9 +333,9 @@ export function SettingsPageClient({
       {canAudit ? (
         <Card className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold text-ink">Journal d'audit recent</h2>
+            <h2 className="text-xl font-semibold text-ink">Journal d&apos;audit recent</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Les 12 dernieres actions tracees dans l'espace QMS Pro.
+              Les 12 dernieres actions tracees dans l&apos;espace QMS Pro.
             </p>
           </div>
           <div className="space-y-3">

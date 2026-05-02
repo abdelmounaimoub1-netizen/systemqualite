@@ -5,19 +5,34 @@ import { getModulePageData } from "@/lib/modules/queries";
 import { getModuleConfig, toSerializableModuleConfig } from "@/lib/modules/config";
 import type { ModuleSlug } from "@/types/database";
 
+type ModuleSearchParams = {
+  q?: string | string[];
+  status?: string | string[];
+};
+
+function firstSearchParam(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 export default async function ModulePage({
-  params
+  params,
+  searchParams
 }: {
   params: Promise<{ module: string }>;
+  searchParams?: Promise<ModuleSearchParams>;
 }) {
   const { module } = await params;
+  const filters = searchParams ? await searchParams : {};
   const config = getModuleConfig(module);
 
   if (!config) {
     notFound();
   }
 
-  const data = await getModulePageData(module as ModuleSlug);
+  const data = await getModulePageData(module as ModuleSlug, {
+    q: firstSearchParam(filters.q),
+    status: firstSearchParam(filters.status)
+  });
 
   return (
     <ModulePageClient
