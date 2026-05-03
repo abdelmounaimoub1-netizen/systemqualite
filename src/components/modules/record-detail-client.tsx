@@ -268,6 +268,7 @@ export function RecordDetailClient({
           lookups={lookups}
           role={context.role}
           parentId={String(record.id)}
+          userId={context.userId}
         />
       ))}
 

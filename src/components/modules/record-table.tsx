@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Eye, FileText, Pencil, Trash2 } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ type RecordTableProps = {
   onDelete?: (record: Record<string, unknown>) => void;
   onDownload?: (record: Record<string, unknown>) => void;
   canDownload?: (record: Record<string, unknown>) => boolean;
+  extraActions?: (record: Record<string, unknown>) => ReactNode;
   compact?: boolean;
 };
 
@@ -88,6 +90,7 @@ export function RecordTable({
   onDelete,
   onDownload,
   canDownload,
+  extraActions,
   compact = false
 }: RecordTableProps) {
   return (
@@ -128,6 +131,7 @@ export function RecordTable({
                 ))}
                 <td className={compact ? "px-2 py-1" : "px-4 py-3"}>
                   <div className="flex justify-end gap-2">
+                    {extraActions?.(record)}
                     {onOpen ? (
                       <Button
                         variant="ghost"

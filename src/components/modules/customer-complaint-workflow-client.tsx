@@ -538,6 +538,7 @@ export function CustomerComplaintWorkflowClient({
               lookups={lookups}
               role={context.role}
               parentId={String(record.id)}
+              userId={context.userId}
               variant="qualios"
             />
           ) : null}
@@ -664,6 +665,7 @@ export function CustomerComplaintWorkflowClient({
               lookups={lookups}
               role={context.role}
               parentId={String(record.id)}
+              userId={context.userId}
               variant="qualios"
             />
           ) : null}
@@ -866,6 +868,7 @@ export function CustomerComplaintWorkflowClient({
           lookups={lookups}
           role={context.role}
           parentId={String(record.id)}
+          userId={context.userId}
           variant="qualios"
         />
       ) : null}

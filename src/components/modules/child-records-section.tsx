@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, UploadCloud } from "lucide-react";
+import { CheckCircle2, Plus, UploadCloud, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -21,6 +21,7 @@ type ChildRecordsSectionProps = {
   lookups: LookupCollection;
   role: RoleSlug;
   parentId: string;
+  userId?: string;
   variant?: "default" | "qualios";
 };
 
@@ -30,6 +31,7 @@ export function ChildRecordsSection({
   lookups,
   role,
   parentId,
+  userId,
   variant = "default"
 }: ChildRecordsSectionProps) {
   const router = useRouter();
@@ -39,6 +41,7 @@ export function ChildRecordsSection({
 
   const canWrite = config.writeRoles.includes(role);
   const isAttachmentModule = config.table === "attachments";
+  const isDocumentApprovalModule = config.table === "document_approvals";
 
   const defaults = useMemo(
     () => ({
@@ -91,6 +94,66 @@ export function ChildRecordsSection({
 
     toast.success(`Element ${config.label} supprime.`);
     router.refresh();
+  }
+
+  function canSignApproval(record: Record<string, unknown>) {
+    return (
+      isDocumentApprovalModule &&
+      record.decision === "Pending" &&
+      (canWrite || String(record.approver_id ?? "") === userId)
+    );
+  }
+
+  async function signApproval(record: Record<string, unknown>, decision: "Approved" | "Rejected") {
+    const response = await fetch(`/api/records/${config.table}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: record.id,
+        values: {
+          decision,
+          signed_at: new Date().toISOString()
+        }
+      })
+    });
+    const payload = (await response.json()) as { error?: string };
+
+    if (!response.ok) {
+      toast.error(payload.error ?? "Signature impossible.");
+      return;
+    }
+
+    toast.success(decision === "Approved" ? "Signature validee." : "Signature rejetee.");
+    router.refresh();
+  }
+
+  function renderApprovalActions(record: Record<string, unknown>) {
+    if (!canSignApproval(record)) return null;
+
+    return (
+      <>
+        <Button
+          variant="ghost"
+          title="Valider la signature"
+          aria-label="Valider la signature"
+          className={variant === "qualios" ? "h-6 min-h-0 w-6 px-0 py-0 text-success" : "h-8 min-h-0 w-8 px-0 py-0 text-success"}
+          onClick={() => void signApproval(record, "Approved")}
+        >
+          <CheckCircle2 className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          title="Rejeter la signature"
+          aria-label="Rejeter la signature"
+          className={variant === "qualios" ? "h-6 min-h-0 w-6 px-0 py-0 text-danger" : "h-8 min-h-0 w-8 px-0 py-0 text-danger"}
+          onClick={() => void signApproval(record, "Rejected")}
+        >
+          <XCircle className="h-4 w-4" />
+        </Button>
+      </>
+    );
   }
 
   async function uploadAttachment(file: File) {
@@ -209,6 +272,7 @@ export function ChildRecordsSection({
             }
             onDelete={canWrite ? deleteRecord : undefined}
             onDownload={isAttachmentModule ? downloadAttachment : undefined}
+            extraActions={isDocumentApprovalModule ? renderApprovalActions : undefined}
           />
         )}
 
@@ -304,6 +368,7 @@ export function ChildRecordsSection({
           }
           onDelete={canWrite ? deleteRecord : undefined}
           onDownload={isAttachmentModule ? downloadAttachment : undefined}
+          extraActions={isDocumentApprovalModule ? renderApprovalActions : undefined}
         />
       )}
 
