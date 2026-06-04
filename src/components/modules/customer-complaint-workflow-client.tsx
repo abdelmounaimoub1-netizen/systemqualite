@@ -180,9 +180,11 @@ export function CustomerComplaintWorkflowClient({
   childrenData
 }: CustomerComplaintWorkflowClientProps) {
   const router = useRouter();
-  const [values, setValues] = useState<Record<string, unknown>>(record);
+  const [localValues, setLocalValues] = useState<Record<string, unknown> | null>(null);
   const [saving, setSaving] = useState(false);
   const canWrite = canWriteModule(context.role, config.slug);
+  const canWriteCapa = canWriteModule(context.role, "capa-actions");
+  const values = localValues ?? record;
 
   const actionConfig = config.childModules?.find(
     (child) => child.key === "customer-complaint-actions"
@@ -213,7 +215,7 @@ export function CustomerComplaintWorkflowClient({
   }, [actionRecords]);
 
   function setField(key: string, value: string | number | null) {
-    setValues((current) => ({ ...current, [key]: value }));
+    setLocalValues((current) => ({ ...(current ?? record), [key]: value }));
   }
 
   async function saveComplaint(
@@ -245,6 +247,7 @@ export function CustomerComplaintWorkflowClient({
       }
 
       toast.success(message);
+      setLocalValues(null);
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erreur d'enregistrement.");
@@ -282,6 +285,7 @@ export function CustomerComplaintWorkflowClient({
     }
 
     toast.success("Action corrective creee.");
+    setLocalValues(null);
     router.refresh();
   }
 
@@ -706,11 +710,11 @@ export function CustomerComplaintWorkflowClient({
                 onClick={() => void saveComplaint("Traitement enregistre.")}
               />
               <ActionIconButton
-                label="Transmettre"
-                icon={Mail}
-                tone="mail"
-                disabled={saving}
-                onClick={() => void saveComplaint("Verification transmise.")}
+                label="Enregistrer"
+                icon={Save}
+                tone="save"
+                disabled={saving || !canWrite}
+                onClick={() => void saveComplaint("Verification enregistree.")}
               />
             </div>
           </div>
@@ -817,10 +821,16 @@ export function CustomerComplaintWorkflowClient({
                 onChange={(event) => setField("ineffective_reason", event.target.value)}
               />
             </Field>
-            <Button variant="danger" onClick={() => void createCorrectiveAction()} disabled={saving}>
-              <Plus className="h-4 w-4" />
-              Creer une action corrective
-            </Button>
+            {canWriteCapa ? (
+              <Button
+                variant="danger"
+                onClick={() => void createCorrectiveAction()}
+                disabled={saving || !canWrite}
+              >
+                <Plus className="h-4 w-4" />
+                Creer une action corrective
+              </Button>
+            ) : null}
             </div>
           </div>
 

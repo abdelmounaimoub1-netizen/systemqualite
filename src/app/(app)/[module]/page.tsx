@@ -34,7 +34,13 @@ export default async function ModulePage({
     notFound();
   }
 
-  const data = await getModulePageData(module as ModuleSlug);
+  const initialQuery = firstSearchParam(filters.q) ?? "";
+  const initialStatus = firstSearchParam(filters.status) ?? "";
+
+  const data = await getModulePageData(module as ModuleSlug, {
+    q: initialQuery || undefined,
+    status: initialStatus || undefined
+  });
 
   return (
     <ModulePageClient
@@ -43,6 +49,8 @@ export default async function ModulePage({
       config={toSerializableModuleConfig(config)}
       records={data.records}
       lookups={data.lookups}
+      initialQuery={initialQuery}
+      initialStatus={initialStatus}
     />
   );
 }

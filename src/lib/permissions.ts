@@ -15,7 +15,7 @@ const WRITE_MATRIX: Record<ModuleSlug, RoleSlug[]> = {
   trainings: ["admin", "quality_manager"],
   equipment: ["admin", "quality_manager"],
   suppliers: ["admin", "quality_manager"],
-  notifications: ["admin", "quality_manager", "auditor", "employee", "supplier_viewer"]
+  notifications: ["admin", "quality_manager", "auditor", "employee"]
 };
 
 export function canWriteModule(role: RoleSlug, module: ModuleSlug) {

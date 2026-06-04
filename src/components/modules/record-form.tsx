@@ -70,8 +70,24 @@ export function RecordForm({
   const [submitting, setSubmitting] = useState(false);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
 
+  function validateRequiredFields() {
+    const missing = fields.filter((field) => {
+      if (!field.required || field.readOnly) return false;
+      const value = values[field.key];
+      if (field.type === "checkbox") return false;
+      return value === null || value === undefined || String(value).trim() === "";
+    });
+
+    if (missing.length === 0) return true;
+
+    toast.error(`Champs obligatoires manquants : ${missing.map((field) => field.label).join(", ")}.`);
+    return false;
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!validateRequiredFields()) return;
+
     setSubmitting(true);
     try {
       await onSubmit(values);

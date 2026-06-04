@@ -29,6 +29,10 @@ export function formatRelative(value?: string | null) {
   return formatDistanceToNowStrict(date, { addSuffix: true });
 }
 
+export function escapePostgrestFilter(value: string) {
+  return value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_").replace(/,/g, "\\,");
+}
+
 export function titleCase(value: string) {
   return value
     .replace(/[_-]+/g, " ")

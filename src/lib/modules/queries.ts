@@ -1,6 +1,7 @@
 import { addDays, formatISO } from "date-fns";
 import { unstable_noStore as noStore } from "next/cache";
 
+import { escapePostgrestFilter } from "@/lib/utils";
 import { getCurrentUserContext, createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   getModuleConfig,
@@ -66,9 +67,13 @@ export async function getLookups(tables: TableName[] = COMMON_LOOKUP_TABLES) {
   const lookupEntries = await Promise.all(
     uniqueTables.map(async (table) => {
       const select = lookupSelectMap[table] ?? "id";
-      const { data } = await supabase.from(table).select(select).order("created_at", {
+      const { data, error } = await supabase.from(table).select(select).order("created_at", {
         ascending: false
       });
+
+      if (error) {
+        console.error(`Lookup query failed for ${table}:`, error.message);
+      }
 
       return [
         table,
@@ -210,8 +215,9 @@ export async function getModulePageData(
   let query = supabase.from(config.table).select("*").order("updated_at", { ascending: false });
 
   if (filters?.q) {
+    const escaped = escapePostgrestFilter(filters.q);
     const search = config.searchableFields
-      .map((field) => `${field}.ilike.%${filters.q}%`)
+      .map((field) => `${field}.ilike.%${escaped}%`)
       .join(",");
     query = query.or(search);
   }

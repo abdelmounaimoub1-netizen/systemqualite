@@ -13,8 +13,11 @@ import { Modal } from "@/components/ui/modal";
 import { StatusBadge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { getLookupLabel } from "@/lib/modules/config";
+import { getRelationTableForKey } from "@/lib/modules/relations";
 import { canWriteModule } from "@/lib/permissions";
-import { getStorageFieldKey, getStorageSignedUrl, openStorageFile } from "@/lib/storage";
+import { useFileViewer } from "@/components/files/file-viewer-provider";
+import { canPreviewInline } from "@/lib/files/preview";
+import { getStorageFieldKey, getStorageSignedUrl } from "@/lib/storage";
 import type {
   LookupCollection,
   SerializableModuleConfig,
@@ -29,34 +32,14 @@ type RecordDetailClientProps = {
   childrenData: Record<string, Array<Record<string, unknown>>>;
 };
 
-const relationKeyToTable: Record<string, string> = {
-  owner_id: "profiles",
-  responsible_user_id: "profiles",
-  pilot_id: "profiles",
-  approver_id: "profiles",
-  recipient_id: "profiles",
-  reviewer_id: "profiles",
-  suggested_by: "profiles",
-  auditor_id: "profiles",
-  employee_id: "profiles",
-  submitted_by: "profiles",
-  user_id: "profiles",
-  role_id: "roles",
-  department_id: "departments",
-  category_id: "document_categories",
-  form_id: "forms",
-  non_conformity_id: "non_conformities",
-  supplier_id: "suppliers",
-  customer_complaint_id: "customer_complaints"
-};
-
 function renderDetailValue(field: string, value: unknown, lookups: LookupCollection) {
   if (field.endsWith("_date") || field === "created_at" || field === "updated_at") {
     return formatDate(String(value ?? ""));
   }
 
-  if (field in relationKeyToTable) {
-    return getLookupLabel(lookups, relationKeyToTable[field], String(value ?? ""));
+  const relationTable = getRelationTableForKey(field);
+  if (relationTable) {
+    return getLookupLabel(lookups, relationTable, String(value ?? ""));
   }
 
   if (
@@ -75,12 +58,6 @@ function renderDetailValue(field: string, value: unknown, lookups: LookupCollect
   return value === null || value === undefined || value === "" ? "Non renseigne" : String(value);
 }
 
-function canPreviewInline(filePath: string) {
-  const extension = filePath.split("?")[0]?.split(".").pop()?.toLowerCase() ?? "";
-
-  return ["pdf", "png", "jpg", "jpeg", "gif", "webp"].includes(extension);
-}
-
 export function RecordDetailClient({
   context,
   config,
@@ -89,6 +66,7 @@ export function RecordDetailClient({
   childrenData
 }: RecordDetailClientProps) {
   const router = useRouter();
+  const { openFile } = useFileViewer();
   const [open, setOpen] = useState(false);
   const [filePreview, setFilePreview] = useState<{ path: string; url: string } | null>(null);
   const [fileError, setFileError] = useState<{ path: string; message: string } | null>(null);
@@ -152,11 +130,14 @@ export function RecordDetailClient({
     router.refresh();
   }
 
-  async function downloadRecordFile() {
-    if (!storageFieldKey) return;
+  async function expandRecordFile() {
+    if (!filePath) return;
 
     try {
-      await openStorageFile(filePath);
+      await openFile(
+        filePath,
+        String(record.title ?? record.document_code ?? config.singular)
+      );
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Impossible d'ouvrir le fichier.");
     }
@@ -227,9 +208,9 @@ export function RecordDetailClient({
               </div>
               <div className="text-sm font-semibold text-ink">{filePath}</div>
             </div>
-            <Button variant="secondary" onClick={() => void downloadRecordFile()}>
+            <Button variant="secondary" onClick={() => void expandRecordFile()}>
               <FileText className="h-4 w-4" />
-              Ouvrir dans un onglet
+              Agrandir
             </Button>
           </div>
           <div className="bg-[#eef9fd] p-3">
@@ -247,9 +228,9 @@ export function RecordDetailClient({
               <div className="border border-[#d5edf8] bg-white px-3 py-5 text-sm text-slate-600">
                 Ce format ne peut pas etre affiche directement ici. Utilise le bouton
                 {" "}
-                <span className="font-semibold text-[#2749a0]">Ouvrir dans un onglet</span>
+                <span className="font-semibold text-[#2749a0]">Agrandir</span>
                 {" "}
-                pour le consulter.
+                pour le consulter dans l&apos;application.
               </div>
             ) : (
               <div className="border border-[#d5edf8] bg-white px-3 py-5 text-sm text-slate-500">

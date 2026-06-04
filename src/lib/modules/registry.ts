@@ -40,26 +40,38 @@ export const tableRegistry = new Map<TableName, TableRegistryEntry>([
   ...settingsEntries
 ] as Array<[TableName, TableRegistryEntry]>);
 
-export function getTableFields(table: TableName) {
-  return tableRegistry.get(table)?.fields ?? [];
-}
+function resolveTableContext(table: TableName, values?: Record<string, unknown>) {
+  const parentTableName = String(values?.table_name ?? "");
 
-export function getTableWriteRoles(table: TableName, values?: Record<string, unknown>) {
-  if (table === "comments" || table === "attachments") {
-    const tableName = String(values?.table_name ?? "");
+  if (parentTableName) {
     const matchingModule = Object.values(moduleConfigs).find(
-      (module) => module.table === tableName
+      (module) => module.table === parentTableName
     );
 
     if (matchingModule) {
       const matchingChild = matchingModule.childModules?.find((child) => child.table === table);
       if (matchingChild) {
-        return matchingChild.writeRoles;
+        return matchingChild;
       }
     }
   }
 
-  return tableRegistry.get(table)?.writeRoles ?? [];
+  if (table === "capa_actions") {
+    const capaModule = moduleConfigs["capa-actions"];
+    if (capaModule) {
+      return { fields: capaModule.fields, writeRoles: capaModule.writeRoles };
+    }
+  }
+
+  return tableRegistry.get(table) ?? null;
+}
+
+export function getTableFields(table: TableName, values?: Record<string, unknown>) {
+  return resolveTableContext(table, values)?.fields ?? [];
+}
+
+export function getTableWriteRoles(table: TableName, values?: Record<string, unknown>) {
+  return resolveTableContext(table, values)?.writeRoles ?? [];
 }
 
 function normalizeFieldValue(field: FormFieldConfig, rawValue: unknown) {
@@ -70,7 +82,7 @@ function normalizeFieldValue(field: FormFieldConfig, rawValue: unknown) {
   }
 
   if (rawValue === "" || rawValue === undefined) {
-    return field.required ? "" : null;
+    return field.required ? undefined : null;
   }
 
   if (field.type === "number") {
@@ -83,13 +95,16 @@ function normalizeFieldValue(field: FormFieldConfig, rawValue: unknown) {
 }
 
 export function normalizeRecordPayload(table: TableName, values: Record<string, unknown>) {
-  const fields = getTableFields(table);
+  const fields = getTableFields(table, values);
   const payload = fields.reduce<Record<string, unknown>>((accumulator, field) => {
     if (!(field.key in values)) {
       return accumulator;
     }
 
-    accumulator[field.key] = normalizeFieldValue(field, values[field.key]);
+    const normalized = normalizeFieldValue(field, values[field.key]);
+    if (normalized !== undefined) {
+      accumulator[field.key] = normalized;
+    }
     return accumulator;
   }, {});
 

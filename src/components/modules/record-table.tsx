@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import { getLookupLabel } from "@/lib/modules/config";
+import { getRelationTableForKey } from "@/lib/modules/relations";
 import type { ListColumnConfig, LookupCollection } from "@/types/app";
 
 type RecordTableProps = {
@@ -45,30 +46,9 @@ function renderCell(
   }
 
   if (column.variant === "relation") {
-    const tablesByKey: Record<string, string> = {
-      owner_id: "profiles",
-      responsible_user_id: "profiles",
-      pilot_id: "profiles",
-      approver_id: "profiles",
-      recipient_id: "profiles",
-      reviewer_id: "profiles",
-      suggested_by: "profiles",
-      auditor_id: "profiles",
-      employee_id: "profiles",
-      submitted_by: "profiles",
-      user_id: "profiles",
-      role_id: "roles",
-      department_id: "departments",
-      category_id: "document_categories",
-      form_id: "forms",
-      non_conformity_id: "non_conformities",
-      supplier_id: "suppliers",
-      customer_complaint_id: "customer_complaints"
-    };
-
     return (
       <span className={textClass}>
-        {getLookupLabel(lookups, tablesByKey[column.key] ?? "", String(value ?? ""))}
+        {getLookupLabel(lookups, getRelationTableForKey(column.key), String(value ?? ""))}
       </span>
     );
   }

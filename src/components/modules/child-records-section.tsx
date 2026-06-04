@@ -5,7 +5,9 @@ import { CheckCircle2, Plus, UploadCloud, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { openStorageFile, uploadFileToStorage } from "@/lib/storage";
+import { useFileViewer } from "@/components/files/file-viewer-provider";
+import { getFileNameFromPath } from "@/lib/files/preview";
+import { uploadFileToStorage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -35,6 +37,7 @@ export function ChildRecordsSection({
   variant = "default"
 }: ChildRecordsSectionProps) {
   const router = useRouter();
+  const { openFile } = useFileViewer();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -204,8 +207,10 @@ export function ChildRecordsSection({
   }
 
   async function downloadAttachment(record: Record<string, unknown>) {
+    const filePath = String(record.file_path ?? "");
+
     try {
-      await openStorageFile(String(record.file_path ?? ""));
+      await openFile(filePath, getFileNameFromPath(filePath));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Impossible d'ouvrir le fichier.");
     }

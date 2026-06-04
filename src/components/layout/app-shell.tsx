@@ -9,6 +9,7 @@ import { appNavItems } from "@/lib/modules/config";
 import { initials, cn } from "@/lib/utils";
 import type { UserContext } from "@/types/app";
 import { Button } from "@/components/ui/button";
+import { FileViewerProvider } from "@/components/files/file-viewer-provider";
 import { ServiceWorkerRegister } from "@/components/ui/service-worker-register";
 
 type AppShellProps = {
@@ -63,6 +64,7 @@ export function AppShell({ children, context }: AppShellProps) {
   }
 
   return (
+    <FileViewerProvider>
     <div className="min-h-screen bg-[linear-gradient(135deg,#ecf7fc_0%,#ffffff_46%,#fff8d8_100%)] text-ink">
       <aside className="fixed inset-y-0 left-0 z-40 flex w-14 flex-col bg-[#2749a0] text-white">
         <Link
@@ -177,5 +179,6 @@ export function AppShell({ children, context }: AppShellProps) {
         </main>
       </div>
     </div>
+    </FileViewerProvider>
   );
 }

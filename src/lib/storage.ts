@@ -66,8 +66,7 @@ export async function getStorageSignedUrl(filePath: string, expiresIn = 300) {
   return data.signedUrl;
 }
 
+/** Prefer `useFileViewer().openFile()` for in-app preview (style Qualios). */
 export async function openStorageFile(filePath: string, expiresIn = 300) {
-  const signedUrl = await getStorageSignedUrl(filePath, expiresIn);
-
-  window.open(signedUrl, "_blank", "noopener,noreferrer");
+  return getStorageSignedUrl(filePath, expiresIn);
 }

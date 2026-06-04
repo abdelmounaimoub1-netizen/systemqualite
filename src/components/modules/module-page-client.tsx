@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Funnel, Plus, Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -13,23 +13,49 @@ import { Select } from "@/components/ui/select";
 import { RecordForm } from "@/components/modules/record-form";
 import { RecordTable } from "@/components/modules/record-table";
 import { canWriteModule } from "@/lib/permissions";
-import { getStorageFieldKey, openStorageFile } from "@/lib/storage";
+import { useFileViewer } from "@/components/files/file-viewer-provider";
+import { getStorageFieldKey } from "@/lib/storage";
 import type {
   LookupCollection,
   SerializableModuleConfig,
   UserContext
 } from "@/types/app";
 
+const RISK_LEVEL_OPTIONS = [
+  { label: "Critique", value: "Critical" },
+  { label: "Eleve", value: "High" },
+  { label: "Moyen", value: "Medium" },
+  { label: "Faible", value: "Low" }
+] as const;
+
+const ACTIVE_STATUS_VALUES = [
+  "Open",
+  "In Progress",
+  "Draft",
+  "Under Review",
+  "Awaiting Approval",
+  "Planned",
+  "Unread"
+] as const;
+
+const ACTIVE_RISK_LEVELS = ["Critical", "High", "Medium"] as const;
+
 type ModulePageClientProps = {
   context: UserContext;
   config: SerializableModuleConfig;
   records: Array<Record<string, unknown>>;
   lookups: LookupCollection;
+  initialQuery?: string;
+  initialStatus?: string;
 };
 
 function statusFromView(
   searchParams: ReturnType<typeof useSearchParams>,
-  statusField: SerializableModuleConfig["fields"][number] | undefined
+  statusField:
+    | SerializableModuleConfig["fields"][number]
+    | { key: string; options: ReadonlyArray<{ label: string; value: string }> }
+    | undefined,
+  fallback = ""
 ) {
   const options = statusField?.options ?? [];
   const explicitStatus = searchParams.get("status");
@@ -46,7 +72,7 @@ function statusFromView(
         ? ["Open", "In Progress", "Under Review", "Awaiting Approval", "Planned", "Draft", "Unread"]
         : [];
 
-  return preferred.find((value) => options.some((option) => option.value === value)) ?? "";
+  return preferred.find((value) => options.some((option) => option.value === value)) ?? fallback;
 }
 
 function getSearchSeedValues(config: SerializableModuleConfig, query: string) {
@@ -77,32 +103,30 @@ export function ModulePageClient({
   context,
   config,
   records,
-  lookups
+  lookups,
+  initialQuery = "",
+  initialStatus = ""
 }: ModulePageClientProps) {
   const router = useRouter();
+  const { openFile } = useFileViewer();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
 
   const canWrite = canWriteModule(context.role, config.slug);
+  const usesRiskLevel = config.slug === "risks";
   const statusField = config.fields.find((field) => field.key === "status");
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState(() => statusFromView(searchParams, statusField));
+  const filterField = usesRiskLevel
+    ? { key: "risk_level", options: [...RISK_LEVEL_OPTIONS] }
+    : statusField;
+  const [query, setQuery] = useState(initialQuery);
+  const [status, setStatus] = useState(
+    () => initialStatus || statusFromView(searchParams, filterField)
+  );
   const storageFieldKey = useMemo(() => getStorageFieldKey(config.fields), [config.fields]);
   const searchSeedValues = useMemo(() => getSearchSeedValues(config, query), [config, query]);
   const openFromQuery = searchParams.get("new") === "1" && canWrite;
   const modalOpen = open || openFromQuery;
-
-  useEffect(() => {
-    const nextParams = new URLSearchParams(window.location.search);
-
-    if (!nextParams.has("q")) return;
-
-    nextParams.delete("q");
-    const nextQuery = nextParams.toString();
-    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
-    window.history.replaceState(null, "", nextUrl);
-  }, []);
 
   function clearNewParam() {
     if (!openFromQuery) return;
@@ -141,6 +165,10 @@ export function ModulePageClient({
     const nextQuery = nextParams.toString();
     const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
     window.history.replaceState(null, "", nextUrl);
+
+    if (key === "status") {
+      router.replace(`/${config.slug}${nextQuery ? `?${nextQuery}` : ""}`, { scroll: false });
+    }
   }
 
   const normalizedQuery = query.toLowerCase();
@@ -159,11 +187,12 @@ export function ModulePageClient({
     return matchesSearch && matchesStatus;
   });
 
-  const openCount = records.filter((record) =>
-    ["Open", "In Progress", "Draft", "Under Review", "Awaiting Approval", "Planned", "Unread"].includes(
-      String(record.status ?? "")
-    )
-  ).length;
+  const openCount = records.filter((record) => {
+    const stateKey = String(record.status ?? record.risk_level ?? "");
+    return usesRiskLevel
+      ? ACTIVE_RISK_LEVELS.includes(stateKey as (typeof ACTIVE_RISK_LEVELS)[number])
+      : ACTIVE_STATUS_VALUES.includes(stateKey as (typeof ACTIVE_STATUS_VALUES)[number]);
+  }).length;
   const summary = {
     total: records.length,
     active: openCount,
@@ -214,8 +243,11 @@ export function ModulePageClient({
   async function downloadRecord(record: Record<string, unknown>) {
     if (!storageFieldKey) return;
 
+    const filePath = String(record[storageFieldKey] ?? "");
+    const title = String(record.title ?? record.document_code ?? record.name ?? config.singular);
+
     try {
-      await openStorageFile(String(record[storageFieldKey] ?? ""));
+      await openFile(filePath, title);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Impossible d'ouvrir le fichier.");
     }
@@ -281,15 +313,15 @@ export function ModulePageClient({
             ) : null}
           </div>
 
-          {statusField ? (
+          {filterField ? (
             <div className="flex items-center gap-2">
               <Funnel className="h-4 w-4 text-slate-400" />
               <Select
                 value={status}
                 onChange={(event) => updateSearchParam("status", event.target.value)}
               >
-                <option value="">Tous les statuts</option>
-                {statusField.options?.map((option) => (
+                <option value="">{usesRiskLevel ? "Tous les niveaux" : "Tous les statuts"}</option>
+                {filterField.options?.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
