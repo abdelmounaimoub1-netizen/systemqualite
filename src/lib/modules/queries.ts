@@ -96,10 +96,18 @@ export async function getDashboardData() {
   const today = new Date();
   const inThirtyDays = addDays(today, 30);
 
+  if (!context) {
+    throw new Error("Utilisateur non authentifie.");
+  }
+
+  const userId = context.userId;
+
   const [
     docs,
     pendingDocumentApprovals,
     pendingDocumentDistributions,
+    myPendingDocumentApprovals,
+    myPendingDocumentDistributions,
     pendingDocumentReviews,
     openDocumentSuggestions,
     forms,
@@ -123,6 +131,16 @@ export async function getDashboardData() {
       .from("document_distributions")
       .select("id", { count: "exact", head: true })
       .eq("status", "To Acknowledge"),
+    supabase
+      .from("document_approvals")
+      .select("id", { count: "exact", head: true })
+      .eq("decision", "Pending")
+      .eq("approver_id", userId),
+    supabase
+      .from("document_distributions")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "To Acknowledge")
+      .eq("recipient_id", userId),
     supabase
       .from("document_review_cycles")
       .select("id", { count: "exact", head: true })
@@ -183,6 +201,8 @@ export async function getDashboardData() {
       documents: docs.count ?? 0,
       pendingDocumentApprovals: pendingDocumentApprovals.count ?? 0,
       pendingDocumentDistributions: pendingDocumentDistributions.count ?? 0,
+      myPendingDocumentApprovals: myPendingDocumentApprovals.count ?? 0,
+      myPendingDocumentDistributions: myPendingDocumentDistributions.count ?? 0,
       pendingDocumentReviews: pendingDocumentReviews.count ?? 0,
       openDocumentSuggestions: openDocumentSuggestions.count ?? 0,
       forms: forms.count ?? 0,
@@ -200,9 +220,23 @@ export async function getDashboardData() {
   };
 }
 
+const FOLLOW_STATUSES = [
+  "Open",
+  "In Progress",
+  "Draft",
+  "Under Review",
+  "Awaiting Approval",
+  "Planned",
+  "Unread",
+  "To Acknowledge",
+  "Overdue"
+];
+
+const HISTORY_STATUSES = ["Closed", "Archived", "Completed", "Read", "Acknowledged", "Cancelled"];
+
 export async function getModulePageData(
   slug: ModuleSlug,
-  filters?: { q?: string; status?: string }
+  filters?: { q?: string; status?: string; view?: string; mine?: boolean }
 ) {
   noStore();
   const config = moduleConfigs[slug];
@@ -211,6 +245,10 @@ export async function getModulePageData(
     createSupabaseServerClient(),
     getLookups(getRelationTables(config))
   ]);
+
+  if (!context) {
+    throw new Error("Utilisateur non authentifie.");
+  }
 
   let query = supabase.from(config.table).select("*").order("updated_at", { ascending: false });
 
@@ -228,6 +266,14 @@ export async function getModulePageData(
     } else if (config.fields.some((field) => field.key === "risk_level")) {
       query = query.eq("risk_level", filters.status);
     }
+  } else if (filters?.view === "follow" && config.fields.some((field) => field.key === "status")) {
+    query = query.in("status", FOLLOW_STATUSES);
+  } else if (filters?.view === "history" && config.fields.some((field) => field.key === "status")) {
+    query = query.in("status", HISTORY_STATUSES);
+  }
+
+  if (filters?.mine && config.fields.some((field) => field.key === "responsible_user_id")) {
+    query = query.eq("responsible_user_id", context.userId);
   }
 
   const { data } = await query;
@@ -238,6 +284,126 @@ export async function getModulePageData(
     lookups,
     records: (data as Array<Record<string, unknown>>) ?? []
   };
+}
+
+function documentMatchesLabel(document: Record<string, unknown>, label: string) {
+  const needle = label.trim().toLowerCase();
+  if (!needle) return false;
+
+  const haystack = [
+    document.title,
+    document.process_family,
+    document.process_group,
+    document.process_activity
+  ]
+    .map((value) => String(value ?? "").toLowerCase())
+    .filter(Boolean);
+
+  return haystack.some(
+    (value) => value.includes(needle) || needle.includes(value) || value === needle
+  );
+}
+
+export async function getProcessDocumentCounts(labels: string[]) {
+  noStore();
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("documents")
+    .select("id,title,process_family,process_group,process_activity");
+
+  const documents = (data ?? []) as Array<Record<string, unknown>>;
+  const uniqueLabels = Array.from(new Set(labels.map((label) => label.trim()).filter(Boolean)));
+  const counts: Record<string, number> = {};
+
+  uniqueLabels.forEach((label) => {
+    counts[label.toLowerCase()] = documents.filter((document) =>
+      documentMatchesLabel(document, label)
+    ).length;
+  });
+
+  return counts;
+}
+
+export async function getMyPendingSignatures() {
+  noStore();
+  const context = await getCurrentUserContext();
+  if (!context) throw new Error("Utilisateur non authentifie.");
+
+  const supabase = await createSupabaseServerClient();
+  const { data: approvals } = await supabase
+    .from("document_approvals")
+    .select("id,step_order,decision,due_date,document_id")
+    .eq("decision", "Pending")
+    .eq("approver_id", context.userId)
+    .order("due_date", { ascending: true });
+
+  const documentIds = Array.from(
+    new Set((approvals ?? []).map((row) => String(row.document_id)).filter(Boolean))
+  );
+
+  if (documentIds.length === 0) {
+    return { context, items: [] as Array<Record<string, unknown>> };
+  }
+
+  const { data: documents } = await supabase
+    .from("documents")
+    .select("id,document_code,title,status,version_current")
+    .in("id", documentIds);
+
+  const documentMap = Object.fromEntries(
+    ((documents ?? []) as Array<Record<string, unknown>>).map((document) => [
+      String(document.id),
+      document
+    ])
+  );
+
+  const items = (approvals ?? []).map((approval) => ({
+    ...approval,
+    document: documentMap[String(approval.document_id)] ?? null
+  }));
+
+  return { context, items };
+}
+
+export async function getMyPendingAcknowledgments() {
+  noStore();
+  const context = await getCurrentUserContext();
+  if (!context) throw new Error("Utilisateur non authentifie.");
+
+  const supabase = await createSupabaseServerClient();
+  const { data: distributions } = await supabase
+    .from("document_distributions")
+    .select("id,status,due_date,document_id,recipient_group")
+    .eq("recipient_id", context.userId)
+    .in("status", ["To Acknowledge", "Overdue"])
+    .order("due_date", { ascending: true });
+
+  const documentIds = Array.from(
+    new Set((distributions ?? []).map((row) => String(row.document_id)).filter(Boolean))
+  );
+
+  if (documentIds.length === 0) {
+    return { context, items: [] as Array<Record<string, unknown>> };
+  }
+
+  const { data: documents } = await supabase
+    .from("documents")
+    .select("id,document_code,title,status")
+    .in("id", documentIds);
+
+  const documentMap = Object.fromEntries(
+    ((documents ?? []) as Array<Record<string, unknown>>).map((document) => [
+      String(document.id),
+      document
+    ])
+  );
+
+  const items = (distributions ?? []).map((distribution) => ({
+    ...distribution,
+    document: documentMap[String(distribution.document_id)] ?? null
+  }));
+
+  return { context, items };
 }
 
 export async function getModuleDetailData(slug: ModuleSlug, recordId: string) {

@@ -47,6 +47,7 @@ type ModulePageClientProps = {
   lookups: LookupCollection;
   initialQuery?: string;
   initialStatus?: string;
+  viewLabel?: string;
 };
 
 function statusFromView(
@@ -105,7 +106,8 @@ export function ModulePageClient({
   records,
   lookups,
   initialQuery = "",
-  initialStatus = ""
+  initialStatus = "",
+  viewLabel
 }: ModulePageClientProps) {
   const router = useRouter();
   const { openFile } = useFileViewer();
@@ -275,6 +277,11 @@ export function ModulePageClient({
           ) : null}
         </div>
         <div className="px-3 py-2 text-xs text-ink">{config.description}</div>
+        {viewLabel ? (
+          <div className="border-t border-[#d5edf8] bg-[#fff4b8] px-3 py-1.5 text-xs font-semibold text-[#2749a0]">
+            {viewLabel}
+          </div>
+        ) : null}
       </section>
 
       <div className="grid gap-2 md:grid-cols-3">

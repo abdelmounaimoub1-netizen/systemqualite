@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getTableWriteRoles, normalizeRecordPayload, tableRegistry } from "@/lib/modules/registry";
+import { getSequentialSignBlockReason } from "@/lib/documents/approval-workflow";
 import {
   sendDocumentSignatureRequestEmail,
   syncDocumentApprovalStatus
@@ -21,6 +22,7 @@ const passthroughKeys = [
 
 const signatureDecisionValues = ["Pending", "Approved", "Rejected", "Skipped"];
 const selfSignatureFields = new Set(["decision", "signed_at", "comment"]);
+const selfAckFields = new Set(["status", "acknowledged_at", "comment"]);
 
 export async function POST(
   request: Request,
@@ -59,9 +61,51 @@ export async function POST(
     if (decision === "Pending") {
       payload.signed_at = null;
     }
+
+    if (body.id && ["Approved", "Rejected", "Skipped"].includes(decision)) {
+      const { data: currentApproval } = await supabase
+        .from("document_approvals")
+        .select("id,document_id,step_order,decision")
+        .eq("id", body.id)
+        .maybeSingle();
+
+      if (currentApproval?.document_id) {
+        const { data: documentRow } = await supabase
+          .from("documents")
+          .select("approval_mode")
+          .eq("id", currentApproval.document_id)
+          .maybeSingle();
+
+        if (String(documentRow?.approval_mode ?? "Sequential") === "Sequential") {
+          const { data: allApprovals } = await supabase
+            .from("document_approvals")
+            .select("id,step_order,decision")
+            .eq("document_id", currentApproval.document_id);
+
+          const blockReason = getSequentialSignBlockReason(
+            (allApprovals ?? []) as Array<{ id: string; step_order: number | null; decision: string }>,
+            body.id,
+            decision
+          );
+
+          if (blockReason) {
+            return NextResponse.json({ error: blockReason }, { status: 400 });
+          }
+        }
+      }
+    }
+  }
+
+  if (tableName === "document_distributions") {
+    const status = String(payload.status ?? values.status ?? "");
+
+    if (status === "Acknowledged" && !("acknowledged_at" in values)) {
+      payload.acknowledged_at = new Date().toISOString();
+    }
   }
 
   let canSelfSignDocumentApproval = false;
+  let canSelfAckDistribution = false;
 
   if (tableName === "document_approvals" && body.id && !allowedRoles.includes(context.role)) {
     const requestedKeys = Object.keys(payload);
@@ -82,7 +126,28 @@ export async function POST(
     }
   }
 
-  if (!allowedRoles.includes(context.role) && !canSelfSignDocumentApproval) {
+  if (tableName === "document_distributions" && body.id && !allowedRoles.includes(context.role)) {
+    const requestedKeys = Object.keys(payload);
+    const status = String(payload.status ?? "");
+    const onlyAckFields = requestedKeys.every((key) => selfAckFields.has(key));
+
+    if (onlyAckFields && status === "Acknowledged") {
+      const { data: existingDistribution } = await supabase
+        .from("document_distributions")
+        .select("recipient_id,status")
+        .eq("id", body.id)
+        .maybeSingle();
+
+      canSelfAckDistribution =
+        String((existingDistribution as Record<string, unknown> | null)?.recipient_id ?? "") ===
+          context.userId &&
+        ["To Acknowledge", "Overdue"].includes(
+          String((existingDistribution as Record<string, unknown> | null)?.status ?? "")
+        );
+    }
+  }
+
+  if (!allowedRoles.includes(context.role) && !canSelfSignDocumentApproval && !canSelfAckDistribution) {
     return NextResponse.json({ error: "Droits insuffisants." }, { status: 403 });
   }
 
@@ -93,7 +158,10 @@ export async function POST(
   });
 
   if (body.id) {
-    const updateClient = canSelfSignDocumentApproval ? createSupabaseAdminClient() : supabase;
+    const updateClient =
+      canSelfSignDocumentApproval || canSelfAckDistribution
+        ? createSupabaseAdminClient()
+        : supabase;
     const { data, error } = await updateClient
       .from(tableName)
       .update(payload)

@@ -8,6 +8,8 @@ import type { ModuleSlug } from "@/types/database";
 type ModuleSearchParams = {
   q?: string | string[];
   status?: string | string[];
+  view?: string | string[];
+  mine?: string | string[];
 };
 
 function firstSearchParam(value?: string | string[]) {
@@ -23,10 +25,13 @@ export default async function ModulePage({
 }) {
   const { module } = await params;
   const filters = searchParams ? await searchParams : {};
+  const view = firstSearchParam(filters.view) ?? "";
   const pageKey = [
     module,
     firstSearchParam(filters.q) ?? "",
-    firstSearchParam(filters.status) ?? ""
+    firstSearchParam(filters.status) ?? "",
+    view,
+    firstSearchParam(filters.mine) ?? ""
   ].join(":");
   const config = getModuleConfig(module);
 
@@ -39,8 +44,16 @@ export default async function ModulePage({
 
   const data = await getModulePageData(module as ModuleSlug, {
     q: initialQuery || undefined,
-    status: initialStatus || undefined
+    status: initialStatus || undefined,
+    view: view || undefined,
+    mine: firstSearchParam(filters.mine) === "1"
   });
+
+  const viewLabels: Record<string, string> = {
+    follow: "Suivi — dossiers en cours",
+    history: "Historique QM — dossiers clos",
+    mine: "Mes dossiers assignes"
+  };
 
   return (
     <ModulePageClient
@@ -51,6 +64,7 @@ export default async function ModulePage({
       lookups={data.lookups}
       initialQuery={initialQuery}
       initialStatus={initialStatus}
+      viewLabel={view ? viewLabels[view] : undefined}
     />
   );
 }

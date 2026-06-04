@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { autoDistributeOnApproval } from "@/lib/documents/distributions";
+import { promoteDocumentOnApproval } from "@/lib/documents/versions";
 import { sendAppEmail } from "@/lib/email";
 import { env } from "@/lib/env";
 
@@ -88,6 +90,20 @@ export async function syncDocumentApprovalStatus(client: DbClient, documentId: s
   if (nextStatus === document.status) return;
 
   await client.from("documents").update({ status: nextStatus }).eq("id", documentId);
+
+  if (nextStatus === "Approved") {
+    await promoteDocumentOnApproval(client, documentId);
+    const { data: ownerRow } = await client
+      .from("documents")
+      .select("created_by")
+      .eq("id", documentId)
+      .maybeSingle();
+    await autoDistributeOnApproval(
+      client,
+      documentId,
+      String((ownerRow as { created_by?: string } | null)?.created_by ?? "")
+    );
+  }
 }
 
 export async function sendDocumentSignatureRequestEmail(client: DbClient, approvalId: string) {

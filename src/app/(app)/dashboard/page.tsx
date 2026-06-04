@@ -1,11 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { ArrowRight, ChevronRight, Circle, ClipboardCheck, FileStack } from "lucide-react";
 
 import { ProcessDocumentTree } from "@/components/dashboard/process-document-tree";
 import cosumarLogo from "@/image/logo.png";
-import { getDashboardData } from "@/lib/modules/queries";
+import { getDashboardData, getProcessDocumentCounts } from "@/lib/modules/queries";
 
 const labManagementBlocks = [
   {
@@ -118,7 +119,7 @@ function RedPanel({
     }
 
     if (action.startsWith("Suivi") || action.startsWith("Calendrier")) {
-      return `${href}?view=follow`;
+      return `${href}?view=follow&mine=1`;
     }
 
     if (action.startsWith("Historique")) {
@@ -142,7 +143,9 @@ function RedPanel({
           <Circle className="h-3.5 w-3.5 fill-[#ffcd12] text-[#ffcd12]" />
           {title}
         </span>
-        <span className="min-w-4 text-center text-[10px]">-</span>
+        <span className="min-w-6 rounded bg-white/20 px-1.5 py-0.5 text-center text-[10px] font-bold">
+          {count}
+        </span>
       </Link>
       <div className="space-y-0.5 px-2 py-1.5 text-[10px] leading-4 text-ink">
         {actions.map((action) => {
@@ -346,7 +349,19 @@ export default async function DashboardPage({
 }) {
   const params = searchParams ? await searchParams : {};
   const activePortal = params.portal === "amelioration" ? "amelioration" : "documentaire";
-  const { metrics } = await getDashboardData();
+  const processLabels = documentTree.flatMap((group) => [
+    group.label,
+    ...group.blocks.flatMap((block) => [block.title, ...block.items])
+  ]);
+
+  const [{ context, metrics, recentActivity }, processCounts] = await Promise.all([
+    getDashboardData(),
+    getProcessDocumentCounts(processLabels)
+  ]);
+
+  if (context.role === "supplier_viewer" && activePortal === "documentaire") {
+    redirect("/portal-fournisseur");
+  }
 
   const improvementPanels = [
     {
@@ -400,8 +415,18 @@ export default async function DashboardPage({
   ];
 
   const taskRows = [
-    { label: "signatures documentaires en attente", value: metrics.pendingDocumentApprovals, href: "/documents?view=follow" },
-    { label: "documents a accuser reception", value: metrics.pendingDocumentDistributions, href: "/documents?view=follow" },
+    {
+      label: "mes signatures electroniques en attente",
+      value: metrics.myPendingDocumentApprovals,
+      href: "/documents/mes-signatures"
+    },
+    {
+      label: "mes accuses de lecture en attente",
+      value: metrics.myPendingDocumentDistributions,
+      href: "/documents/mes-accuses"
+    },
+    { label: "signatures documentaires en attente (global)", value: metrics.pendingDocumentApprovals, href: "/documents?view=follow" },
+    { label: "documents a accuser reception (global)", value: metrics.pendingDocumentDistributions, href: "/documents?view=follow" },
     { label: "relectures documentaires planifiees", value: metrics.pendingDocumentReviews, href: "/documents?view=follow" },
     { label: "suggestions documentaires ouvertes", value: metrics.openDocumentSuggestions, href: "/documents?view=follow" },
     { label: "enregistrements a traiter", value: metrics.forms, href: "/forms" }
@@ -482,7 +507,7 @@ export default async function DashboardPage({
       <div className="grid gap-5 xl:grid-cols-[330px_1fr]">
         <div className="space-y-3">
           <PortalBox title="Documentation par processus">
-            <ProcessDocumentTree groups={documentTree} />
+            <ProcessDocumentTree groups={documentTree} documentCounts={processCounts} />
           </PortalBox>
 
           <PortalBox title="Mes Taches En Cours">
@@ -503,9 +528,21 @@ export default async function DashboardPage({
             </div>
           </PortalBox>
 
-          <PortalBox title="Mon Bloc Notes" className="min-h-32">
-            <div className="p-3 text-[10px] text-muted">
-              Les notes de suivi apparaissent dans les discussions de chaque dossier.
+          <PortalBox title="Activite recente">
+            <div className="max-h-40 divide-y divide-[#d5edf8] overflow-y-auto text-[10px] leading-4">
+              {recentActivity.length === 0 ? (
+                <p className="px-3 py-2 text-muted">Aucune activite recente.</p>
+              ) : (
+                recentActivity.slice(0, 6).map((entry) => (
+                  <div key={String(entry.id)} className="px-3 py-1.5 text-ink">
+                    <span className="font-semibold text-[#2749a0]">
+                      {String(entry.action_type ?? "UPDATE")}
+                    </span>
+                    {" · "}
+                    {String(entry.table_name ?? "")}
+                  </div>
+                ))
+              )}
             </div>
           </PortalBox>
         </div>

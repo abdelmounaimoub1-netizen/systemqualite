@@ -1,0 +1,223 @@
+"use client";
+
+import Link from "next/link";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  FileStack,
+  FileText,
+  PenLine,
+  Send
+} from "lucide-react";
+import { toast } from "sonner";
+
+import { ChildRecordsSection } from "@/components/modules/child-records-section";
+import { useFileViewer } from "@/components/files/file-viewer-provider";
+import { StatusBadge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { canWriteModule } from "@/lib/permissions";
+import { getStorageFieldKey } from "@/lib/storage";
+import { formatDate } from "@/lib/utils";
+import type {
+  ChildModuleConfig,
+  LookupCollection,
+  SerializableModuleConfig,
+  UserContext
+} from "@/types/app";
+
+type DocumentWorkflowClientProps = {
+  context: UserContext;
+  config: SerializableModuleConfig;
+  record: Record<string, unknown>;
+  lookups: LookupCollection;
+  childrenData: Record<string, Array<Record<string, unknown>>>;
+};
+
+export function DocumentWorkflowClient({
+  context,
+  config,
+  record,
+  lookups,
+  childrenData
+}: DocumentWorkflowClientProps) {
+  const router = useRouter();
+  const { openFile } = useFileViewer();
+  const [workflowLoading, setWorkflowLoading] = useState(false);
+
+  const canWrite = canWriteModule(context.role, config.slug);
+  const storageFieldKey = getStorageFieldKey(config.fields);
+  const filePath = storageFieldKey ? String(record[storageFieldKey] ?? "") : "";
+  const documentId = String(record.id ?? "");
+  const status = String(record.status ?? "Draft");
+
+  const approvals = childrenData["document-approvals"] ?? [];
+  const distributions = childrenData["document-distributions"] ?? [];
+
+  const myPendingSignature = approvals.some(
+    (row) =>
+      row.decision === "Pending" && String(row.approver_id ?? "") === context.userId
+  );
+  const myPendingAck = distributions.some(
+    (row) =>
+      ["To Acknowledge", "Overdue"].includes(String(row.status ?? "")) &&
+      String(row.recipient_id ?? "") === context.userId
+  );
+
+  const childConfigs = useMemo(
+    () => config.childModules ?? [],
+    [config.childModules]
+  );
+
+  async function submitForReview() {
+    setWorkflowLoading(true);
+
+    try {
+      const response = await fetch("/api/documents/workflow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit-for-review", documentId })
+      });
+      const payload = (await response.json()) as { error?: string; data?: { created?: number } };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Impossible de lancer le circuit de validation.");
+      }
+
+      toast.success(
+        payload.data?.created
+          ? `Circuit lance avec ${payload.data.created} niveau(x) de signature.`
+          : "Circuit de validation deja en place."
+      );
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur workflow.");
+    } finally {
+      setWorkflowLoading(false);
+    }
+  }
+
+  async function openDocumentFile() {
+    if (!filePath) return;
+
+    void fetch("/api/documents/consultation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ documentId, source: "Apercu document" })
+    });
+
+    await openFile(filePath, String(record.title ?? record.document_code ?? "Document"));
+  }
+
+  return (
+    <div className="space-y-4">
+      <section className="overflow-hidden border border-[#8bd7ee] bg-[#f8fcff] shadow-sm">
+        <div className="flex flex-col gap-2 bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-3 py-2 text-white shadow-[inset_0_-2px_0_#ffcd12] md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/documents"
+              className="inline-flex h-8 w-8 items-center justify-center rounded border border-white/30 hover:bg-white/10"
+              title="Retour"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+            <div>
+              <div className="text-[10px] font-semibold uppercase text-[#fff4b8]">GED Qualios</div>
+              <h1 className="text-base font-semibold">
+                {String(record.document_code ?? "")} — {String(record.title ?? "")}
+              </h1>
+            </div>
+          </div>
+          <StatusBadge value={status} />
+        </div>
+
+        <div className="flex flex-wrap gap-2 border-b border-[#d5edf8] bg-white px-3 py-2">
+          {canWrite && (status === "Draft" || status === "Under Review") ? (
+            <Button
+              variant="secondary"
+              disabled={workflowLoading}
+              onClick={() => void submitForReview()}
+            >
+              <Send className="h-4 w-4" />
+              Lancer validation / signatures
+            </Button>
+          ) : null}
+          {filePath ? (
+            <Button variant="secondary" onClick={() => void openDocumentFile()}>
+              <FileText className="h-4 w-4" />
+              Ouvrir le document
+            </Button>
+          ) : null}
+          <Link
+            href={`/documents/mes-signatures`}
+            className="inline-flex min-h-9 items-center gap-2 rounded border border-[#b9def4] bg-[#f8fcff] px-3 text-xs font-semibold text-[#2749a0] hover:bg-[#fff4b8]"
+          >
+            File signatures
+          </Link>
+          <a
+            href={`/api/documents/${documentId}/report`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-9 items-center gap-2 rounded border border-[#b9def4] bg-[#f8fcff] px-3 text-xs font-semibold text-[#2749a0] hover:bg-[#fff4b8]"
+          >
+            <FileStack className="h-4 w-4" />
+            Rapport PDF / impression
+          </a>
+        </div>
+
+        {(myPendingSignature || myPendingAck) && (
+          <div className="border-b border-[#ffcd12] bg-[#fff8d8] px-3 py-2 text-xs text-[#17306b]">
+            {myPendingSignature ? (
+              <p className="inline-flex items-center gap-1 font-semibold">
+                <PenLine className="h-3.5 w-3.5 text-[#2749a0]" />
+                Signature electronique en attente de votre part.
+              </p>
+            ) : null}
+            {myPendingAck ? (
+              <p className="inline-flex items-center gap-1 font-semibold">
+                <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                Accuse de lecture requis sur ce document.
+              </p>
+            ) : null}
+          </div>
+        )}
+
+        <div className="grid gap-2 px-3 py-2 text-xs text-ink md:grid-cols-4">
+          <div>
+            <span className="font-semibold text-[#2749a0]">Version</span>
+            <div>{String(record.version_current ?? "-")}</div>
+          </div>
+          <div>
+            <span className="font-semibold text-[#2749a0]">Processus</span>
+            <div>
+              {String(record.process_family ?? "-")} / {String(record.process_group ?? "-")}
+            </div>
+          </div>
+          <div>
+            <span className="font-semibold text-[#2749a0]">Mode signature</span>
+            <div>{String(record.approval_mode ?? "Sequential")}</div>
+          </div>
+          <div>
+            <span className="font-semibold text-[#2749a0]">Prochaine relecture</span>
+            <div>{formatDate(String(record.review_date ?? ""))}</div>
+          </div>
+        </div>
+      </section>
+
+      {childConfigs.map((child) => (
+        <ChildRecordsSection
+          key={child.key}
+          config={child as ChildModuleConfig}
+          records={childrenData[child.key] ?? []}
+          lookups={lookups}
+          role={context.role}
+          parentId={documentId}
+          userId={context.userId}
+          variant="qualios"
+        />
+      ))}
+    </div>
+  );
+}

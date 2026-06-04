@@ -45,6 +45,7 @@ export function ChildRecordsSection({
   const canWrite = config.writeRoles.includes(role);
   const isAttachmentModule = config.table === "attachments";
   const isDocumentApprovalModule = config.table === "document_approvals";
+  const isDocumentDistributionModule = config.table === "document_distributions";
 
   const defaults = useMemo(
     () => ({
@@ -108,6 +109,7 @@ export function ChildRecordsSection({
   }
 
   async function signApproval(record: Record<string, unknown>, decision: "Approved" | "Rejected") {
+    const signedAt = new Date().toISOString();
     const response = await fetch(`/api/records/${config.table}`, {
       method: "POST",
       headers: {
@@ -117,7 +119,8 @@ export function ChildRecordsSection({
         id: record.id,
         values: {
           decision,
-          signed_at: new Date().toISOString()
+          signed_at: signedAt,
+          comment: `Signature electronique ${decision === "Approved" ? "approuvee" : "rejetee"} le ${signedAt}`
         }
       })
     });
@@ -128,8 +131,74 @@ export function ChildRecordsSection({
       return;
     }
 
-    toast.success(decision === "Approved" ? "Signature validee." : "Signature rejetee.");
+    toast.success(
+      decision === "Approved" ? "Signature electronique enregistree." : "Signature rejetee."
+    );
     router.refresh();
+  }
+
+  function canAcknowledgeDistribution(record: Record<string, unknown>) {
+    return (
+      isDocumentDistributionModule &&
+      ["To Acknowledge", "Overdue"].includes(String(record.status ?? "")) &&
+      (canWrite || String(record.recipient_id ?? "") === userId)
+    );
+  }
+
+  async function acknowledgeDistribution(record: Record<string, unknown>) {
+    const acknowledgedAt = new Date().toISOString();
+    const response = await fetch(`/api/records/${config.table}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: record.id,
+        values: {
+          status: "Acknowledged",
+          acknowledged_at: acknowledgedAt,
+          comment: `Accuse de lecture portail le ${acknowledgedAt}`
+        }
+      })
+    });
+    const payload = (await response.json()) as { error?: string };
+
+    if (!response.ok) {
+      toast.error(payload.error ?? "Accuse impossible.");
+      return;
+    }
+
+    toast.success("Accuse de lecture enregistre.");
+    router.refresh();
+  }
+
+  function renderWorkflowActions(record: Record<string, unknown>) {
+    return (
+      <>
+        {renderApprovalActions(record)}
+        {renderDistributionActions(record)}
+      </>
+    );
+  }
+
+  function renderDistributionActions(record: Record<string, unknown>) {
+    if (!canAcknowledgeDistribution(record)) return null;
+
+    return (
+      <Button
+        variant="ghost"
+        title="Accuser reception"
+        aria-label="Accuser reception"
+        className={
+          variant === "qualios"
+            ? "h-6 min-h-0 w-6 px-0 py-0 text-success"
+            : "h-8 min-h-0 w-8 px-0 py-0 text-success"
+        }
+        onClick={() => void acknowledgeDistribution(record)}
+      >
+        <CheckCircle2 className="h-4 w-4" />
+      </Button>
+    );
   }
 
   function renderApprovalActions(record: Record<string, unknown>) {
@@ -139,8 +208,8 @@ export function ChildRecordsSection({
       <>
         <Button
           variant="ghost"
-          title="Valider la signature"
-          aria-label="Valider la signature"
+          title="Signer electroniquement"
+          aria-label="Signer electroniquement"
           className={variant === "qualios" ? "h-6 min-h-0 w-6 px-0 py-0 text-success" : "h-8 min-h-0 w-8 px-0 py-0 text-success"}
           onClick={() => void signApproval(record, "Approved")}
         >
@@ -277,7 +346,11 @@ export function ChildRecordsSection({
             }
             onDelete={canWrite ? deleteRecord : undefined}
             onDownload={isAttachmentModule ? downloadAttachment : undefined}
-            extraActions={isDocumentApprovalModule ? renderApprovalActions : undefined}
+            extraActions={
+              isDocumentApprovalModule || isDocumentDistributionModule
+                ? renderWorkflowActions
+                : undefined
+            }
           />
         )}
 
@@ -373,7 +446,11 @@ export function ChildRecordsSection({
           }
           onDelete={canWrite ? deleteRecord : undefined}
           onDownload={isAttachmentModule ? downloadAttachment : undefined}
-          extraActions={isDocumentApprovalModule ? renderApprovalActions : undefined}
+          extraActions={
+            isDocumentApprovalModule || isDocumentDistributionModule
+              ? renderWorkflowActions
+              : undefined
+          }
         />
       )}
 

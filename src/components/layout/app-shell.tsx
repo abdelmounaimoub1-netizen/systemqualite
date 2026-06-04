@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { BellRing, Home, LogOut, Menu, Settings, UserCircle2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { appNavItems } from "@/lib/modules/config";
+import { getNavItemsForRole } from "@/lib/permissions";
 import { initials, cn } from "@/lib/utils";
 import type { UserContext } from "@/types/app";
 import { Button } from "@/components/ui/button";
@@ -22,13 +22,15 @@ export function AppShell({ children, context }: AppShellProps) {
   const searchParams = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const navItems = useMemo(() => getNavItemsForRole(context.role), [context.role]);
+
   const activeItems = useMemo(
     () =>
-      appNavItems.map((item) => ({
+      navItems.map((item) => ({
         ...item,
         active: pathname === item.href || pathname.startsWith(`${item.href}/`)
       })),
-    [pathname]
+    [navItems, pathname]
   );
 
   const improvementPaths = new Set([
