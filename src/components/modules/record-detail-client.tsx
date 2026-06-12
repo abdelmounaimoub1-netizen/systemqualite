@@ -161,7 +161,7 @@ export function RecordDetailClient({
               </Button>
             </Link>
             {hasDownloadableFile ? (
-              <Button className="border-white/40 bg-white text-[#2749a0] hover:bg-[#fff4b8]" onClick={() => void downloadRecordFile()}>
+              <Button className="border-white/40 bg-white text-[#2749a0] hover:bg-[#fff4b8]" onClick={() => void expandRecordFile()}>
                 <FileText className="h-4 w-4" />
                 Ouvrir fichier
               </Button>
