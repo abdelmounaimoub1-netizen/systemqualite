@@ -11,7 +11,8 @@ import {
   PenLine,
   Send,
   ThumbsDown,
-  ThumbsUp
+  ThumbsUp,
+  UserPlus
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -49,6 +50,7 @@ export function DocumentWorkflowClient({
   const [workflowLoading, setWorkflowLoading] = useState(false);
   const [signingId, setSigningId] = useState<string | null>(null);
   const [ackingId, setAckingId] = useState<string | null>(null);
+  const [assigningId, setAssigningId] = useState<string | null>(null);
 
   const canWrite = canWriteModule(context.role, config.slug);
   const storageFieldKey = getStorageFieldKey(config.fields);
@@ -67,6 +69,11 @@ export function DocumentWorkflowClient({
     (row) =>
       ["To Acknowledge", "Overdue"].includes(String(row.status ?? "")) &&
       String(row.recipient_id ?? "") === context.userId
+  );
+
+  // Pending approvals with no approver assigned — can be self-assigned
+  const unassignedPendingApprovals = approvals.filter(
+    (row) => row.decision === "Pending" && !row.approver_id
   );
 
   const myPendingSignature = myPendingSignatures.length > 0;
@@ -175,6 +182,28 @@ export function DocumentWorkflowClient({
     }
   }
 
+  async function selfAssignApproval(approvalId: string) {
+    setAssigningId(approvalId);
+    try {
+      const response = await fetch("/api/records/document_approvals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: approvalId,
+          values: { approver_id: context.userId }
+        })
+      });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Assignation impossible.");
+      toast.success("Vous etes maintenant signataire de ce niveau.");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur assignation.");
+    } finally {
+      setAssigningId(null);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <section className="overflow-hidden border border-[#8bd7ee] bg-[#f8fcff] shadow-sm">
@@ -273,6 +302,28 @@ export function DocumentWorkflowClient({
                 >
                   <CheckCircle2 className="h-3 w-3" />
                   {ackingId === String(dist.id) ? "..." : "Accuser reception"}
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {unassignedPendingApprovals.length > 0 && (
+          <div className="border-b border-[#b9def4] bg-[#f0f8ff] px-3 py-2 text-xs text-[#17306b]">
+            {unassignedPendingApprovals.map((approval) => (
+              <div key={String(approval.id)} className="mb-1 flex flex-wrap items-center gap-2">
+                <UserPlus className="h-3.5 w-3.5 shrink-0 text-[#2749a0]" />
+                <span className="text-[#2749a0]">
+                  Niveau {String(approval.step_order ?? "-")} · {String(approval.role_label ?? "Signataire")} — aucun signataire assigne
+                </span>
+                <Button
+                  variant="secondary"
+                  className="h-6 min-h-0 gap-1 px-2 py-0 text-[10px]"
+                  disabled={assigningId === String(approval.id)}
+                  onClick={() => void selfAssignApproval(String(approval.id))}
+                >
+                  <UserPlus className="h-3 w-3" />
+                  {assigningId === String(approval.id) ? "..." : "Me designer signataire"}
                 </Button>
               </div>
             ))}
