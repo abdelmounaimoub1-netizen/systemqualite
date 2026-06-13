@@ -121,7 +121,7 @@ export function DocumentWorkflowClient({
       body: JSON.stringify({ documentId, source: "Apercu document" })
     });
 
-    await openFile(filePath, String(record.title ?? record.document_code ?? "Document"));
+    await openFile(filePath, String(record.title ?? record.document_code ?? "Document"), documentId);
   }
 
   async function signApproval(approvalId: string, decision: "Approved" | "Rejected") {

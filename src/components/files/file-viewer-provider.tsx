@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode
 } from "react";
-import { Download, X } from "lucide-react";
+import { Download, FileStack, FileText, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,11 @@ import { cn } from "@/lib/utils";
 type FileViewerRequest = {
   filePath: string;
   title?: string;
+  documentId?: string;
 };
 
 type FileViewerContextValue = {
-  openFile: (filePath: string, title?: string) => Promise<void>;
+  openFile: (filePath: string, title?: string, documentId?: string) => Promise<void>;
   closeFile: () => void;
 };
 
@@ -44,15 +45,17 @@ export function FileViewerProvider({ children }: { children: ReactNode }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"cover" | "file">("cover");
 
   const closeFile = useCallback(() => {
     setRequest(null);
     setSignedUrl(null);
     setError(null);
     setLoading(false);
+    setActiveTab("cover");
   }, []);
 
-  const openFile = useCallback(async (filePath: string, title?: string) => {
+  const openFile = useCallback(async (filePath: string, title?: string, documentId?: string) => {
     const trimmedPath = filePath.trim();
 
     if (!trimmedPath) {
@@ -60,7 +63,8 @@ export function FileViewerProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    setRequest({ filePath: trimmedPath, title });
+    setRequest({ filePath: trimmedPath, title, documentId });
+    setActiveTab("cover");
     setLoading(true);
     setError(null);
     setSignedUrl(null);
@@ -100,6 +104,8 @@ export function FileViewerProvider({ children }: { children: ReactNode }) {
   const fileName = request ? getFileNameFromPath(request.filePath) : "";
   const displayTitle = request?.title ?? fileName;
   const inlinePreview = request ? canPreviewInline(request.filePath) : false;
+  const hasCover = Boolean(request?.documentId);
+  const coverUrl = request?.documentId ? `/api/documents/${request.documentId}/report` : null;
 
   return (
     <FileViewerContext.Provider value={value}>
@@ -123,6 +129,7 @@ export function FileViewerProvider({ children }: { children: ReactNode }) {
               "max-w-6xl"
             )}
           >
+            {/* Header */}
             <div className="flex shrink-0 flex-col gap-2 border-b border-[#d5edf8] bg-[linear-gradient(90deg,#2749a0,#00a9da)] px-4 py-3 text-white shadow-[inset_0_-2px_0_#ffcd12] md:flex-row md:items-center md:justify-between">
               <div className="min-w-0 pr-2">
                 <div className="text-[10px] font-semibold uppercase text-[#fff4b8]">
@@ -142,6 +149,17 @@ export function FileViewerProvider({ children }: { children: ReactNode }) {
                     Telecharger
                   </a>
                 ) : null}
+                {coverUrl ? (
+                  <a
+                    href={coverUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-9 items-center gap-2 rounded border border-white/40 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20"
+                  >
+                    <FileStack className="h-4 w-4" />
+                    Imprimer fiche
+                  </a>
+                ) : null}
                 <button
                   type="button"
                   title="Fermer"
@@ -154,45 +172,91 @@ export function FileViewerProvider({ children }: { children: ReactNode }) {
               </div>
             </div>
 
+            {/* Tabs — only when we have a documentId */}
+            {hasCover ? (
+              <div className="flex shrink-0 border-b border-[#d5edf8] bg-white">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("cover")}
+                  className={cn(
+                    "flex items-center gap-2 border-r border-[#d5edf8] px-4 py-2 text-xs font-semibold transition",
+                    activeTab === "cover"
+                      ? "bg-[#fff4b8] text-[#2749a0] shadow-[inset_0_-2px_0_#ffcd12]"
+                      : "text-slate-500 hover:bg-[#f0f8ff] hover:text-[#2749a0]"
+                  )}
+                >
+                  <FileStack className="h-3.5 w-3.5" />
+                  Fiche de couverture &amp; signatures
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("file")}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 text-xs font-semibold transition",
+                    activeTab === "file"
+                      ? "bg-[#fff4b8] text-[#2749a0] shadow-[inset_0_-2px_0_#ffcd12]"
+                      : "text-slate-500 hover:bg-[#f0f8ff] hover:text-[#2749a0]"
+                  )}
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Document original
+                </button>
+              </div>
+            ) : null}
+
+            {/* Content */}
             <div className="min-h-0 flex-1 overflow-auto bg-[#eef9fd] p-3">
-              {loading ? (
-                <div className="flex min-h-[50vh] items-center justify-center text-sm text-slate-600">
-                  Chargement du document...
-                </div>
-              ) : error ? (
-                <div className="border border-[#f1c4c4] bg-[#fff7f7] px-4 py-6 text-sm text-danger">
-                  {error}
-                </div>
-              ) : signedUrl && inlinePreview ? (
-                getFileExtension(request.filePath) === "pdf" ? (
-                  <iframe
-                    title={displayTitle}
-                    src={signedUrl}
-                    className="h-[min(78vh,900px)] w-full border border-[#b9def4] bg-white"
-                  />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={signedUrl}
-                    alt={displayTitle}
-                    className="mx-auto max-h-[78vh] w-auto max-w-full border border-[#b9def4] bg-white object-contain"
-                  />
-                )
-              ) : signedUrl ? (
-                <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 px-4 text-center text-sm text-slate-600">
-                  <p>
-                    Ce format ne peut pas etre affiche directement dans l&apos;application. Telechargez-le
-                    pour le consulter.
-                  </p>
-                  <a
-                    href={signedUrl}
-                    download={fileName}
-                    className="inline-flex min-h-10 items-center gap-2 rounded border border-[#2749a0] bg-[#2749a0] px-4 text-sm font-semibold text-white hover:bg-[#1f3f91]"
-                  >
-                    <Download className="h-4 w-4" />
-                    Telecharger le fichier
-                  </a>
-                </div>
+
+              {/* Cover tab */}
+              {hasCover && activeTab === "cover" && coverUrl ? (
+                <iframe
+                  title={`Fiche de couverture — ${displayTitle}`}
+                  src={coverUrl}
+                  className="h-[min(78vh,900px)] w-full border border-[#b9def4] bg-white"
+                />
+              ) : null}
+
+              {/* File tab (or no cover) */}
+              {(!hasCover || activeTab === "file") ? (
+                loading ? (
+                  <div className="flex min-h-[50vh] items-center justify-center text-sm text-slate-600">
+                    Chargement du document...
+                  </div>
+                ) : error ? (
+                  <div className="border border-[#f1c4c4] bg-[#fff7f7] px-4 py-6 text-sm text-danger">
+                    {error}
+                  </div>
+                ) : signedUrl && inlinePreview ? (
+                  getFileExtension(request.filePath) === "pdf" ? (
+                    <iframe
+                      title={displayTitle}
+                      src={signedUrl}
+                      className="h-[min(78vh,900px)] w-full border border-[#b9def4] bg-white"
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={signedUrl}
+                      alt={displayTitle}
+                      className="mx-auto max-h-[78vh] w-auto max-w-full border border-[#b9def4] bg-white object-contain"
+                    />
+                  )
+                ) : signedUrl ? (
+                  <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 px-4 text-center text-sm text-slate-600">
+                    <p>
+                      Ce format ne peut pas etre affiche directement dans l&apos;application. Telechargez-le
+                      pour le consulter.
+                    </p>
+                    <a
+                      href={signedUrl}
+                      download={fileName}
+                      className="inline-flex min-h-10 items-center gap-2 rounded border border-[#2749a0] bg-[#2749a0] px-4 text-sm font-semibold text-white hover:bg-[#1f3f91]"
+                    >
+                      <Download className="h-4 w-4" />
+                      Telecharger le fichier
+                    </a>
+                  </div>
+                ) : null
               ) : null}
             </div>
           </div>
